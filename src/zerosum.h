@@ -1,5 +1,6 @@
 #include <set>
 #include <thread>
+#include "mpi.h"
 
 class ZeroSum {
 public:
@@ -27,13 +28,15 @@ private:
     bool working;
     int size;
     int rank;
+    char name[MPI_MAX_PROCESSOR_NAME];
 
     // Other private member variables and functions...
     int getgpu(const int rank, const int section, const char * name);
     int getopenmp(const int rank, const int section, const int ncpus, std::set<long>& tids);
     int getpthreads(const int rank, const int section, const int ncpus, std::set<long>& tids);
+    void getProcStatus(const int section);
     void threadedFunction(void);
-    void doOnce(void);
+    bool doOnce(void);
     void doPeriodic(void);
 };
 

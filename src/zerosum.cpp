@@ -34,30 +34,32 @@ DEFINE_DESTRUCTOR(zerosum_finalize_static_void)
 
 void ZeroSum::threadedFunction(void) {
     while (working) {
-        doOnce();
-        doPeriodic();
+        if (doOnce()) {
+            doPeriodic();
+        }
         sleep(1);
     }
 }
 
-void ZeroSum::doOnce(void) {
+bool ZeroSum::doOnce(void) {
     static bool done{false};
-    if (done) return;
+    if (done) return done;
 
     int ready;
     MPI_CALL(MPI_Initialized(&ready));
     if (ready) {
-        char name[MPI_MAX_PROCESSOR_NAME];
         int resultlength;
         MPI_Comm_size(MPI_COMM_WORLD, &size);
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         MPI_Get_processor_name(name, &resultlength);
         // get mpi info
         getgpu(rank, section++, name);
+        getProcStatus(section++);
         ncpus = std::thread::hardware_concurrency();
         getopenmp(rank, section++, ncpus, tids);
         done = true;
     }
+    return done;
 }
 
 void ZeroSum::doPeriodic(void) {

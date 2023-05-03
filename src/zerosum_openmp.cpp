@@ -53,7 +53,7 @@ int ZeroSum::getopenmp(const int rank, const int section, const int ncpus, std::
                 auto lwp = gettid();
                 tids.insert(lwp);
 
-                printf("MPI %03d - SEC %d - OMP %03d - HWT %03d - LWP %06ld - #HWT %03d - Set %s \n",
+                printf("MPI %03d - SEC %d - OMP %03d - HWT %03d - LWP %06ld - #HWT %03d - Set [%s] \n",
                         rank, section, thread_id, hwthread, lwp, nhwthr, tmpstr.c_str());
             }
         }
