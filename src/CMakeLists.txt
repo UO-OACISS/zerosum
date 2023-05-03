@@ -1,3 +1,6 @@
+CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/src/zerosum
+    ${PROJECT_BINARY_DIR}/bin/zerosum @ONLY)
+
 if (ZeroSum_STANDALONE)
     add_definitions(-DZEROSUM_STANDALONE)
 endif ()

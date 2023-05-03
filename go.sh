@@ -7,3 +7,4 @@ cmake -B build \
 -DZeroSum_STANDALONE=TRUE \
 
 cmake --build build -j8
+ctest -V --test-dir build

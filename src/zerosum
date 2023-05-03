@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Absolute path this script is in, thus /home/user/bin
+SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+BASEDIR="$(dirname $SCRIPTPATH)"
+#BASEDIR=@CMAKE_INSTALL_PREFIX@
+LIBDIR=lib
+if [ ! -d ${BASEDIR}/${LIBDIR} ] ; then
+    LIBDIR=lib64
+fi
+
+# Setup all the library paths, and library preloads to support what was requested
+# NOTE: we add the ":" to each library name, becuase stupid APPLE isn't smart enough
+# to handle an empty library name and tries to load a library named '' :(
+if [ "x${LD_LIBRARY_PATH}" = "x" ] ; then
+  LD_LIBRARY_PATH=${BASEDIR}/${LIBDIR}
+else
+  LD_LIBRARY_PATH=${BASEDIR}/${LIBDIR}:${LD_LIBRARY_PATH}
+fi
+
+PRELOAD=${BASEDIR}/${LIBDIR}/libzerosum.so
+
+export LD_PRELOAD=${PRELOAD}
+
+$@
