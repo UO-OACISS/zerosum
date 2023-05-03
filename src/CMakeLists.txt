@@ -1,0 +1,7 @@
+if (ZeroSum_STANDALONE)
+    add_definitions(-DZEROSUM_STANDALONE)
+endif ()
+set(SOURCES zerosum_openmp.cpp zerosum.cpp zerosum_nogpu.cpp zerosum_pthreads.cpp)
+add_library(zerosum SHARED ${SOURCES})
+target_link_libraries (zerosum MPI::MPI_CXX OpenMP::OpenMP_CXX pthread stdc++)
+add_dependencies (zerosum.tests zerosum)
