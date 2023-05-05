@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20.1) # Minimum required for CUDA
 # set the project name and version
 project(ZeroSum VERSION 1.0 LANGUAGES C CXX)
 
-option (ZeroSum_WITH_PerfStubs "Enable PerfStubs support" FALSE)
+option (ZeroSum_WITH_PerfStubs "Enable PerfStubs support" TRUE)
 option (ZeroSum_WITH_HIP "Enable HIP support" FALSE)
 option (ZeroSum_WITH_CUDA "Enable CUDA support" FALSE)
 option (ZeroSum_STANDALONE "Enable standalone support" FALSE)
@@ -22,9 +22,9 @@ include(cmake/AddGitSubmodule.cmake)
 
 enable_testing()
 
-#if (WITH_PerfStubs)
-#    add_git_submodule(perfstubs)
-#endif (WITH_PerfStubs)
+if (ZeroSum_WITH_PerfStubs)
+    add_git_submodule(perfstubs)
+endif (ZeroSum_WITH_PerfStubs)
 
 add_custom_target(zerosum.tests)
 add_custom_command(TARGET zerosum.tests POST_BUILD COMMAND ctest -R test --output-on-failure --timeout 100)

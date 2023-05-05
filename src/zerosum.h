@@ -24,6 +24,7 @@ private:
     std::thread worker;
     int section;
     std::set<long> tids;
+    std::set<long> hwthreads;
     int ncpus;
     bool working;
     int size;
