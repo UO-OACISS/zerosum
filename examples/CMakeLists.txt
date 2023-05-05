@@ -10,8 +10,9 @@ set_property (TEST test_lu-decomp PROPERTY
     ENVIRONMENT "OMP_NUM_THREADS=4;OMP_PROC_BIND=spread;OMP_PLACES=sockets")
 
 add_test (NAME test_lu-decomp_apex COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
-    --bind-to core --cpus-per-proc 4
-    apex_exec --apex:mpi --apex:ompt --apex:pthread --apex:ompt_details --apex:tasktree --apex:gtrace
+    --bind-to core --cpus-per-proc 4 apex_exec
+    --apex:mpi --apex:ompt --apex:pthread --apex:ompt_details
+    --apex:tasktree --apex:gtrace --apex:screen_details
     --apex:preload ${CMAKE_BINARY_DIR}/lib/libzerosum.so
     ${CMAKE_BINARY_DIR}/bin/lu-decomp)
 

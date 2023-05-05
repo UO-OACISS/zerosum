@@ -61,10 +61,9 @@ bool ZeroSum::doOnce(void) {
         filename += std::to_string(rank);
         filename += ".log";
         logfile.open(filename);
-        getgpu(rank, section++, name);
-        getProcStatus(section++);
-        ncpus = std::thread::hardware_concurrency();
-        getopenmp(rank, section++, ncpus, tids);
+        getgpu(rank, 0, name);
+        getProcStatus(1);
+        logfile << earlyData;
         done = true;
     }
     return done;
@@ -72,7 +71,7 @@ bool ZeroSum::doOnce(void) {
 
 void ZeroSum::doPeriodic(void) {
     PERFSTUBS_SCOPED_TIMER_FUNC();
-    getpthreads(rank, section, ncpus, tids);
+    getpthreads(rank, 3, ncpus, tids);
 }
 
 
@@ -82,6 +81,8 @@ ZeroSum::ZeroSum(void) {
     ncpus = 1;
     working = true;
     PERFSTUBS_INITIALIZE();
+    ncpus = std::thread::hardware_concurrency();
+    earlyData = getopenmp(rank, 2, ncpus, tids);
     worker = std::thread{&ZeroSum::threadedFunction, this};
     //worker.detach();
 }

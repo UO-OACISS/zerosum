@@ -33,11 +33,12 @@ private:
     int size;
     int rank;
     std::ofstream logfile;
+    std::string earlyData;
     char name[MPI_MAX_PROCESSOR_NAME];
 
     // Other private member variables and functions...
     int getgpu(const int rank, const int section, const char * name);
-    int getopenmp(const int rank, const int section, const int ncpus, std::set<long>& tids);
+    std::string getopenmp(const int rank, const int section, const int ncpus, std::set<long>& tids);
     int getpthreads(const int rank, const int section, const int ncpus, std::set<long>& tids);
     void getProcStatus(const int section);
     void threadedFunction(void);

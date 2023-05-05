@@ -23,9 +23,10 @@
 #include <set>
 #include "omp.h"
 
-int ZeroSum::getopenmp(const int rank, const int section, const int ncpus, std::set<long>& tids) {
+std::string ZeroSum::getopenmp(const int rank, const int section, const int ncpus, std::set<long>& tids) {
     int hwthread;
     int thread_id = 0;
+    std::string outdata;
 
 #pragma omp parallel default(shared) private(hwthread, thread_id)
     {
@@ -57,10 +58,10 @@ int ZeroSum::getopenmp(const int rank, const int section, const int ncpus, std::
                 snprintf(buffer, 1024,
                     "MPI %03d - STEP %03d - SEC %d - OMP %03d - HWT %03d - LWP %06ld - #HWT %03d - Set [%s]",
                     rank, step, section, thread_id, hwthread, lwp, nhwthr, tmpstr.c_str());
-                logfile << buffer << std::endl;
+                outdata = buffer;
             }
         }
     }
-    return 0;
+    return outdata;
 }
 
