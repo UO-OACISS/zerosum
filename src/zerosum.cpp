@@ -11,6 +11,7 @@ Written by Kevin Huck
 #include <mpi.h>
 #include <unistd.h>
 #include "zerosum.h"
+#include "perfstubs.h"
 #ifdef ZEROSUM_STANDALONE
 #include "global_constructor_destructor.h"
 extern "C" {
@@ -44,6 +45,7 @@ void ZeroSum::threadedFunction(void) {
 bool ZeroSum::doOnce(void) {
     static bool done{false};
     if (done) return done;
+    PERFSTUBS_SCOPED_TIMER_FUNC();
 
     int ready;
     MPI_CALL(MPI_Initialized(&ready));
@@ -63,6 +65,7 @@ bool ZeroSum::doOnce(void) {
 }
 
 void ZeroSum::doPeriodic(void) {
+    PERFSTUBS_SCOPED_TIMER_FUNC();
     getpthreads(rank, section++, ncpus, tids);
 }
 
@@ -71,6 +74,7 @@ ZeroSum::ZeroSum(void) {
     section = 0;
     ncpus = 1;
     working = true;
+    PERFSTUBS_INITIALIZE();
     worker = std::thread{&ZeroSum::threadedFunction, this};
     //worker.detach();
 }
@@ -78,6 +82,7 @@ ZeroSum::ZeroSum(void) {
 void ZeroSum::shutdown(void) {
     working = false;
     worker.join();
+    PERFSTUBS_FINALIZE();
 }
 
 void zerosum_init_static_void(void){
