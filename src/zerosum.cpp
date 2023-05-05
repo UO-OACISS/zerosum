@@ -37,6 +37,7 @@ void ZeroSum::threadedFunction(void) {
     while (working) {
         if (doOnce()) {
             doPeriodic();
+            step++;
         }
         sleep(1);
     }
@@ -51,10 +52,15 @@ bool ZeroSum::doOnce(void) {
     MPI_CALL(MPI_Initialized(&ready));
     if (ready) {
         int resultlength;
+        // get mpi info
         MPI_Comm_size(MPI_COMM_WORLD, &size);
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         MPI_Get_processor_name(name, &resultlength);
-        // get mpi info
+        // open a log file
+        std::string filename{"zs."};
+        filename += std::to_string(rank);
+        filename += ".log";
+        logfile.open(filename);
         getgpu(rank, section++, name);
         getProcStatus(section++);
         ncpus = std::thread::hardware_concurrency();
@@ -66,11 +72,12 @@ bool ZeroSum::doOnce(void) {
 
 void ZeroSum::doPeriodic(void) {
     PERFSTUBS_SCOPED_TIMER_FUNC();
-    getpthreads(rank, section++, ncpus, tids);
+    getpthreads(rank, section, ncpus, tids);
 }
 
 
 ZeroSum::ZeroSum(void) {
+    step = 0;
     section = 0;
     ncpus = 1;
     working = true;
@@ -82,6 +89,9 @@ ZeroSum::ZeroSum(void) {
 void ZeroSum::shutdown(void) {
     working = false;
     worker.join();
+    if (logfile.is_open()) {
+        logfile.close();
+    }
     PERFSTUBS_FINALIZE();
 }
 

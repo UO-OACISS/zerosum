@@ -75,9 +75,11 @@ int getgpu(const int rank, const int section, const char * name) {
             if(i > 0) busid_list.append(",");
 //            busid_list.append(temp_busid.substr(8,2));
             busid_list.append(temp_busid);
-
-            printf("MPI %03d - SEC %d - Node %s - RT_GPU_ID %s - GPU_ID %s - Bus_ID %s\n",
-                rank, section, name, rt_gpu_id_list.c_str(), gpu_id_list, busid_list.c_str());
+            char buffer[1025];
+            snprintf(buffer, 1024,
+                "MPI %03d - STEP %03d - SEC %d - Node %s - RT_GPU_ID %s - GPU_ID %s - Bus_ID %s",
+                rank, step, section, name, rt_gpu_id_list.c_str(), gpu_id_list, busid_list.c_str());
+            logfile << buffer << std::endl;
 		}
 	}
 	return 0;

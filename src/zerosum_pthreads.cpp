@@ -53,13 +53,21 @@ int ZeroSum::getpthreads(const int rank, const int section, const int ncpus, std
                         tmpstr2 = tmpstr2 + std::to_string(i);
                     }
                 }
-                printf("MPI %03d - SEC %d - LWP %06ld - #HWT %03d - Set [%s] \n",
-                        rank, section, lwp, nhwthr, tmpstr2.c_str());
+                char buffer[1025];
+                snprintf(buffer, 1024,
+                    "MPI %03d - STEP %03d - SEC %d - LWP %06ld - #HWT %03d - Set [%s]",
+                    rank, step, section, lwp, nhwthr, tmpstr2.c_str());
+                logfile << buffer << std::endl;
+
             }
         }
         (void) closedir (dp);
     }
-    printf("MPI %03d - SEC %d - LWPS [%s]\n", rank, section, tmpstr.c_str());
+    char buffer[1025];
+    snprintf(buffer, 1024,
+        "MPI %03d - STEP %03d - SEC %d - LWPS [%s]", rank, step, section, tmpstr.c_str());
+    logfile << buffer << std::endl;
+
 
     return 0;
 }

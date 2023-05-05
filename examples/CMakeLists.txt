@@ -16,5 +16,5 @@ add_test (NAME test_lu-decomp_apex COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
     ${CMAKE_BINARY_DIR}/bin/lu-decomp)
 
 set_property (TEST test_lu-decomp_apex PROPERTY
-    ENVIRONMENT "OMP_NUM_THREADS=4;OMP_PROC_BIND=spread;OMP_PLACES=sockets")
+    ENVIRONMENT "OMP_NUM_THREADS=4;OMP_PROC_BIND=close;OMP_PLACES=cores")
 

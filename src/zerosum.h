@@ -1,5 +1,7 @@
 #include <set>
 #include <thread>
+#include <iostream>
+#include <fstream>
 #include "mpi.h"
 
 class ZeroSum {
@@ -23,12 +25,14 @@ private:
     // member variables
     std::thread worker;
     int section;
+    int step;
     std::set<long> tids;
     std::set<long> hwthreads;
     int ncpus;
     bool working;
     int size;
     int rank;
+    std::ofstream logfile;
     char name[MPI_MAX_PROCESSOR_NAME];
 
     // Other private member variables and functions...
