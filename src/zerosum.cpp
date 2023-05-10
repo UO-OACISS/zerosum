@@ -45,12 +45,18 @@ namespace zerosum {
 
 void ZeroSum::threadedFunction(void) {
     async_tid = gettid();
+    bool initialized = false;
     while (working) {
-        if (doOnce()) {
+        // keep trying until MPI is initialized
+        if (!initialized) {
+            initialized = doOnce();
+        }
+        // once initialized, we can do our periodic checks.
+        if (initialized) {
+            sleep(1);
             doPeriodic();
             logfile << process.logThreads() << std::flush;
         }
-        sleep(1);
     }
 }
 
@@ -79,7 +85,7 @@ inline void ZeroSum::openLog(void) {
     std::string filename{"zs."};
     filename += std::to_string(process.rank);
     filename += ".log";
-    std::cout << "Opening log file: " << filename << std::endl;
+    //std::cout << "Opening log file: " << filename << std::endl;
     logfile.open(filename);
 }
 
@@ -105,31 +111,39 @@ bool ZeroSum::doOnce(void) {
 
 void ZeroSum::doPeriodic(void) {
     PERFSTUBS_SCOPED_TIMER_FUNC();
+    step++;
     getpthreads();
+    computeNode.updateFields(parseProcStat(),step);
 }
 
 void ZeroSum::getProcStatus() {
     PERFSTUBS_SCOPED_TIMER_FUNC();
     std::string allowed_string = getCpusAllowed("/proc/self/status");
-    std::cout << "/proc/self/status : " << allowed_string << std::endl;
+    //std::cout << "/proc/self/status : " << allowed_string << std::endl;
     std::vector<uint32_t> allowed_list = parseDiscreteValues(allowed_string);
     std::string filename = "/proc/self/stat";
     auto fields = getThreadStat(filename.c_str());
+    filename = "/proc/self/status";
+    getThreadStatus(filename.c_str(), fields);
+    fields.insert(std::pair("step",std::to_string(step)));
     process = software::Process(getpid(), 0, 1, fields, allowed_list);
     process.hwthreads_raw = allowed_string;
-    process.computeNode = computeNode;
+    process.computeNode = &computeNode;
     return;
 }
 
 /* The main singleton constructor for the ZeroSum class */
-ZeroSum::ZeroSum(void) {
+ZeroSum::ZeroSum(void) : step(0) {
     working = true;
     PERFSTUBS_INITIALIZE();
     /* Important to do this now, before OpenMP is initialized
      * and this thread gets pinned to any cores */
     getProcStatus();
     worker = std::thread{&ZeroSum::threadedFunction, this};
+    // increase the step, because the main thread will be one of the OpenMP threads.
+    step++;
     getopenmp();
+    computeNode.updateFields(parseProcStat(),step);
     //worker.detach();
 }
 
@@ -137,6 +151,7 @@ void ZeroSum::shutdown(void) {
     working = false;
     worker.join();
     logfile << process.logThreads(true) << std::flush;
+    logfile << computeNode.toString(process.hwthreads) << std::flush;
     if (logfile.is_open()) {
         logfile.close();
     }

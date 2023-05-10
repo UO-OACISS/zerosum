@@ -187,4 +187,39 @@ std::string toString(std::set<uint32_t> allowed) {
     return outstr;
 }
 
+std::vector<std::map<std::string,std::string>> parseProcStat(void) {
+    std::vector<std::map<std::string,std::string>> fields;
+    FILE * pFile;
+    char line[128];
+    pFile = fopen ("/proc/stat","r");
+    if (pFile == nullptr) {
+        perror ("Error opening file");
+        return fields;
+    }
+        while ( fgets( line, 128, pFile)) {
+            // skip the total line
+            if ( strncmp (line, "cpu ", 4) == 0 ) {
+                continue;
+            } else if ( strncmp (line, "cpu", 3) == 0 ) {
+                std::vector<std::string> v;
+                std::string tmp;
+                std::stringstream ss(line);
+                while (getline(ss, tmp, ' ')) {
+                    // store token string in the vector
+                    v.push_back(tmp);
+                }
+                std::map<std::string,std::string> f;
+                f.insert(std::pair("user",v[1]));
+                f.insert(std::pair("system",v[3]));
+                f.insert(std::pair("idle",v[4]));
+                fields.push_back(f);
+            } else {
+                // we're done at this point
+                break;
+            }
+        }
+    fclose (pFile);
+    return fields;
+}
+
 }

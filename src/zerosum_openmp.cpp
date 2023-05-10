@@ -40,6 +40,9 @@ void ZeroSum::getopenmp() {
                 filename += std::to_string(lwp);
                 filename += "/stat";
                 auto fields = getThreadStat(filename.c_str());
+                filename += "us";
+                getThreadStatus(filename.c_str(), fields);
+                fields.insert(std::pair("step",std::to_string(step)));
                 this->process.add(lwp, allowed_list, fields, software::ThreadType::OpenMP);
             }
         }

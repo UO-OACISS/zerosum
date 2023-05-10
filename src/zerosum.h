@@ -3,6 +3,7 @@
 #include <thread>
 #include <iostream>
 #include <fstream>
+#include <atomic>
 #include "topology.h"
 
 namespace zerosum {
@@ -34,6 +35,7 @@ private:
     software::Process process;
     hardware::ComputeNode computeNode;
     uint32_t async_tid;
+    std::atomic<uint32_t> step;
 
     // Other private member variables and functions...
     void getMPIinfo(void);
