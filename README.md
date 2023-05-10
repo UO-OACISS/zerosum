@@ -1,7 +1,7 @@
 # zerosum
 Utility for monitoring process, thread, OS and HW resources.
 
-
+```
 Things to check:
     - Periodically!
     - Get thread counts (done)
@@ -49,6 +49,7 @@ Capture periodically:
             - proportional?
             - exclusive?
         - get utilization
+```
 
 To get backtrace of each thread:
 https://github.com/albertz/openlierox/blob/0.59/src/common/Debug_GetCallstack.cpp
