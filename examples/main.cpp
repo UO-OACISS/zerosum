@@ -6,7 +6,16 @@ Written by Tom Papatheodore
 
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef USE_MPI
 #include <mpi.h>
+#define MPI_INIT  MPI_Init(&argc, &argv);
+#define MPI_FINI  MPI_Finalize();
+#define UNUSED(expr)
+#else
+#define MPI_INIT
+#define MPI_FINI
+#define UNUSED(expr) do { (void)(expr); } while (0)
+#endif
 
 void init_matrix(int n, double *a[]){
 #pragma omp parallel for
@@ -41,7 +50,9 @@ void lup_od_omp(int n, double *a[]){
 int main(int argc, char *argv[]){
 
     /* Set up MPI */
-    MPI_Init(&argc, &argv);
+    MPI_INIT;
+    UNUSED(argc);
+    UNUSED(argv);
 
     /* do some work */
     constexpr int n = 3000;
@@ -53,7 +64,7 @@ int main(int argc, char *argv[]){
     lup_od_omp(n, matrix);
 
     /* Finalize MPI */
-    MPI_Finalize();
+    MPI_FINI;
 
     return 0;
 }

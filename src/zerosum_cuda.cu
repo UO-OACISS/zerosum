@@ -10,7 +10,6 @@ Written by Tom Papatheodore
 #include <iomanip>
 #include <iomanip>
 #include <string.h>
-#include <mpi.h>
 #include <sched.h>
 #include <omp.h>
 

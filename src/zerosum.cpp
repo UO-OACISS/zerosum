@@ -8,18 +8,22 @@ Written by Kevin Huck
 #include <iostream>
 #include <thread>
 #include <set>
-#include <mpi.h>
 #include <unistd.h>
 #include "zerosum.h"
 #include "perfstubs.h"
+#include "utils.h"
 #ifdef ZEROSUM_STANDALONE
+#ifdef ZEROSUM_USE_STATIC_GLOBAL_CONSTRUCTOR
 #include "global_constructor_destructor.h"
 extern "C" {
 DEFINE_CONSTRUCTOR(zerosum_init_static_void)
 DEFINE_DESTRUCTOR(zerosum_finalize_static_void)
 }
+#endif // ZEROSUM_USE_STATIC_GLOBAL_CONSTRUCTOR
 #endif // ZEROSUM_STANDALONE
 
+#ifdef USE_MPI
+#include <mpi.h>
 #define MPI_CALL(call) \
     do { \
         int _status = call; \
@@ -32,15 +36,51 @@ DEFINE_DESTRUCTOR(zerosum_finalize_static_void)
             MPI_Abort(MPI_COMM_WORLD, _status); \
         } \
     } while (0)
+#else
+#include <unistd.h>
+#include <limits.h>
+#endif
+
+namespace zerosum {
 
 void ZeroSum::threadedFunction(void) {
+    async_tid = gettid();
     while (working) {
         if (doOnce()) {
             doPeriodic();
-            step++;
+            logfile << process.logThreads() << std::flush;
         }
         sleep(1);
     }
+}
+
+inline void ZeroSum::getMPIinfo(void) {
+    int size, rank;
+#ifdef USE_MPI
+    // get mpi info
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    char name[MPI_MAX_PROCESSOR_NAME];
+    int resultlength;
+    MPI_Get_processor_name(name, &resultlength);
+#else
+    size = 1;
+    rank = 0;
+    char name[HOST_NAME_MAX];
+    gethostname(name, HOST_NAME_MAX);
+#endif
+    computeNode = hardware::ComputeNode(name);
+    process.rank = rank;
+    process.size = size;
+}
+
+inline void ZeroSum::openLog(void) {
+    // open a log file
+    std::string filename{"zs."};
+    filename += std::to_string(process.rank);
+    filename += ".log";
+    std::cout << "Opening log file: " << filename << std::endl;
+    logfile.open(filename);
 }
 
 bool ZeroSum::doOnce(void) {
@@ -48,60 +88,75 @@ bool ZeroSum::doOnce(void) {
     if (done) return done;
     PERFSTUBS_SCOPED_TIMER_FUNC();
 
+#ifdef USE_MPI
     int ready;
     MPI_CALL(MPI_Initialized(&ready));
-    if (ready) {
-        int resultlength;
-        // get mpi info
-        MPI_Comm_size(MPI_COMM_WORLD, &size);
-        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-        MPI_Get_processor_name(name, &resultlength);
-        // open a log file
-        std::string filename{"zs."};
-        filename += std::to_string(rank);
-        filename += ".log";
-        logfile.open(filename);
-        getgpu(rank, 0, name);
-        getProcStatus(1);
-        logfile << earlyData;
-        done = true;
-    }
+    if (!ready) return done;
+#endif
+
+    getMPIinfo();
+    openLog();
+    logfile << process.toString() << std::flush;
+    getgpu();
+    //getopenmp();
+    done = true;
     return done;
 }
 
 void ZeroSum::doPeriodic(void) {
     PERFSTUBS_SCOPED_TIMER_FUNC();
-    getpthreads(rank, 3, ncpus, tids);
+    getpthreads();
 }
 
+void ZeroSum::getProcStatus() {
+    PERFSTUBS_SCOPED_TIMER_FUNC();
+    std::string allowed_string = getCpusAllowed("/proc/self/status");
+    std::cout << "/proc/self/status : " << allowed_string << std::endl;
+    std::vector<uint32_t> allowed_list = parseDiscreteValues(allowed_string);
+    std::string filename = "/proc/self/stat";
+    auto fields = getThreadStat(filename.c_str());
+    process = software::Process(getpid(), 0, 1, fields, allowed_list);
+    process.hwthreads_raw = allowed_string;
+    process.computeNode = computeNode;
+    return;
+}
 
+/* The main singleton constructor for the ZeroSum class */
 ZeroSum::ZeroSum(void) {
-    step = 0;
-    section = 0;
-    ncpus = 1;
     working = true;
     PERFSTUBS_INITIALIZE();
-    ncpus = std::thread::hardware_concurrency();
-    earlyData = getopenmp(rank, 2, ncpus, tids);
+    /* Important to do this now, before OpenMP is initialized
+     * and this thread gets pinned to any cores */
+    getProcStatus();
     worker = std::thread{&ZeroSum::threadedFunction, this};
+    getopenmp();
     //worker.detach();
 }
 
 void ZeroSum::shutdown(void) {
     working = false;
     worker.join();
+    logfile << process.logThreads(true) << std::flush;
     if (logfile.is_open()) {
         logfile.close();
     }
     PERFSTUBS_FINALIZE();
 }
 
+} // namespace zerosum
+
+#ifdef ZEROSUM_STANDALONE
+#ifdef ZEROSUM_USE_STATIC_GLOBAL_CONSTRUCTOR
 void zerosum_init_static_void(void){
-    ZeroSum::getInstance();
+    zerosum::ZeroSum::getInstance();
 }
 
 void zerosum_finalize_static_void(void){
-    ZeroSum::getInstance().shutdown();
+    zerosum::ZeroSum::getInstance().shutdown();
 }
+#else
+#include "preload.cpp"
+#endif
+#endif
 
 

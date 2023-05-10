@@ -11,7 +11,7 @@ option (ZeroSum_STANDALONE "Enable standalone support" FALSE)
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_EXTENSIONS ON)
 add_compile_options(-Wall -Wextra -pedantic)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
@@ -44,6 +44,10 @@ LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib"
 IF("${isSystemDir}" STREQUAL "-1")
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 ENDIF("${isSystemDir}" STREQUAL "-1")
+
+if (ZeroSum_USE_STATIC_GLOBAL_CONSTRUCTOR OR APPLE)
+    add_definitions(-DZEROSUM_USE_STATIC_GLOBAL_CONSTRUCTOR)
+endif()
 
 add_subdirectory(src)
 add_subdirectory(examples)

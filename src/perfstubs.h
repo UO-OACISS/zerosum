@@ -1,3 +1,4 @@
+#pragma once
 #ifdef PERFSTUBS_USE_TIMERS
 #include "perfstubs_api/timer.h"
 #else

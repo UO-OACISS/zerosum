@@ -17,7 +17,6 @@ Written by Tom Papatheodore
 #include <iomanip>
 #include <iomanip>
 #include <string.h>
-#include <mpi.h>
 #include <omp.h>
 #include <hip/hip_runtime.h>
 
@@ -37,7 +36,9 @@ do{                                                                             
     }                                                                                        \
 }while(0)
 
-int getgpu(const int rank, const int section, const char * name) {
+namespace zerosum {
+
+int ZeroSum::getgpu(const int rank, const int section, const char * name) {
     const char* gpu_id_list;
 
     // If HIP_VISIBLE_DEVICES is set, capture visible GPUs
@@ -77,10 +78,12 @@ int getgpu(const int rank, const int section, const char * name) {
             busid_list.append(temp_busid);
             char buffer[1025];
             snprintf(buffer, 1024,
-                "MPI %03d - STEP %03d - SEC %d - Node %s - RT_GPU_ID %s - GPU_ID %s - Bus_ID %s",
-                rank, step, section, name, rt_gpu_id_list.c_str(), gpu_id_list, busid_list.c_str());
+                "MPI %03d - SEC %d - Node %s - RT_GPU_ID %s - GPU_ID %s - Bus_ID %s",
+                rank, section, name, rt_gpu_id_list.c_str(), gpu_id_list, busid_list.c_str());
             logfile << buffer << std::endl;
 		}
 	}
 	return 0;
+}
+
 }

@@ -1,8 +1,11 @@
+#pragma once
 #include <set>
 #include <thread>
 #include <iostream>
 #include <fstream>
-#include "mpi.h"
+#include "topology.h"
+
+namespace zerosum {
 
 class ZeroSum {
 public:
@@ -15,6 +18,7 @@ public:
     void shutdown(void);
 
 private:
+    /* Standard singleton definition follows */
     ZeroSum();
     ~ZeroSum() = default;
     ZeroSum(const ZeroSum&) = delete;
@@ -22,28 +26,25 @@ private:
     ZeroSum(ZeroSum&&) = delete;
     ZeroSum& operator=(ZeroSum&&) = delete;
 
-    // member variables
-    std::thread worker;
-    int section;
-    int step;
-    std::set<long> tids;
-    std::set<long> hwthreads;
-    int ncpus;
+    /* member variables */
+
+    std::thread worker; // the asynchronous thread
     bool working;
-    int size;
-    int rank;
     std::ofstream logfile;
-    std::string earlyData;
-    char name[MPI_MAX_PROCESSOR_NAME];
+    software::Process process;
+    hardware::ComputeNode computeNode;
+    uint32_t async_tid;
 
     // Other private member variables and functions...
-    int getgpu(const int rank, const int section, const char * name);
-    std::string getopenmp(const int rank, const int section, const int ncpus, std::set<long>& tids);
-    int getpthreads(const int rank, const int section, const int ncpus, std::set<long>& tids);
-    void getProcStatus(const int section);
+    void getMPIinfo(void);
+    void openLog(void);
+    int getgpu(void);
+    void getopenmp(void);
+    int getpthreads(void);
+    void getProcStatus(void);
     void threadedFunction(void);
     bool doOnce(void);
     void doPeriodic(void);
 };
 
-
+} // namespace zerosum
