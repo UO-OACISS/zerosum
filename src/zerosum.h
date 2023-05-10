@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <atomic>
+#include <condition_variable>
 #include "topology.h"
 
 namespace zerosum {
@@ -36,6 +37,8 @@ private:
     hardware::ComputeNode computeNode;
     uint32_t async_tid;
     std::atomic<uint32_t> step;
+    std::condition_variable cv;
+    std::mutex cv_m;
 
     // Other private member variables and functions...
     void getMPIinfo(void);

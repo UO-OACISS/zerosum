@@ -8,6 +8,7 @@ Written by Kevin Huck
 #include <iostream>
 #include <thread>
 #include <set>
+#include <chrono>
 #include <unistd.h>
 #include "zerosum.h"
 #include "perfstubs.h"
@@ -43,24 +44,37 @@ DEFINE_DESTRUCTOR(zerosum_finalize_static_void)
 
 namespace zerosum {
 
+using namespace std::literals::chrono_literals;
+
 void ZeroSum::threadedFunction(void) {
+    PERFSTUBS_SCOPED_TIMER_FUNC();
     async_tid = gettid();
     bool initialized = false;
+    // We want to measure periodically, ON THE SECOND.
+    // So, we take into consideration how long it takes to do
+    // this measurement.
+    auto prev = std::chrono::steady_clock::now();
     while (working) {
+        auto then = prev + 1s;
+        auto stop = then - std::chrono::steady_clock::now();
+        std::unique_lock<std::mutex> lk(cv_m);
+        if(cv.wait_for(lk, stop, [&]{return !working;}))
+            return;
         // keep trying until MPI is initialized
         if (!initialized) {
             initialized = doOnce();
         }
         // once initialized, we can do our periodic checks.
         if (initialized) {
-            sleep(1);
             doPeriodic();
             logfile << process.logThreads() << std::flush;
         }
+        prev = then;
     }
 }
 
 inline void ZeroSum::getMPIinfo(void) {
+    PERFSTUBS_SCOPED_TIMER_FUNC();
     int size, rank;
 #ifdef USE_MPI
     // get mpi info
@@ -81,6 +95,7 @@ inline void ZeroSum::getMPIinfo(void) {
 }
 
 inline void ZeroSum::openLog(void) {
+    PERFSTUBS_SCOPED_TIMER_FUNC();
     // open a log file
     std::string filename{"zs."};
     filename += std::to_string(process.rank);
@@ -139,16 +154,17 @@ ZeroSum::ZeroSum(void) : step(0) {
     /* Important to do this now, before OpenMP is initialized
      * and this thread gets pinned to any cores */
     getProcStatus();
+    computeNode.updateFields(parseProcStat(),step);
     worker = std::thread{&ZeroSum::threadedFunction, this};
     // increase the step, because the main thread will be one of the OpenMP threads.
     step++;
     getopenmp();
-    computeNode.updateFields(parseProcStat(),step);
     //worker.detach();
 }
 
 void ZeroSum::shutdown(void) {
     working = false;
+    cv.notify_all();
     worker.join();
     logfile << process.logThreads(true) << std::flush;
     logfile << computeNode.toString(process.hwthreads) << std::flush;

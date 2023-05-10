@@ -28,12 +28,14 @@ public:
         }
         stat_fields["step"].push_back(std::to_string(step));
     }
-    std::string strSub(std::string lhs, std::string rhs) {
+    std::string strSub(std::string lhs, std::string rhs, double& total) {
         unsigned a = atol(lhs.c_str());
         unsigned b = atol(rhs.c_str());
         //double ticks = sysconf(_SC_CLK_TCK);
         //std::string tmpstr{std::to_string((a-b)/ticks)};
-        std::string tmpstr{std::to_string(a-b)};
+        unsigned result = a-b;
+        total += result;
+        std::string tmpstr{std::to_string(result)};
         return tmpstr;
     }
     std::string getFields() {
@@ -43,14 +45,18 @@ public:
             tmpstr += sf.first;
             tmpstr += ": ";
             bool comma = false;
+            double total = 0;
             if (sf.first.compare("step") != 0) {
                 auto previous = sf.second[0];
                 for (auto v : sf.second) {
                     if (comma) { tmpstr += ","; }
-                    tmpstr += strSub(v,previous);
+                    tmpstr += strSub(v,previous,total);
                     comma = true;
                     previous = v;
                 }
+                tmpstr += " average: ";
+                double average = total/(double)(sf.second.size()-1);
+                tmpstr += std::to_string(average);
             } else {
                 for (auto v : sf.second) {
                     if (comma) { tmpstr += ","; }

@@ -10,7 +10,7 @@ cmake -B build \
 -DCMAKE_CXX_FLAGS=-gdwarf-4 \
 -DZeroSum_STANDALONE=TRUE \
 
-cmake --build build -v
-ctest -V --test-dir build
+cmake --build build -j
+ctest --test-dir build
 
 #-DZeroSum_WITH_PerfStubs=FALSE \
