@@ -263,6 +263,11 @@ public:
     // The compute node we're running on
     hardware::ComputeNode* computeNode;
 
+    uint32_t getMaxHWT(void) {
+        // this is an iterator, so return the element
+        return *(hwthreads.rbegin());
+    }
+
     bool contains(uint32_t hwt) {
         return (threads.count(hwt) > 0);
     }

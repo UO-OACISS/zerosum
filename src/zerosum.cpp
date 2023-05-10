@@ -49,6 +49,7 @@ using namespace std::literals::chrono_literals;
 void ZeroSum::threadedFunction(void) {
     PERFSTUBS_SCOPED_TIMER_FUNC();
     async_tid = gettid();
+    setThreadAffinity(process.getMaxHWT());
     bool initialized = false;
     // We want to measure periodically, ON THE SECOND.
     // So, we take into consideration how long it takes to do
@@ -78,11 +79,11 @@ inline void ZeroSum::getMPIinfo(void) {
     int size, rank;
 #ifdef USE_MPI
     // get mpi info
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_CALL(MPI_Comm_size(MPI_COMM_WORLD, &size));
+    MPI_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &rank));
     char name[MPI_MAX_PROCESSOR_NAME];
     int resultlength;
-    MPI_Get_processor_name(name, &resultlength);
+    MPI_CALL(MPI_Get_processor_name(name, &resultlength));
 #else
     size = 1;
     rank = 0;

@@ -222,4 +222,20 @@ std::vector<std::map<std::string,std::string>> parseProcStat(void) {
     return fields;
 }
 
+void setThreadAffinity(int core) {
+    cpu_set_t cpuset;
+    cpu_set_t mask;
+    if (sched_getaffinity(0, sizeof(cpu_set_t), &mask) == -1) {
+        perror("sched_getaffinity");
+        return;
+    }
+    if (CPU_ISSET(core, &mask)) {
+        CPU_ZERO(&cpuset);
+        CPU_SET(core, &cpuset);
+        sched_setaffinity(0, sizeof(cpu_set_t), &cpuset);
+    }
+    return;
+}
+
+
 }
