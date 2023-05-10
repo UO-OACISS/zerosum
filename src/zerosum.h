@@ -18,6 +18,7 @@ public:
 
     // Other public member functions...
     void shutdown(void);
+    void parseEnv(char** envp);
 
 private:
     /* Standard singleton definition follows */

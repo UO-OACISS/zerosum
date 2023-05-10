@@ -177,7 +177,8 @@ public:
             tmpstr += ": ";
             bool comma = false;
             if (sf.first.compare("state") != 0 &&
-                sf.first.compare("step") != 0) {
+                sf.first.compare("step") != 0 &&
+                sf.first.compare("processor") != 0) {
                 auto previous = sf.second[0];
                 for (auto v : sf.second) {
                     if (comma) { tmpstr += ","; }
@@ -215,7 +216,7 @@ public:
         }
 
         snprintf(buffer, 1024,
-            "[%s] HWT %d - CPUs allowed: [%s]\n",
+            "New Thread: [%s] LWP %d - CPUs allowed: [%s]\n",
             sType.c_str(), id, ::zerosum::toString(hwthreads).c_str());
         std::string outstr{buffer};
         if (shutdown) {
@@ -262,6 +263,7 @@ public:
     std::map<uint32_t, LWP> threads; // The set of lightweight OS threads of this process
     // The compute node we're running on
     hardware::ComputeNode* computeNode;
+    std::map<std::string,std::string> environment;
 
     uint32_t getMaxHWT(void) {
         // this is an iterator, so return the element
@@ -292,6 +294,9 @@ public:
             rank, 1, computeNode->name.c_str(), discrete.c_str());
         tmpstr += buffer;
         //PERFSTUBS_METADATA("CPUs allowed", discrete.c_str());
+        for (auto env : environment) {
+            tmpstr += env.first + " = " + env.second + "\n";
+        }
         return tmpstr;
     }
     std::string logThreads(bool shutdown = false) {

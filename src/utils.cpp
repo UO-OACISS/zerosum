@@ -97,6 +97,7 @@ std::map<std::string, std::string> getThreadStat(const char * filename) {
     while ( fgets( line, 4096, f)) {
         std::string tmp;
         std::stringstream ss(line);
+        //std::cout << filename << " : " << line << std::endl;
         while (getline(ss, tmp, ' ')) {
             // store token string in the vector
             v.push_back(tmp);

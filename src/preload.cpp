@@ -49,7 +49,7 @@ int zerosum_preload_main(int argc, char** argv, char** envp) {
     _reentry = 1;
 
     int ret{0};
-    zerosum::ZeroSum::getInstance();
+    zerosum::ZeroSum::getInstance().parseEnv(envp);
     ret = main_real(argc, argv, envp);
     zerosum::ZeroSum::getInstance().shutdown();
     return ret;

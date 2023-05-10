@@ -6,6 +6,9 @@ Written by Kevin Huck
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 #include <thread>
 #include <set>
 #include <chrono>
@@ -173,6 +176,34 @@ void ZeroSum::shutdown(void) {
         logfile.close();
     }
     PERFSTUBS_FINALIZE();
+}
+
+std::pair<std::string,std::string> split (const std::string &s) {
+    char delim{'='};
+    std::vector<std::string> result;
+    std::stringstream ss (s);
+    std::string item;
+    while (getline (ss, item, delim)) {
+        result.push_back (item);
+    }
+    return std::pair(result[0],result[1]);
+}
+
+void ZeroSum::parseEnv(char** envp) {
+    for (int i = 0; envp[i] != NULL; i++) {
+        if (strncmp(envp[i], "OMP_", 4) == 0) {
+            process.environment.insert(split(envp[i]));
+        }
+        else if (strncmp(envp[i], "OMPI_", 5) == 0) {
+            process.environment.insert(split(envp[i]));
+        }
+        else if (strncmp(envp[i], "SLURM_", 6) == 0) {
+            process.environment.insert(split(envp[i]));
+        }
+        else if (strncmp(envp[i], "CRAY_", 5) == 0) {
+            process.environment.insert(split(envp[i]));
+        }
+    }
 }
 
 } // namespace zerosum
