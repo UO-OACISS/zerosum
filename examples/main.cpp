@@ -36,7 +36,7 @@ void lup_od_omp(int n, double *a[]){
             a[i][k] /= a[k][k];
         }
 
-        #pragma omp parallel for shared(a,n,k) private(i) schedule(static, 64)
+        #pragma omp parallel for shared(a,n,k) private(i) schedule(runtime)
         for(i = k + 1; i < n; i++) {
             int j;
             const double aik = a[i][k]; // some compilers will do this automatically

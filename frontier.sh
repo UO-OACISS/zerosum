@@ -4,8 +4,8 @@ rm -rf build
 
 cmake -B build \
 -DCMAKE_BUILD_TYPE=RelWithDebInfo \
--DCMAKE_CXX_COMPILER=`which mpicxx` \
--DCMAKE_C_COMPILER=`which mpicc` \
+-DCMAKE_CXX_COMPILER=`which CC` \
+-DCMAKE_C_COMPILER=`which cc` \
 -DZeroSum_STANDALONE=TRUE \
 
 cmake --build build -j
