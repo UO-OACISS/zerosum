@@ -53,72 +53,46 @@ Capture periodically:
 
 To get backtrace of each thread:
 https://github.com/albertz/openlierox/blob/0.59/src/common/Debug_GetCallstack.cpp
+This could be useful to determine library source of thread, if needed.
 
-Sample output from a single process, 4 OpenMP program running on cores 0-7:
+Sample output from the first MPI rank of an 8 process job on Frontier (see [](job-frontier.sh):
 ```
-Opening log file: zs.0.log
-MPI 000 - SEC 0 - Node  - PID 3281418
-MPI 000 - SEC 1 - Node  - CPUs allowed: [0,1,2,3,4,5,6,7]
-[Main] HWT 3281418 - CPUs allowed: [0,1,2,3,4,5,6,7]
-[ZeroSum] HWT 3281419 - CPUs allowed: [0,1,2,3,4,5,6,7]
-[OpenMP] HWT 3281420 - CPUs allowed: [2]
-[OpenMP] HWT 3281421 - CPUs allowed: [4]
-[OpenMP] HWT 3281422 - CPUs allowed: [6]
+Duration of execution: 12.4312 s
 
-	 *** Final thread summary: ***
+Process Summary:
+MPI 000 - PID 23319 - Node frontier00255 - CPUs allowed: [1,2,3,4,5,6,7,65,66,67,68,69,70,71]
 
-[Main,OpenMP] HWT 3281418 - CPUs allowed: [0]
-majflt: 9,9,9,9,9,9,9,9,9
-minflt: 277,334,354,8235,13651,13651,17671,17671,20870
-nonvoluntary_ctxt_switches: 2,11,17,18,21,22,26
-nswap: 0,0,0,0,0,0,0,0,0
-processor: 1,1,0,0,0,0,0,0,0
-state: R,R,R,R,R,R,R,R,R
-stime: 0,0,0,2,2,2,2,2,2
-utime: 0,0,0,98,197,297,396,496,596
-voluntary_ctxt_switches: 54,56,56,56,56,56,56
+LWP (thread) Summary:
+LWP 23319: Main,OpenMP - stime:   2.38, utime:  90.69, nv_ctx:     1, ctx:  1537, CPUs allowed: [1,65]
+LWP 23324:     ZeroSum - stime:   0.27, utime:   0.18, nv_ctx:     0, ctx:    25, CPUs allowed: [71]
+LWP 23332:      OpenMP - stime:   0.33, utime:  98.92, nv_ctx:     0, ctx:     5, CPUs allowed: [1,65]
+LWP 23341:      OpenMP - stime:   0.33, utime:  98.92, nv_ctx:     0, ctx:     5, CPUs allowed: [2,66]
+LWP 23349:      OpenMP - stime:   0.33, utime:  98.92, nv_ctx:     1, ctx:     4, CPUs allowed: [2,66]
+LWP 23355:      OpenMP - stime:   0.33, utime:  98.92, nv_ctx:     0, ctx:     4, CPUs allowed: [3,67]
+LWP 23362:      OpenMP - stime:   0.33, utime:  98.92, nv_ctx:     1, ctx:     3, CPUs allowed: [3,67]
+LWP 23369:      OpenMP - stime:   0.33, utime:  98.08, nv_ctx: 11773, ctx:     2, CPUs allowed: [4,68]
+LWP 23377:      OpenMP - stime:   0.33, utime:  98.08, nv_ctx: 11773, ctx:     3, CPUs allowed: [4,68]
+LWP 23385:      OpenMP - stime:   0.33, utime:  98.92, nv_ctx:     1, ctx:     3, CPUs allowed: [5,69]
+LWP 23393:      OpenMP - stime:   0.33, utime:  98.92, nv_ctx:     1, ctx:     3, CPUs allowed: [5,69]
+LWP 23400:      OpenMP - stime:   0.25, utime:  99.00, nv_ctx:     1, ctx:     3, CPUs allowed: [6,70]
+LWP 23408:      OpenMP - stime:   0.25, utime:  99.00, nv_ctx:     0, ctx:     3, CPUs allowed: [6,70]
+LWP 23416:      OpenMP - stime:   0.25, utime:  98.42, nv_ctx:    26, ctx:     3, CPUs allowed: [7,71]
+LWP 23423:      OpenMP - stime:   0.25, utime:  99.00, nv_ctx:     1, ctx:     3, CPUs allowed: [7,71]
+LWP 23453:       Other - stime:   0.00, utime:   0.00, nv_ctx:     0, ctx:     3, CPUs allowed: [1,2,3,4,5,6,7,9,10,11,12,13,14,15,17,18,19,20,21,22,23,25,26,27,28,29,30,31,33,34,35,36,37,38,39,41,42,43,44,45,46,47,49,50,51,52,53,54,55,57,58,59,60,61,62,63,65,66,67,68,69,70,71,73,74,75,76,77,78,79,81,82,83,84,85,86,87,89,90,91,92,93,94,95,97,98,99,100,101,102,103,105,106,107,108,109,110,111,113,114,115,116,117,118,119,121,122,123,124,125,126,127]
 
-[ZeroSum] HWT 3281419 - CPUs allowed: [0,1,2,3,4,5,6,7]
-majflt: 0,0,0,0,0,0,0
-minflt: 11,17,48,55,86,93,126
-nonvoluntary_ctxt_switches: 0,0,0,0,0,0,0
-nswap: 0,0,0,0,0,0,0
-processor: 6,7,7,7,7,6,7
-state: R,R,R,R,R,R,R
-stime: 0,0,0,0,0,0,0
-utime: 0,0,0,0,0,0,0
-voluntary_ctxt_switches: 3,4,5,6,7,8,9
-
-[OpenMP] HWT 3281420 - CPUs allowed: [2]
-majflt: 0,0,0,0,0,0,0
-minflt: 3,6603,10378,10378,13971,13971,15715
-nonvoluntary_ctxt_switches: 2,4,4,4,4,5
-nswap: 0,0,0,0,0,0,0
-processor: 2,2,2,2,2,2,2
-state: R,R,R,R,R,R,R
-stime: 0,1,1,1,1,2,2
-utime: 0,98,197,297,396,497,596
-voluntary_ctxt_switches: 1,1,1,1,1,1
-
-[OpenMP] HWT 3281421 - CPUs allowed: [4]
-majflt: 0,0,0,0,0,0,0
-minflt: 4,5343,9107,9107,12395,12395,13972
-nonvoluntary_ctxt_switches: 3,5,6,8,8,9
-nswap: 0,0,0,0,0,0,0
-processor: 4,4,4,4,4,4,4
-state: R,R,R,R,R,R,R
-stime: 0,0,1,1,1,2,2
-utime: 0,98,198,297,396,496,596
-voluntary_ctxt_switches: 2,2,2,2,2,2
-
-[OpenMP] HWT 3281422 - CPUs allowed: [6]
-majflt: 0,0,0,0,0,0,0
-minflt: 2,3885,7595,7595,10819,10819,12367
-nonvoluntary_ctxt_switches: 1,3,4,7,8,10
-nswap: 0,0,0,0,0,0,0
-processor: 6,6,6,6,6,6,6
-state: R,R,R,R,R,R,R
-stime: 0,0,1,1,1,1,2
-utime: 0,98,198,297,397,497,596
-voluntary_ctxt_switches: 0,0,0,0,0,0
+Hardware Summary:
+CPU 001 - idle:   0.00, system:   0.18, user:  99.64
+CPU 002 - idle:   0.00, system:   0.09, user:  99.64
+CPU 003 - idle:   0.00, system:   0.09, user:  99.64
+CPU 004 - idle:   0.00, system:   0.09, user:  99.64
+CPU 005 - idle:   0.00, system:   0.09, user:  99.64
+CPU 006 - idle:   0.00, system:   0.09, user:  99.64
+CPU 007 - idle:   0.00, system:   0.09, user:  99.64
+CPU 065 - idle:   0.00, system:   0.00, user:  99.73
+CPU 066 - idle:   0.00, system:   0.09, user:  99.64
+CPU 067 - idle:   0.00, system:   0.09, user:  99.64
+CPU 068 - idle:   0.00, system:   0.09, user:  99.64
+CPU 069 - idle:   0.00, system:   0.09, user:  99.64
+CPU 070 - idle:   0.00, system:   0.09, user:  99.64
+CPU 071 - idle:   0.00, system:   0.36, user:  99.45
 ```
