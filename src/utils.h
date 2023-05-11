@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 #define gettid() syscall(SYS_gettid)
+#define UNUSED(expr) do { (void)(expr); } while (0)
 
 namespace zerosum {
 

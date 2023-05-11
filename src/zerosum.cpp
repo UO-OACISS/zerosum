@@ -144,7 +144,7 @@ void ZeroSum::getProcStatus() {
     auto fields = getThreadStat(filename.c_str());
     filename = "/proc/self/status";
     getThreadStatus(filename.c_str(), fields);
-    fields.insert(std::pair("step",std::to_string(step)));
+    //fields.insert(std::pair("step",std::to_string(step)));
     process = software::Process(getpid(), 0, 1, fields, allowed_list);
     process.hwthreads_raw = allowed_string;
     process.computeNode = &computeNode;

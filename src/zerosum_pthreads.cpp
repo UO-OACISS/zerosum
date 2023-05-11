@@ -36,7 +36,7 @@ int ZeroSum::getpthreads() {
             filename += "us";
             getThreadStatus(filename.c_str(), fields);
             //std::cout << filename << " : " << allowed_string << std::endl;
-            fields.insert(std::pair("step",std::to_string(step)));
+            //fields.insert(std::pair("step",std::to_string(step)));
             if (lwp == async_tid) {
                 this->process.add(lwp, allowed_list, fields, software::ThreadType::ZeroSum);
             } else {
