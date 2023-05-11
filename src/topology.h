@@ -68,6 +68,29 @@ public:
         }
         return tmpstr;
     }
+    std::string getSummary() {
+        std::string tmpstr;
+        bool comma = false;
+        for (auto sf : stat_fields) {
+            if (sf.first.compare("step") != 0) {
+                if (comma) { tmpstr += ","; }
+                tmpstr += " " + sf.first;
+                tmpstr += ": ";
+                double total = 0;
+                auto previous = sf.second[0];
+                for (auto v : sf.second) {
+                    strSub(v,previous,total);
+                    previous = v;
+                }
+                double average = total/(double)(sf.second.size()-1);
+                char tmp[256] = {0};
+                snprintf(tmp, 255, "%6.2f", average);
+                tmpstr += tmp;
+                comma = true;
+            }
+        }
+        return tmpstr;
+    }
 };
 
 class ComputeNode {
@@ -98,6 +121,21 @@ public:
                 outstr += std::to_string(hwt.id);
                 outstr += "\n";
                 outstr += hwt.getFields();
+            }
+        }
+        return outstr;
+    }
+    std::string getSummary(std::set<uint32_t> hwthreads) {
+        std::string outstr{"\nHardware Summary:\n"};
+        size_t len = 3;
+        for (auto hwt : hwThreads) {
+            if (hwthreads.count(hwt.id) > 0) {
+                std::string tmp = std::to_string(hwt.id);
+                int precision = len - std::min(len,tmp.size());
+                tmp.insert(0, precision, '0');
+                outstr += "CPU " + tmp + " -";
+                outstr += hwt.getSummary();
+                outstr += "\n";
             }
         }
         return outstr;
@@ -197,8 +235,7 @@ public:
         }
         return tmpstr;
     }
-    std::string toString(bool shutdown = false) {
-        char buffer[1025];
+    std::string typeToString(void) {
         std::string sType;
         if (type & Main) {
             sType = "Main";
@@ -214,7 +251,15 @@ public:
             if (sType.size() > 0) { sType += ","; }
             sType += "Other";
         }
+        size_t n = 11;
+        size_t precision = n - std::min(n, sType.size());
+        sType.insert(0, precision, ' ');
+        return sType;
+    }
 
+    std::string toString(bool shutdown = false) {
+        char buffer[1025];
+        std::string sType = typeToString();
         snprintf(buffer, 1024,
             "New Thread: [%s] LWP %d - CPUs allowed: [%s]\n",
             sType.c_str(), id, ::zerosum::toString(hwthreads).c_str());
@@ -224,6 +269,45 @@ public:
             outstr += "\n";
         }
         return outstr;
+    }
+    std::string getSummary(void) {
+        std::string tmpstr;
+        tmpstr += "LWP " + std::to_string(id) + ": " + typeToString() + " -";
+        for (auto sf : stat_fields) {
+            if (sf.first.compare("utime") == 0 ||
+                sf.first.compare("stime") == 0) {
+                tmpstr += " " + sf.first;
+                tmpstr += ": ";
+                double total = std::stod(sf.second.back());
+                double average = total/(double)(sf.second.size()-1);
+                char tmp[256] = {0};
+                snprintf(tmp, 255, "%6.2f", average);
+                tmpstr += tmp;
+                tmpstr += ",";
+            }
+        }
+        for (auto sf : stat_fields) {
+            if (sf.first.compare("nonvoluntary_ctxt_switches") == 0) {
+                tmpstr += " nv_ctx";
+                tmpstr += ": ";
+                size_t total = std::stol(sf.second.back());
+                char tmp[256] = {0};
+                snprintf(tmp, 255, "%5lu", total);
+                tmpstr += tmp;
+                tmpstr += ",";
+            }
+            if (sf.first.compare("voluntary_ctxt_switches") == 0) {
+                tmpstr += " ctx";
+                tmpstr += ": ";
+                size_t total = std::stol(sf.second.back());
+                char tmp[256] = {0};
+                snprintf(tmp, 255, "%5lu", total);
+                tmpstr += tmp;
+                tmpstr += ",";
+            }
+        }
+        tmpstr += " CPUs allowed: [" + ::zerosum::toString(hwthreads) + "]";
+        return tmpstr;
     }
 };
 
@@ -316,6 +400,34 @@ public:
             }
         }
         nthreads = threads.size();
+        return tmpstr;
+    }
+    std::string getSummary(void) {
+        std::string tmpstr{"\nZeroSum Summary:\n"};
+        tmpstr += "\nProcess Summary:\n";
+        // print process data
+        std::stringstream ss;
+        bool comma = false;
+        for (auto t : hwthreads) {
+            if (comma) ss << ",";
+            ss << t;
+            comma = true;
+        }
+        std::string discrete{ss.str()};
+        char buffer[1025];
+        snprintf(buffer, 1024,
+            "MPI %03d - PID %d - Node %s - CPUs allowed: [%s]\n",
+            rank, id, computeNode->name.c_str(), discrete.c_str());
+        tmpstr += buffer;
+
+        // print total threads
+        tmpstr += "\nLWP (thread) Summary:\n";
+        for (auto t : threads) {
+            tmpstr += t.second.getSummary();
+            tmpstr += "\n";
+        }
+        // print assigned cores
+        tmpstr += computeNode->getSummary(hwthreads);
         return tmpstr;
     }
 };

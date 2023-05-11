@@ -175,6 +175,7 @@ void ZeroSum::shutdown(void) {
     if (logfile.is_open()) {
         logfile.close();
     }
+    if (process.rank == 0) std::cout << process.getSummary() << std::endl;
     PERFSTUBS_FINALIZE();
 }
 
