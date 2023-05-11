@@ -55,7 +55,7 @@ To get backtrace of each thread:
 https://github.com/albertz/openlierox/blob/0.59/src/common/Debug_GetCallstack.cpp
 This could be useful to determine library source of thread, if needed.
 
-Sample output from the first MPI rank of an 8 process job on Frontier (see [job-frontier.sh](job-frontier.sh):
+Sample output from the first MPI rank of an 8 process job on Frontier (see [job-frontier.sh](job-frontier.sh)):
 ```
 Duration of execution: 12.4312 s
 
