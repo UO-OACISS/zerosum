@@ -55,7 +55,7 @@ int main(int argc, char *argv[]){
     UNUSED(argv);
 
     /* do some work */
-    constexpr int n = 3000;
+    constexpr int n = 1024*4;
     double * matrix[n];
     for (int i = 0 ; i < n ; i++) {
         matrix[i] = (double*)malloc(sizeof(double)*n);

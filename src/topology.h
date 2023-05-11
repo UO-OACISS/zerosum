@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <sstream>
+#include <algorithm>
 #include <array>
 #include "utils.h"
 
@@ -55,7 +56,7 @@ public:
                     previous = v;
                 }
                 tmpstr += " average: ";
-                double average = total/(double)(sf.second.size()-1);
+                double average = total/(double)(std::max(size_t(1),sf.second.size()-1));
                 tmpstr += std::to_string(average);
             } else {
                 for (auto v : sf.second) {
@@ -82,7 +83,7 @@ public:
                     strSub(v,previous,total);
                     previous = v;
                 }
-                double average = total/(double)(sf.second.size()-1);
+                double average = total/(double)(std::max(size_t(1),sf.second.size()-1));
                 char tmp[256] = {0};
                 snprintf(tmp, 255, "%6.2f", average);
                 tmpstr += tmp;
@@ -279,7 +280,7 @@ public:
                 tmpstr += " " + sf.first;
                 tmpstr += ": ";
                 double total = std::stod(sf.second.back());
-                double average = total/(double)(sf.second.size()-1);
+                double average = total/(double)(std::max(size_t(1),sf.second.size()-1));
                 char tmp[256] = {0};
                 snprintf(tmp, 255, "%6.2f", average);
                 tmpstr += tmp;

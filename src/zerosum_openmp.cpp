@@ -16,11 +16,9 @@
 namespace zerosum {
 
 void ZeroSum::getopenmp() {
-    int hwthread;
-    int thread_id = 0;
     std::string outdata;
 
-#pragma omp parallel default(shared) private(hwthread, thread_id)
+#pragma omp parallel default(shared)
     {
         auto nthreads = omp_get_num_threads();
 #pragma omp for ordered
@@ -28,8 +26,6 @@ void ZeroSum::getopenmp() {
         {
 #pragma omp ordered
             {
-                thread_id = omp_get_thread_num();
-                hwthread = sched_getcpu();
                 int nhwthr = 0;
                 std::string tmpstr;
                 auto lwp = gettid();
