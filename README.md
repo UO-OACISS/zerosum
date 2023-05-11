@@ -10,22 +10,24 @@ Things to check:
         - gpu binding (done)
         - openmp thread binding (done)
         - other threads (done)
-    - Get utilization
-        - get per-hwt utilization
-        - per bound set of resources - organize into sets
-    - Get contention
-        - nonvoluntary_ctx_switch
-        - cpustat values:
+    - Get utilization (done)
+        - get per-hwt utilization (done)
+        - per bound set of resources - organize into sets (done)
+    - Get contention (done)
+        - nonvoluntary_ctx_switch (done)
+        - cpustat values: (done)
             cpu_stat->name, &cpu_stat->user, &cpu_stat->nice,
             &cpu_stat->system, &cpu_stat->idle,
             &cpu_stat->iowait, &cpu_stat->irq, &cpu_stat->softirq,
             &cpu_stat->steal, &cpu_stat->guest
-        - for whole process
-        - can get per thread - yes in /proc/self/task/tid/status
+        - for whole process (no need)
+        - can get per thread - yes in /proc/self/task/tid/status (done)
     - Memory usage
         - % of total
     - gpu binding
         - is it optimal? without "closest" it may not be. can we get that from lstopo?
+    - gpu utilization
+        - using NVML, ROCm-SMI
 
     - check this all over time
 
@@ -33,22 +35,6 @@ Notes:
     - Don't want to pin progress threads. Need to identify the origin of the threads.
       MPI, HIP, CUDA threads should be allowed to float within their resource set.
 
-Capture once:
-    - Process Binding
-    - GPU Binding
-    - OpenMP thread ids
-    - HWLOC topology
-
-Capture periodically:
-    - List of thread ids
-    - For each thread:
-        - get binding count, ids
-        - get contention value(s)
-    - For each core in process set:
-        - how many threads are on this core?
-            - proportional?
-            - exclusive?
-        - get utilization
 ```
 
 To get backtrace of each thread:
