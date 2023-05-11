@@ -40,6 +40,7 @@ private:
     std::atomic<uint32_t> step;
     std::condition_variable cv;
     std::mutex cv_m;
+    std::chrono::time_point<std::chrono::steady_clock> start;
 
     // Other private member variables and functions...
     void getMPIinfo(void);

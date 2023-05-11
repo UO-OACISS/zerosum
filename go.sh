@@ -3,7 +3,7 @@ PATH=$PATH:$HOME/src/apex/install_gilgamesh_5.2.0/bin
 rm -rf build
 
 cmake -B build \
--DCMAKE_BUILD_TYPE=Debug \
+-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 -DCMAKE_CXX_COMPILER=`which amdclang++` \
 -DCMAKE_C_COMPILER=`which amdclang` \
 -DCMAKE_C_FLAGS=-gdwarf-4 \

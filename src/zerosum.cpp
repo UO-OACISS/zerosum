@@ -152,7 +152,7 @@ void ZeroSum::getProcStatus() {
 }
 
 /* The main singleton constructor for the ZeroSum class */
-ZeroSum::ZeroSum(void) : step(0) {
+ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()) {
     working = true;
     PERFSTUBS_INITIALIZE();
     /* Important to do this now, before OpenMP is initialized
@@ -170,12 +170,18 @@ void ZeroSum::shutdown(void) {
     working = false;
     cv.notify_all();
     worker.join();
+    if (process.rank == 0) {
+        // record end time
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> diff = end - start;
+        std::cout << "\nDuration of execution: " << diff.count() << " s\n";
+        std::cout << process.getSummary() << std::endl;
+    }
     logfile << process.logThreads(true) << std::flush;
     logfile << computeNode.toString(process.hwthreads) << std::flush;
     if (logfile.is_open()) {
         logfile.close();
     }
-    if (process.rank == 0) std::cout << process.getSummary() << std::endl;
     PERFSTUBS_FINALIZE();
 }
 

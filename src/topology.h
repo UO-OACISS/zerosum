@@ -139,6 +139,17 @@ public:
                 outstr += "\n";
             }
         }
+        outstr += "\nOther Hardware:\n";
+        for (auto hwt : hwThreads) {
+            if (hwthreads.count(hwt.id) == 0) {
+                std::string tmp = std::to_string(hwt.id);
+                int precision = len - std::min(len,tmp.size());
+                tmp.insert(0, precision, '0');
+                outstr += "CPU " + tmp + " -";
+                outstr += hwt.getSummary();
+                outstr += "\n";
+            }
+        }
         return outstr;
     }
 };
@@ -404,8 +415,7 @@ public:
         return tmpstr;
     }
     std::string getSummary(void) {
-        std::string tmpstr{"\nZeroSum Summary:\n"};
-        tmpstr += "\nProcess Summary:\n";
+        std::string tmpstr{"\nProcess Summary:\n"};
         // print process data
         std::stringstream ss;
         bool comma = false;
