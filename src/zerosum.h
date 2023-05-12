@@ -18,7 +18,9 @@ public:
 
     // Other public member functions...
     void shutdown(void);
+    void handleCrash(void);
     void parseEnv(char** envp);
+    uint32_t getRank(void) { return process.rank; }
 
 private:
     /* Standard singleton definition follows */

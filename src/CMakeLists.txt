@@ -6,12 +6,13 @@ CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/src/zerosum-mpi
 
 if (ZeroSum_STANDALONE)
     add_definitions(-DZEROSUM_STANDALONE)
+    set(ERROR_HANDLING error_handling.cpp)
 endif ()
 if (ZeroSum_WITH_PerfStubs)
     add_definitions(-DPERFSTUBS_USE_TIMERS)
     set(PERFSTUBS_LIB perfstubs)
 endif ()
-set(SOURCES zerosum_openmp.cpp zerosum.cpp zerosum_nogpu.cpp zerosum_pthreads.cpp utils.cpp)
+set(SOURCES zerosum_openmp.cpp zerosum.cpp zerosum_nogpu.cpp zerosum_pthreads.cpp utils.cpp ${ERROR_HANDLING})
 
 add_library(zerosum SHARED ${SOURCES})
 target_link_libraries (zerosum ${PERFSTUBS_LIB} OpenMP::OpenMP_CXX pthread stdc++)

@@ -35,7 +35,7 @@ public:
         unsigned b = atol(rhs.c_str());
         //double ticks = sysconf(_SC_CLK_TCK);
         //std::string tmpstr{std::to_string((a-b)/ticks)};
-        unsigned result = a-b;
+        unsigned result = a>b ? a-b : 0;
         total += result;
         std::string tmpstr{std::to_string(result)};
         return tmpstr;
@@ -218,7 +218,8 @@ public:
     std::string strSub(std::string lhs, std::string rhs) {
         unsigned a = atol(lhs.c_str());
         unsigned b = atol(rhs.c_str());
-        std::string tmpstr{std::to_string(a-b)};
+        unsigned result = a>b ? a-b : 0;
+        std::string tmpstr{std::to_string(result)};
         return tmpstr;
     }
     std::string getFields() {

@@ -17,6 +17,7 @@ Written by Kevin Huck
 #include "perfstubs.h"
 #include "utils.h"
 #ifdef ZEROSUM_STANDALONE
+#include "error_handling.h"
 #ifdef ZEROSUM_USE_STATIC_GLOBAL_CONSTRUCTOR
 #include "global_constructor_destructor.h"
 extern "C" {
@@ -154,6 +155,9 @@ void ZeroSum::getProcStatus() {
 /* The main singleton constructor for the ZeroSum class */
 ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()) {
     working = true;
+#ifdef ZEROSUM_STANDALONE
+    register_signal_handler();
+#endif
     PERFSTUBS_INITIALIZE();
     /* Important to do this now, before OpenMP is initialized
      * and this thread gets pinned to any cores */
@@ -164,6 +168,13 @@ ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()) {
     step++;
     getopenmp();
     //worker.detach();
+}
+
+void ZeroSum::handleCrash(void) {
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> diff = end - start;
+    std::cerr << "\nDuration of execution: " << diff.count() << " s\n";
+    std::cerr << process.getSummary() << std::endl;
 }
 
 void ZeroSum::shutdown(void) {

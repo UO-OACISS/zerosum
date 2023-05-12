@@ -1,5 +1,15 @@
 # Example without MPI
 
+if (ZeroSum_STANDALONE)
+    add_executable(crasher crasher.c)
+    target_link_libraries (crasher zerosum pthread stdc++)
+    add_dependencies (zerosum.tests crasher)
+
+    add_test (NAME test_crasher COMMAND taskset --cpu-list 0-7
+        ${CMAKE_BINARY_DIR}/bin/crasher)
+    set_tests_properties(test_crasher PROPERTIES WILL_FAIL TRUE)
+endif()
+
 add_executable(lu-decomp main.cpp)
 target_link_libraries (lu-decomp zerosum OpenMP::OpenMP_CXX pthread stdc++)
 add_dependencies (zerosum.tests lu-decomp)
