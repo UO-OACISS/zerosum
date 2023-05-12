@@ -67,6 +67,27 @@ function(dump_cmake_variables)
     endforeach()
 endfunction()
 
+INSTALL(TARGETS zerosum
+        EXPORT ZeroSumTargets
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        INCLUDES DESTINATION include)
+
+install(EXPORT ZeroSumTargets
+        FILE ZeroSumTargets.cmake
+        NAMESPACE ZeroSum::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ZeroSum)
+
+install(FILES
+    ${PROJECT_BINARY_DIR}/bin/zerosum
+    ${PROJECT_BINARY_DIR}/bin/zerosum-mpi
+    DESTINATION bin
+    PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+    GROUP_EXECUTE GROUP_READ
+    WORLD_EXECUTE WORLD_READ
+    )
+
 message(STATUS "----------------------------------------------------------------------")
 message(STATUS "ZeroSum Variable Report:")
 message(STATUS "----------------------------------------------------------------------")
