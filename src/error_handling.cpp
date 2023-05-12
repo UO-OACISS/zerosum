@@ -48,6 +48,7 @@ void print_backtrace() {
    std::cerr << strings[i] << std::endl;
   }
   std::cerr << std::endl;
+
 }
 
 static void custom_signal_handler(int sig) {
@@ -72,7 +73,7 @@ static void custom_signal_handler(int sig) {
   std::cerr << std::endl;
   std::cerr << std::endl;
   fflush(stderr);
-  //ZeroSum::getInstance().handleCrash();
+  ZeroSum::getInstance().handleCrash();
   exit(sig);
 }
 
@@ -86,10 +87,17 @@ static void custom_signal_handler_advanced(int sig, siginfo_t * info, void * con
 
 int register_signal_handler() {
   //std::cout << "ZeroSum signal handler registering..." << std::endl;
+  static bool once{false};
+  if (once) return 0;
   struct sigaction act;
   struct sigaction old;
   memset(&act, 0, sizeof(act));
   memset(&old, 0, sizeof(old));
+  /* call backtrace once, to "prime the pump" so calling backtrace
+   * during a async-signal-safe handler doesn't allocate memory to
+   * dynamically load glibc */
+  void* dummy = NULL;
+  backtrace(&dummy, 1);
 
   sigemptyset(&act.sa_mask);
   std::array<int,13> mysignals = {
@@ -115,6 +123,7 @@ int register_signal_handler() {
     sigaction(s, &act, &old);
     other_handlers[s] = old;
   }
+  once = true;
   //std::cout << "ZeroSum signal handler registered!" << std::endl;
   return 0;
 }

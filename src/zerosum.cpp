@@ -153,7 +153,7 @@ void ZeroSum::getProcStatus() {
 }
 
 /* The main singleton constructor for the ZeroSum class */
-ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()) {
+ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()), doShutdown(true) {
     working = true;
 #ifdef ZEROSUM_STANDALONE
     register_signal_handler();
@@ -171,13 +171,15 @@ ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()) {
 }
 
 void ZeroSum::handleCrash(void) {
-    auto end = std::chrono::steady_clock::now();
-    std::chrono::duration<double> diff = end - start;
-    std::cerr << "\nDuration of execution: " << diff.count() << " s\n";
-    std::cerr << process.getSummary() << std::endl;
+    //auto end = std::chrono::steady_clock::now();
+    //std::chrono::duration<double> diff = end - start;
+    //std::cerr << "\nDuration of execution: " << diff.count() << " s\n";
+    //std::cerr << process.getSummary() << std::endl;
+    doShutdown = false;
 }
 
 void ZeroSum::shutdown(void) {
+    if (!doShutdown) return;
     working = false;
     cv.notify_all();
     worker.join();

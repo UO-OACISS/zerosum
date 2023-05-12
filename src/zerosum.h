@@ -25,7 +25,14 @@ public:
 private:
     /* Standard singleton definition follows */
     ZeroSum();
-    ~ZeroSum() = default;
+    ~ZeroSum() {
+        if (working) {
+            shutdown();
+        }
+        if (worker.joinable()) {
+            worker.detach();
+        }
+    };
     ZeroSum(const ZeroSum&) = delete;
     ZeroSum& operator=(const ZeroSum&) = delete;
     ZeroSum(ZeroSum&&) = delete;
@@ -43,6 +50,7 @@ private:
     std::condition_variable cv;
     std::mutex cv_m;
     std::chrono::time_point<std::chrono::steady_clock> start;
+    bool doShutdown;
 
     // Other private member variables and functions...
     void getMPIinfo(void);
