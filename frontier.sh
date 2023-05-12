@@ -4,11 +4,11 @@ rm -rf build
 
 cmake -B build \
 -DCMAKE_BUILD_TYPE=RelWithDebInfo \
--DCMAKE_CXX_COMPILER=`which CC` \
--DCMAKE_C_COMPILER=`which cc` \
 -DZeroSum_STANDALONE=TRUE \
 
 cmake --build build -j
 #ctest --test-dir build
 
 #-DZeroSum_WITH_PerfStubs=FALSE \
+#-DCMAKE_CXX_COMPILER=`which CC` \
+#-DCMAKE_C_COMPILER=`which cc` \
