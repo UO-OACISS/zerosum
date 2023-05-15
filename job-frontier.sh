@@ -9,10 +9,33 @@
 
 # Assumption - this script will reserve 1 core per L3 bank for system activity.
 
-export OMP_PROC_BIND=spread
-export OMP_PLACES=cores
-export OMP_NUM_THREADS=14
-export OMP_SCHEDULE=guided
+#export OMP_PROC_BIND=spread
+#export OMP_PLACES=cores
+#export OMP_NUM_THREADS=14
+#export OMP_SCHEDULE=guided
 export SLURM_CPU_BIND_VERBOSE=1
 
+echo "Defaults"
 srun -n8 --cpus-per-task=14 --gpu-bind=closest ./build/bin/zerosum-mpi ./build/bin/lu-decomp-mpi
+for i in {0..7} ; do
+    mv zs.${i}.log zs.14.default.${i}.log
+done
+
+echo "With Cores"
+export OMP_PROC_BIND=close
+export OMP_PLACES=cores
+export OMP_NUM_THREADS=14
+srun -n8 --cpus-per-task=14 --gpu-bind=closest ./build/bin/zerosum-mpi ./build/bin/lu-decomp-mpi
+for i in {0..7} ; do
+    mv zs.${i}.log zs.14.cores.${i}.log
+done
+
+echo "With Threads"
+export OMP_PROC_BIND=close
+export OMP_PLACES=threads
+export OMP_NUM_THREADS=14
+srun -n8 --cpus-per-task=14 --gpu-bind=closest ./build/bin/zerosum-mpi ./build/bin/lu-decomp-mpi
+for i in {0..7} ; do
+    mv zs.${i}.log zs.14.threads.${i}.log
+done
+

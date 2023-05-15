@@ -217,7 +217,10 @@ void ZeroSum::parseEnv(char** envp) {
         if (strncmp(envp[i], "HIP_", 4) == 0) {
             process.environment.insert(split(envp[i]));
         }
-        if (strncmp(envp[i], "ROCR_", 5) == 0) {
+        if (strncmp(envp[i], "ROC", 3) == 0) {
+            process.environment.insert(split(envp[i]));
+        }
+        if (strstr(envp[i], "VISIBLE_DEVICES") != NULL) {
             process.environment.insert(split(envp[i]));
         }
         if (strncmp(envp[i], "CUDA_", 5) == 0) {
