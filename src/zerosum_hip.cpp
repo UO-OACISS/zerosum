@@ -27,6 +27,7 @@ namespace zerosum {
 
 int ZeroSum::getgpu(void) {
     const char* gpu_id_list;
+    std::vector<uint32_t> device_ids;
 
     // If HIP_VISIBLE_DEVICES is set, capture visible GPUs
     const char* gpu_visible_devices = getenv("ROCR_VISIBLE_DEVICES");
@@ -35,6 +36,7 @@ int ZeroSum::getgpu(void) {
     }
     else{
        	gpu_id_list = gpu_visible_devices;
+        device_ids = parseDiscreteValues(std::string(gpu_visible_devices));
     }
 
 	// Find how many GPUs runtime says are available
@@ -50,7 +52,12 @@ int ZeroSum::getgpu(void) {
 		// Loop over the GPUs available to each MPI rank
 		for(int i=0; i<num_devices; i++){
             std::map<std::string,std::string> fields;
-            fields.insert(std::pair(std::string("Index"), std::to_string(i)));
+            fields.insert(std::pair(std::string("RT_GPU_ID"), std::to_string(i)));
+            if (device_ids.size() > (unsigned)i) {
+                fields.insert(std::pair(std::string("GPU_ID"), std::to_string(device_ids[i])));
+            } else {
+                fields.insert(std::pair(std::string("GPU_ID"), std::to_string(i)));
+            }
 			gpuErrorCheck( hipSetDevice(i) );
 
 			// Get the PCIBusId for each GPU and use it to query for UUID

@@ -237,7 +237,7 @@ public:
             }
         }
         for (auto gpu : gpus) {
-            outstr += "GPU " + gpu.properties["Index"] + " -";
+            outstr += "GPU " + gpu.properties["RT_GPU_ID"] + " -";
             outstr += gpu.getFields();
             outstr += "\n";
         }
@@ -257,7 +257,7 @@ public:
             }
         }
         for (auto gpu : gpus) {
-            outstr += "GPU " + gpu.properties["Index"] + " -";
+            outstr += "GPU " + gpu.properties["RT_GPU_ID"] + " -";
             outstr += gpu.getSummary();
             outstr += "\n";
         }
