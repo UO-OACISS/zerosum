@@ -74,7 +74,7 @@ function(dump_cmake_variables)
     endforeach()
 endfunction()
 
-INSTALL(TARGETS zerosum
+INSTALL(TARGETS zerosum zerosum-mpi
         EXPORT ZeroSumTargets
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
