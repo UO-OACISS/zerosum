@@ -103,7 +103,12 @@ inline void ZeroSum::openLog(void) {
     PERFSTUBS_SCOPED_TIMER_FUNC();
     // open a log file
     std::string filename{"zs."};
-    filename += std::to_string(process.rank);
+    // prefix the rank with as many zeros as needed to sort correctly.
+    size_t len = std::to_string(process.size-1).size();
+    std::string tmp = std::to_string(process.rank);
+    int precision = len - std::min(len,tmp.size());
+    tmp.insert(0, precision, '0');
+    filename += tmp;
     filename += ".log";
     //std::cout << "Opening log file: " << filename << std::endl;
     logfile.open(filename);
