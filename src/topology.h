@@ -95,6 +95,59 @@ public:
     }
 };
 
+class GPU {
+public:
+    GPU(std::map<std::string, std::string> props) {
+        properties = props;
+    }
+    GPU() = default;
+    ~GPU() = default;
+    uint32_t id;
+    std::map<std::string, std::string> properties;
+    std::map<std::string, std::vector<std::string>> stat_fields;
+    void updateFields(std::map<std::string, std::string> fields, uint32_t step) {
+        for (auto f : fields) {
+            if (stat_fields.count(f.first) == 0) {
+                std::vector<std::string> v;
+                stat_fields.insert(std::pair(f.first, v));
+            }
+            stat_fields[f.first].push_back(f.second);
+        }
+        //stat_fields["step"].push_back(std::to_string(step));
+        UNUSED(step);
+    }
+    std::string getFields() {
+        std::string tmpstr;
+        for (auto sf : stat_fields) {
+            tmpstr += "\t";
+            tmpstr += sf.first;
+            tmpstr += ": ";
+            bool comma = false;
+            double total = 0;
+                auto previous = sf.second[0];
+                for (auto v : sf.second) {
+                    if (comma) { tmpstr += ","; }
+                    tmpstr += v;
+                    comma = true;
+                    previous = v;
+                }
+                tmpstr += " average: ";
+                double average = total/(double)(std::max(size_t(1),sf.second.size()-1));
+                tmpstr += std::to_string(average);
+            tmpstr += "\n";
+        }
+        return tmpstr;
+    }
+    std::string getSummary() {
+        std::string tmpstr;
+        for (auto p : properties) {
+                tmpstr += "\t" + p.first;
+                tmpstr += ": " + p.second + "\n";
+        }
+        return tmpstr;
+    }
+};
+
 class ComputeNode {
 public:
     ComputeNode(std::string _name) :
@@ -109,6 +162,13 @@ public:
     std::string name;
     unsigned ncpus;
     std::vector<HWT> hwThreads;
+    std::vector<GPU> gpus;
+    void addGpu(std::vector<std::map<std::string,std::string>> props) {
+        gpus.reserve(props.size());
+        for (auto p : props) {
+            gpus.push_back(GPU(p));
+        }
+    }
     void updateFields(std::vector<std::map<std::string,std::string>> fields, uint32_t step) {
         for (unsigned index = 0 ; index < ncpus ; index++) {
             hwThreads[index].updateFields(fields[index], step);
@@ -139,6 +199,11 @@ public:
                 outstr += hwt.getSummary();
                 outstr += "\n";
             }
+        }
+        for (auto gpu : gpus) {
+            outstr += "GPU " + gpu.properties["Index"] + " -";
+            outstr += gpu.getSummary();
+            outstr += "\n";
         }
         outstr += "\nOther Hardware:\n";
         for (auto hwt : hwThreads) {

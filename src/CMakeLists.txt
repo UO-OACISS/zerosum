@@ -8,18 +8,33 @@ if (ZeroSum_STANDALONE)
     add_definitions(-DZEROSUM_STANDALONE)
     set(ERROR_HANDLING error_handling.cpp)
 endif ()
+
 if (ZeroSum_WITH_PerfStubs)
     add_definitions(-DPERFSTUBS_USE_TIMERS)
     set(PERFSTUBS_LIB perfstubs)
 endif ()
-set(SOURCES zerosum_openmp.cpp zerosum.cpp zerosum_nogpu.cpp zerosum_pthreads.cpp utils.cpp ${ERROR_HANDLING})
+
+set(GPU_SOURCE zerosum_nogpu.cpp)
+if (ZeroSum_WITH_HIP)
+    add_definitions(-DUSE_HIP)
+    set(HIP_LIB rocm_smi64 hip::host)
+    set(GPU_SOURCE zerosum_hip.cpp)
+endif ()
+
+set(SOURCES
+    zerosum.cpp
+    zerosum_openmp.cpp
+    zerosum_pthreads.cpp
+    utils.cpp
+    ${GPU_SOURCE}
+    ${ERROR_HANDLING})
 
 add_library(zerosum SHARED ${SOURCES})
-target_link_libraries (zerosum ${PERFSTUBS_LIB} OpenMP::OpenMP_CXX pthread stdc++)
+target_link_libraries (zerosum ${PERFSTUBS_LIB} ${HIP_LIB} OpenMP::OpenMP_CXX pthread stdc++)
 add_dependencies (zerosum.tests zerosum)
 
 add_library(zerosum-mpi SHARED ${SOURCES})
 target_compile_definitions(zerosum-mpi PUBLIC -DUSE_MPI=1)
-target_link_libraries (zerosum-mpi ${PERFSTUBS_LIB} MPI::MPI_CXX OpenMP::OpenMP_CXX pthread stdc++)
+target_link_libraries (zerosum-mpi ${PERFSTUBS_LIB} ${HIP_LIB} MPI::MPI_CXX OpenMP::OpenMP_CXX pthread stdc++)
 add_dependencies (zerosum.tests zerosum-mpi)
 

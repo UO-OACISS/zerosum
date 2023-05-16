@@ -55,7 +55,11 @@ int main(int argc, char *argv[]){
     UNUSED(argv);
 
     /* do some work */
+#ifdef NDEBUG
     constexpr int n = 1024*4;
+#else
+    constexpr int n = 1024*2;
+#endif
     double * matrix[n];
     for (int i = 0 ; i < n ; i++) {
         matrix[i] = (double*)malloc(sizeof(double)*n);
