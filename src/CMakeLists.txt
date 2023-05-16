@@ -18,7 +18,7 @@ set(GPU_SOURCE zerosum_nogpu.cpp)
 if (ZeroSum_WITH_HIP)
     add_definitions(-DUSE_HIP)
     set(HIP_LIB rocm_smi64 hip::host)
-    set(GPU_SOURCE zerosum_hip.cpp)
+    set(GPU_SOURCE zerosum_hip.cpp rocm_smi.cpp)
 endif ()
 
 set(SOURCES

@@ -10,7 +10,7 @@ Written by Tom Papatheodore
 #include <set>
 #include <iomanip>
 #include <string.h>
-#include <hip/hip_runtime.h>
+#include "hip/hip_runtime.h"
 #include "zerosum.h"
 
 // Macro for checking errors in GPU API calls

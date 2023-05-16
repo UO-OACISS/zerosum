@@ -105,7 +105,7 @@ public:
     uint32_t id;
     std::map<std::string, std::string> properties;
     std::map<std::string, std::vector<std::string>> stat_fields;
-    void updateFields(std::map<std::string, std::string> fields, uint32_t step) {
+    void updateFields(std::map<std::string, std::string> fields) {
         for (auto f : fields) {
             if (stat_fields.count(f.first) == 0) {
                 std::vector<std::string> v;
@@ -113,36 +113,82 @@ public:
             }
             stat_fields[f.first].push_back(f.second);
         }
-        //stat_fields["step"].push_back(std::to_string(step));
-        UNUSED(step);
+    }
+    std::string strSub(std::string lhs, std::string rhs, double& total) {
+        unsigned a = atol(lhs.c_str());
+        unsigned b = atol(rhs.c_str());
+        //double ticks = sysconf(_SC_CLK_TCK);
+        //std::string tmpstr{std::to_string((a-b)/ticks)};
+        unsigned result = a>b ? a-b : 0;
+        total += result;
+        std::string tmpstr{std::to_string(result)};
+        return tmpstr;
     }
     std::string getFields() {
         std::string tmpstr;
+        for (auto p : properties) {
+                tmpstr += "\t" + p.first;
+                tmpstr += ": " + p.second + "\n";
+        }
         for (auto sf : stat_fields) {
             tmpstr += "\t";
             tmpstr += sf.first;
             tmpstr += ": ";
             bool comma = false;
             double total = 0;
+            if (sf.first.compare("Energy Average (J)") == 0 ||
+                sf.first.compare("GFX Activity %") == 0 ||
+                sf.first.compare("Memory Activity %") == 0) {
                 auto previous = sf.second[0];
                 for (auto v : sf.second) {
                     if (comma) { tmpstr += ","; }
-                    tmpstr += v;
+                    tmpstr += strSub(v,previous,total);
                     comma = true;
                     previous = v;
                 }
                 tmpstr += " average: ";
                 double average = total/(double)(std::max(size_t(1),sf.second.size()-1));
                 tmpstr += std::to_string(average);
+            } else {
+                for (auto v : sf.second) {
+                    if (comma) { tmpstr += ","; }
+                    tmpstr += v;
+                    comma = true;
+                    total += atof(v.c_str());
+                }
+                tmpstr += " average: ";
+                double average = total/(double)(std::max(size_t(1),sf.second.size()));
+                tmpstr += std::to_string(average);
+            }
             tmpstr += "\n";
         }
         return tmpstr;
     }
     std::string getSummary() {
         std::string tmpstr;
-        for (auto p : properties) {
-                tmpstr += "\t" + p.first;
-                tmpstr += ": " + p.second + "\n";
+        for (auto sf : stat_fields) {
+            tmpstr += "\t";
+            tmpstr += sf.first;
+            tmpstr += ": ";
+            double total = 0;
+            if (sf.first.compare("Energy Average (J)") == 0 ||
+                sf.first.compare("GFX Activity %") == 0 ||
+                sf.first.compare("Memory Activity %") == 0) {
+                auto previous = sf.second[0];
+                for (auto v : sf.second) {
+                    strSub(v,previous,total);
+                    previous = v;
+                }
+                double average = total/(double)(std::max(size_t(1),sf.second.size()-1));
+                tmpstr += std::to_string(average);
+            } else {
+                for (auto v : sf.second) {
+                    total += atof(v.c_str());
+                }
+                double average = total/(double)(std::max(size_t(1),sf.second.size()));
+                tmpstr += std::to_string(average);
+            }
+            tmpstr += "\n";
         }
         return tmpstr;
     }
@@ -169,6 +215,11 @@ public:
             gpus.push_back(GPU(p));
         }
     }
+    void updateGPU(std::vector<std::map<std::string,std::string>> fields) {
+        for (unsigned index = 0 ; index < gpus.size() ; index++) {
+            gpus[index].updateFields(fields[index]);
+        }
+    }
     void updateFields(std::vector<std::map<std::string,std::string>> fields, uint32_t step) {
         for (unsigned index = 0 ; index < ncpus ; index++) {
             hwThreads[index].updateFields(fields[index], step);
@@ -184,6 +235,11 @@ public:
                 outstr += "\n";
                 outstr += hwt.getFields();
             }
+        }
+        for (auto gpu : gpus) {
+            outstr += "GPU " + gpu.properties["Index"] + " -";
+            outstr += gpu.getFields();
+            outstr += "\n";
         }
         return outstr;
     }

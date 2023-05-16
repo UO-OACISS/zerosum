@@ -134,6 +134,7 @@ void ZeroSum::doPeriodic(void) {
     step++;
     getpthreads();
     computeNode.updateFields(parseProcStat(),step);
+    getgpustatus();
 }
 
 void ZeroSum::getProcStatus() {

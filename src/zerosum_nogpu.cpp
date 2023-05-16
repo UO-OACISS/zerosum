@@ -18,4 +18,8 @@ int ZeroSum::getgpu() {
     return 0;
 }
 
+int ZeroSum::getgpustatus(void) {
+    return 0;
+}
+
 }

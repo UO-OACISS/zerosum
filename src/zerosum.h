@@ -56,6 +56,7 @@ private:
     void getMPIinfo(void);
     void openLog(void);
     int getgpu(void);
+    int getgpustatus(void);
     void getopenmp(void);
     int getpthreads(void);
     void getProcStatus(void);
