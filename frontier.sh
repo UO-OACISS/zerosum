@@ -5,6 +5,8 @@ rm -rf build
 cmake -B build \
 -DCMAKE_BUILD_TYPE=RelWithDebInfo \
 -DCMAKE_INSTALL_PREFIX=`pwd`/install \
+-DROCM_PATH=/opt/rocm-5.2.0 \
+-DZeroSum_WITH_HIP=TRUE \
 -DZeroSum_STANDALONE=TRUE \
 
 cmake --build build -j
