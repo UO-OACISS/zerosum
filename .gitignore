@@ -36,3 +36,4 @@ build
 
 # Install directory
 install
+zs.*.log
