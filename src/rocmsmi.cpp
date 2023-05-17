@@ -1,4 +1,4 @@
-#include "rocm_smi.h"
+#include "rocmsmi.h"
 #include "hip/hip_runtime.h"
 
 // Macro for checking errors in GPU API calls

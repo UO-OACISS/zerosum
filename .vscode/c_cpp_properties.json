@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/perfstubs",
+                "/opt/rocm-5.2.0/include",
+                "/opt/rocm-5.2.0/rocm_smi/include",
+                "/storage/packages/openmpi/4.1.1-rocm5.2.0/include",
+                "/opt/rocm-5.2.0/llvm/include",
+                "/opt/rocm-5.2.0/llvm/lib/clang/14.0.0/include",
+                "/usr/include",
+                "/usr/include/c++/8",
+                "/usr/include/c++/8/x86_64-redhat-linux"
+            ],
+            "defines": [],
+            "compilerPath": "/opt/rocm-5.2.0/llvm/bin/amdclang++",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-clang-x64"
+        }
+    ],
+    "version": 4
+}
