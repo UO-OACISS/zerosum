@@ -182,22 +182,34 @@ public:
             tmpstr += sf.first;
             tmpstr += ": ";
             double total = 0;
+            double _min = stod(sf.second[0]);
+            double _max = stod(sf.second[0]);
             if (sf.first.compare("Energy Average (J)") == 0 ||
                 sf.first.compare("GFX Activity %") == 0 ||
                 sf.first.compare("Memory Activity %") == 0) {
                 auto previous = sf.second[0];
+                _min = 0.0;
+                _max = 0.0;
                 for (auto v : sf.second) {
-                    strSub(v,previous,total);
+                    auto tmp = strSub(v,previous,total);
                     previous = v;
+                    _max = std::max(_max,stod(tmp));
+                    _min = std::min(_min,stod(tmp));
                 }
                 double average = total/(double)(std::max(size_t(1),sf.second.size()-1));
-                tmpstr += std::to_string(average);
+                tmpstr += std::to_string(_min) + " " +
+                          std::to_string(average) + " " +
+                          std::to_string(_max);
             } else {
                 for (auto v : sf.second) {
                     total += atof(v.c_str());
+                    _max = std::max(_max,stod(v));
+                    _min = std::min(_min,stod(v));
                 }
                 double average = total/(double)(std::max(size_t(1),sf.second.size()));
-                tmpstr += std::to_string(average);
+                tmpstr += std::to_string(_min) + " " +
+                          std::to_string(average) + " " +
+                          std::to_string(_max);
             }
             tmpstr += "\n";
         }
@@ -250,7 +262,7 @@ public:
             }
         }
         for (auto gpu : gpus) {
-            outstr += "GPU " + gpu.properties["RT_GPU_ID"] + " -";
+            outstr += "GPU " + gpu.properties["RT_GPU_ID"] + " - (metric: min  avg  max)\n";
             outstr += gpu.getFields();
             outstr += "\n";
         }
@@ -270,7 +282,7 @@ public:
             }
         }
         for (auto gpu : gpus) {
-            outstr += "GPU " + gpu.properties["RT_GPU_ID"] + " -";
+            outstr += "GPU " + gpu.properties["RT_GPU_ID"] + " - (metric: min  avg  max)\n";
             outstr += gpu.getSummary();
             outstr += "\n";
         }
