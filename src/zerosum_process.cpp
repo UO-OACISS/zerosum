@@ -39,6 +39,8 @@ int ZeroSum::getOtherProcesses(void) {
             // skip any non-numeric names
             std::string pid{ep->d_name};
             if (!all_of(pid.begin(), pid.end(), ::isdigit)) { continue; }
+            // skip ourselves
+            if (stol(pid) == process.id) { continue; }
             if (tmpstr.size() > 0) { tmpstr = tmpstr + ","; }
             std::string statfile{"/proc/" + pid + "/status"};
             std::string allowed_string = getCpusAllowed(statfile.c_str());
