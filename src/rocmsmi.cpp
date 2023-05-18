@@ -68,6 +68,8 @@ namespace zerosum {
         // map d to the real device ID - ROCm can see all of them!
         for (int d : doInit.devices) {
             std::map<std::string, std::string> fields;
+            std::string timerPrefix{"GPU: Device "};
+            timerPrefix += std::to_string(d) + " ";
             /* Power, energy, temp, voltage */
             int64_t sensor_index{0};
             RSMI_CALL(rsmi_dev_power_ave_get(d, sensor_index, &value));
@@ -130,5 +132,4 @@ namespace zerosum {
         computeNode.updateGPU(allfields);
         return 0;
     }
-
 }

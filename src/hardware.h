@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <array>
 #include <string>
+#include <iostream>
 #include "utils.h"
 #include "perfstubs.h"
 
@@ -117,7 +118,10 @@ public:
                 stat_fields.insert(std::pair(f.first, v));
             }
             stat_fields[f.first].push_back(f.second);
-            PERFSTUBS_SAMPLE_COUNTER((timerPrefix + f.first).c_str(), stof(f.second));
+            /* CAn't do this here - the PerfStubs API expects a static object
+             * and we are reusing this as a generic call - not possible. */
+            //std::string tmpstr{timerPrefix + f.first};
+            //PERFSTUBS_SAMPLE_COUNTER(tmpstr.c_str(), stof(f.second));
         }
     }
     std::string strSub(std::string lhs, std::string rhs, double& total) {

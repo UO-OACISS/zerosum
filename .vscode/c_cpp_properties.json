@@ -18,7 +18,8 @@
             "compilerPath": "/opt/rocm-5.2.0/llvm/bin/amdclang++",
             "cStandard": "c17",
             "cppStandard": "c++17",
-            "intelliSenseMode": "linux-clang-x64"
+            "intelliSenseMode": "linux-clang-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4
