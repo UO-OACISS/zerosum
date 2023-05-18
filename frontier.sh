@@ -1,4 +1,4 @@
-PATH=$PATH:$HOME/src/apex/install_gilgamesh_5.2.0/bin
+#PATH=$PATH:$HOME/src/apex/install_gilgamesh_5.2.0/bin
 
 rm -rf build
 
