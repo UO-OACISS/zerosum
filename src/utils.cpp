@@ -104,6 +104,7 @@ std::map<std::string, std::string> getThreadStat(const char * filename) {
         }
     }
     // parsing the fields as defined by https://man7.org/linux/man-pages/man5/proc.5.html
+    fields.insert(std::pair("executable", v[2]));
     fields.insert(std::pair("state", v[3]));
     fields.insert(std::pair("minflt", v[10]));
     fields.insert(std::pair("majflt", v[12]));

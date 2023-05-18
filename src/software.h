@@ -193,6 +193,9 @@ public:
         }
         // pid should be the same as tid, but just in case...
         threads.insert(std::pair(id, LWP(gettid(), allowed_hwt, fields, ThreadType::Main)));
+        if (fields.count("executable") > 0) {
+            executable = fields["executable"];
+        }
     }
     Process() = default;
     ~Process() = default;
@@ -215,6 +218,7 @@ public:
     // The compute node we're running on
     hardware::ComputeNode* computeNode;
     std::map<std::string,std::string> environment;
+    std::string executable;
 
     uint32_t getMaxHWT(void) {
         // this is an iterator, so return the element
@@ -290,8 +294,8 @@ public:
                 rank, id, computeNode->name.c_str(), discrete.c_str());
         } else {
             snprintf(buffer, 1024,
-                "MPI %03d - PID %d - CPUs allowed: [%s]\n",
-                rank, id, discrete.c_str());
+                "PID %d - EXE %s - CPUs allowed: [%s]\n",
+                id, executable.c_str(), discrete.c_str());
         }
         tmpstr += buffer;
 
