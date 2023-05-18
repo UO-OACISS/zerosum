@@ -44,6 +44,7 @@ private:
     bool working;
     std::ofstream logfile;
     software::Process process;
+    std::vector<software::Process> otherProcesses;
     hardware::ComputeNode computeNode;
     uint32_t async_tid;
     std::atomic<uint32_t> step;
@@ -63,6 +64,7 @@ private:
     void threadedFunction(void);
     bool doOnce(void);
     void doPeriodic(void);
+    int getOtherProcesses(void);
 };
 
 } // namespace zerosum

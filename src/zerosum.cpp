@@ -155,6 +155,7 @@ void ZeroSum::getProcStatus() {
     process = software::Process(getpid(), 0, 1, fields, allowed_list);
     process.hwthreads_raw = allowed_string;
     process.computeNode = &computeNode;
+    getOtherProcesses();
     return;
 }
 
@@ -195,6 +196,13 @@ void ZeroSum::shutdown(void) {
         std::chrono::duration<double> diff = end - start;
         std::cout << "\nDuration of execution: " << diff.count() << " s\n";
         std::cout << process.getSummary() << std::endl;
+        if (otherProcesses.size() > 0) {
+            std::cout << "Other processes:\n";
+            for (auto p : otherProcesses) {
+                std::cout << p.getSummary(false);
+            }
+            std::cout << std::endl;
+        }
     }
     logfile << process.logThreads(true) << std::flush;
     logfile << computeNode.toString(process.hwthreads) << std::flush;

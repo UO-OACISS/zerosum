@@ -269,8 +269,11 @@ public:
         nthreads = threads.size();
         return tmpstr;
     }
-    std::string getSummary(void) {
-        std::string tmpstr{"\nProcess Summary:\n"};
+    std::string getSummary(bool details = true) {
+        std::string tmpstr;
+        if (details) {
+            tmpstr += "\nProcess Summary:\n";
+        }
         // print process data
         std::stringstream ss;
         bool comma = false;
@@ -281,19 +284,27 @@ public:
         }
         std::string discrete{ss.str()};
         char buffer[1025];
-        snprintf(buffer, 1024,
-            "MPI %03d - PID %d - Node %s - CPUs allowed: [%s]\n",
-            rank, id, computeNode->name.c_str(), discrete.c_str());
+        if (details) {
+            snprintf(buffer, 1024,
+                "MPI %03d - PID %d - Node %s - CPUs allowed: [%s]\n",
+                rank, id, computeNode->name.c_str(), discrete.c_str());
+        } else {
+            snprintf(buffer, 1024,
+                "MPI %03d - PID %d - CPUs allowed: [%s]\n",
+                rank, id, discrete.c_str());
+        }
         tmpstr += buffer;
 
-        // print total threads
-        tmpstr += "\nLWP (thread) Summary:\n";
-        for (auto t : threads) {
-            tmpstr += t.second.getSummary();
-            tmpstr += "\n";
+        if (details) {
+            // print total threads
+            tmpstr += "\nLWP (thread) Summary:\n";
+            for (auto t : threads) {
+                tmpstr += t.second.getSummary();
+                tmpstr += "\n";
+            }
+            // print assigned cores
+            tmpstr += computeNode->getSummary(hwthreads);
         }
-        // print assigned cores
-        tmpstr += computeNode->getSummary(hwthreads);
         return tmpstr;
     }
 };

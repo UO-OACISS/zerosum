@@ -24,6 +24,7 @@ endif ()
 set(SOURCES
     zerosum.cpp
     zerosum_openmp.cpp
+    zerosum_process.cpp
     zerosum_pthreads.cpp
     utils.cpp
     ${GPU_SOURCE}

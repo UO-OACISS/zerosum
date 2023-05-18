@@ -1,0 +1,7 @@
+{
+    "linux": {
+        "MIMode": "gdb",
+        "stopAtEntry": true,
+        "miDebuggerPath": "/opt/rocm-5.2.0/bin/rocgdb"
+      }
+}
