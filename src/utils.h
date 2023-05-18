@@ -18,5 +18,6 @@ std::vector<uint32_t> getAffinityList(int tid, int ncpus, int& nhwthr, std::stri
 std::string toString(std::set<uint32_t> allowed);
 std::vector<std::map<std::string,std::string>> parseProcStat(void);
 void setThreadAffinity(int core);
+bool parseBool(const char * env, bool default_value);
 
 }

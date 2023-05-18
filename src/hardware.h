@@ -10,6 +10,7 @@
 #include <iostream>
 #include "utils.h"
 #include "perfstubs.h"
+#include "zerosum.h"
 
 namespace zerosum {
 
@@ -206,12 +207,13 @@ public:
 
 class ComputeNode {
 public:
-    ComputeNode(std::string _name) :
+    ComputeNode(std::string _name, bool details = false) :
         name(_name), ncpus(std::thread::hardware_concurrency()) {
         hwThreads.reserve(ncpus);
         for (unsigned i = 0 ; i < ncpus ; i++) {
             hwThreads.push_back(HWT(i));
         }
+        doDetails = details;
     }
     ComputeNode() = default;
     ~ComputeNode() = default;
@@ -219,6 +221,7 @@ public:
     unsigned ncpus;
     std::vector<HWT> hwThreads;
     std::vector<GPU> gpus;
+    bool doDetails;
     void addGpu(std::vector<std::map<std::string,std::string>> props) {
         gpus.reserve(props.size());
         for (auto p : props) {
@@ -271,15 +274,17 @@ public:
             outstr += gpu.getSummary();
             outstr += "\n";
         }
-        outstr += "\nOther Hardware:\n";
-        for (auto hwt : hwThreads) {
-            if (hwthreads.count(hwt.id) == 0) {
-                std::string tmp = std::to_string(hwt.id);
-                int precision = len - std::min(len,tmp.size());
-                tmp.insert(0, precision, '0');
-                outstr += "CPU " + tmp + " -";
-                outstr += hwt.getSummary();
-                outstr += "\n";
+        if (doDetails) {
+            outstr += "\nOther Hardware:\n";
+            for (auto hwt : hwThreads) {
+                if (hwthreads.count(hwt.id) == 0) {
+                    std::string tmp = std::to_string(hwt.id);
+                    int precision = len - std::min(len,tmp.size());
+                    tmp.insert(0, precision, '0');
+                    outstr += "CPU " + tmp + " -";
+                    outstr += hwt.getSummary();
+                    outstr += "\n";
+                }
             }
         }
         return outstr;

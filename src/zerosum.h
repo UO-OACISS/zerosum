@@ -52,6 +52,7 @@ private:
     std::mutex cv_m;
     std::chrono::time_point<std::chrono::steady_clock> start;
     bool doShutdown;
+    bool doDetails;
 
     // Other private member variables and functions...
     void getMPIinfo(void);

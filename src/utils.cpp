@@ -239,5 +239,31 @@ void setThreadAffinity(int core) {
     return;
 }
 
+/*********************************************************************
+ * Parse a boolean value
+ ********************************************************************/
+bool parseBool(const char * env, bool default_value = false) {
+    const char * str = getenv(env);
+    if (str == NULL) {
+        return default_value;
+    }
+    static char strbuf[128];
+    char *ptr = strbuf;
+    strncpy(strbuf, str, 128);
+    while (*ptr) {
+        *ptr = tolower(*ptr);
+        ptr++;
+    }
+    if (strcmp(strbuf, "yes") == 0  ||
+        strcmp(strbuf, "true") == 0 ||
+        strcmp(strbuf, "on") == 0 ||
+        strcmp(strbuf, "1") == 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+
 
 }

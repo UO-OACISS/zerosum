@@ -94,7 +94,7 @@ inline void ZeroSum::getMPIinfo(void) {
     char name[HOST_NAME_MAX];
     gethostname(name, HOST_NAME_MAX);
 #endif
-    computeNode = hardware::ComputeNode(name);
+    computeNode = hardware::ComputeNode(name, doDetails);
     process.rank = rank;
     process.size = size;
 }
@@ -155,7 +155,9 @@ void ZeroSum::getProcStatus() {
     process = software::Process(getpid(), 0, 1, fields, allowed_list);
     process.hwthreads_raw = allowed_string;
     process.computeNode = &computeNode;
-    getOtherProcesses();
+    if (doDetails) {
+        getOtherProcesses();
+    }
     return;
 }
 
@@ -166,6 +168,8 @@ ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()), doShu
     register_signal_handler();
 #endif
     PERFSTUBS_INITIALIZE();
+    doDetails = parseBool("ZEROSUM_DETAILS", false);
+
     /* Important to do this now, before OpenMP is initialized
      * and this thread gets pinned to any cores */
     getProcStatus();

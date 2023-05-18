@@ -186,16 +186,17 @@ inline bool operator<(const LWP& lhs, const LWP& rhs) {
 class Process {
 public:
     Process(uint32_t _id, uint32_t _rank, uint32_t _size,
-        std::map<std::string, std::string> fields,
+        std::map<std::string, std::string> _fields,
         std::vector<uint32_t> allowed_hwt) : id(_id), rank(_rank), size(_size) {
         for (auto t : allowed_hwt) {
             hwthreads.insert(t);
         }
         // pid should be the same as tid, but just in case...
-        threads.insert(std::pair(id, LWP(gettid(), allowed_hwt, fields, ThreadType::Main)));
-        if (fields.count("executable") > 0) {
-            executable = fields["executable"];
+        threads.insert(std::pair(id, LWP(gettid(), allowed_hwt, _fields, ThreadType::Main)));
+        if (_fields.count("executable") > 0) {
+            executable = _fields["executable"];
         }
+        fields = _fields;
     }
     Process() = default;
     ~Process() = default;
@@ -219,6 +220,7 @@ public:
     hardware::ComputeNode* computeNode;
     std::map<std::string,std::string> environment;
     std::string executable;
+    std::map<std::string, std::string> fields;
 
     uint32_t getMaxHWT(void) {
         // this is an iterator, so return the element
@@ -294,7 +296,7 @@ public:
                 rank, id, computeNode->name.c_str(), discrete.c_str());
         } else {
             snprintf(buffer, 1024,
-                "PID %d - EXE %s - CPUs allowed: [%s]\n",
+                "PID %d - %s - CPUs allowed: [%s]\n",
                 id, executable.c_str(), discrete.c_str());
         }
         tmpstr += buffer;
