@@ -54,9 +54,7 @@ namespace zerosum {
     }
 
     void finalize_rocm_smi(void) {
-#if defined USE_HIP
         RSMI_CALL(rsmi_shut_down());
-#endif
     }
 
     int ZeroSum::getgpustatus(void) {
@@ -133,3 +131,4 @@ namespace zerosum {
         return 0;
     }
 }
+

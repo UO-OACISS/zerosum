@@ -1,3 +1,5 @@
 export OMP_NUM_THREADS=8
 export OMP_PROC_BIND=spread
 export OMP_PLACES=cores
+export CUDA_VISIBLE_DEVICES=0
+export ROCR_VISIBLE_DEVICES=0

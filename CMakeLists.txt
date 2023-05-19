@@ -17,11 +17,16 @@ add_compile_options(-Wall -Wextra -pedantic)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 if (ZeroSum_WITH_HIP)
-    set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH} ${ROCM_PATH}/lib/cmake")
+    set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH} ${ROCM_ROOT}/lib/cmake")
     find_package(hip REQUIRED)
     find_package(rocm_smi REQUIRED)
     add_definitions(-DUSE_HIP)
 endif (ZeroSum_WITH_HIP)
+
+if (ZeroSum_WITH_CUDA)
+    find_package(CUDAToolkit REQUIRED VERBOSE COMPONENTS cuPTI nvidia-ML )
+    add_definitions(-DUSE_CUDA)
+endif (ZeroSum_WITH_CUDA)
 
 find_package(MPI REQUIRED) # optional
 find_package(OpenMP REQUIRED) # optional
