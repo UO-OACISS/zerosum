@@ -1,41 +1,12 @@
 # zerosum
 Utility for monitoring process, thread, OS and HW resources.
 
-```
-Things to check:
-    - Periodically!
-    - Get thread counts (done)
-    - Get assigned hardware
-        - process binding (done)
-        - gpu binding (done)
-        - openmp thread binding (done)
-        - other threads (done)
-    - Get utilization (done)
-        - get per-hwt utilization (done)
-        - per bound set of resources - organize into sets (done)
-    - Get contention (done)
-        - nonvoluntary_ctx_switch (done)
-        - cpustat values: (done)
-            cpu_stat->name, &cpu_stat->user, &cpu_stat->nice,
-            &cpu_stat->system, &cpu_stat->idle,
-            &cpu_stat->iowait, &cpu_stat->irq, &cpu_stat->softirq,
-            &cpu_stat->steal, &cpu_stat->guest
-        - for whole process (no need)
-        - can get per thread - yes in /proc/self/task/tid/status (done)
-    - Memory usage
-        - % of total
-    - gpu binding
-        - is it optimal? without "closest" it may not be. can we get that from lstopo?
-    - gpu utilization
-        - using NVML, ROCm-SMI
-
-    - check this all over time
+Inspired by Tom Pappatheodore's Hello jsrun code for testing layout of Summit resources.
+see: https://code.ornl.gov/t4p/Hello_jsrun
 
 Notes:
     - Don't want to pin progress threads. Need to identify the origin of the threads.
       MPI, HIP, CUDA threads should be allowed to float within their resource set.
-
-```
 
 To get backtrace of each thread:
 https://github.com/albertz/openlierox/blob/0.59/src/common/Debug_GetCallstack.cpp
@@ -81,4 +52,26 @@ CPU 068 - idle:   0.00, system:   0.09, user:  99.64
 CPU 069 - idle:   0.00, system:   0.09, user:  99.64
 CPU 070 - idle:   0.00, system:   0.09, user:  99.64
 CPU 071 - idle:   0.00, system:   0.36, user:  99.45
+
+GPU 0 - (metric: min  avg  max)
+    Clock Frequency, GLX (MHz): 800.000000 800.000000 800.000000
+    Clock Frequency, SOC (MHz): 1090.000000 1090.000000 1090.000000
+    Device Busy %: 0.000000 0.000000 0.000000
+    Energy Average (J): 0.000000 5.900000 6.000000
+    GFX Activity: 0.000000 0.000000 0.000000
+    GFX Activity %: 0.000000 0.000000 0.000000
+    Memory Activity %: 0.000000 0.000000 0.000000
+    Memory Busy %: 0.000000 0.000000 0.000000
+    Memory Controller Activity: 0.000000 0.000000 0.000000
+    Power Average (W): 84.000000 86.363636 93.000000
+    Temperature (C): 34.000000 34.545455 35.000000
+    Throttle Status: 0.000000 0.000000 0.000000
+    Total GTT Bytes: 539494100992.000000 539494100992.000000 539494100992.000000
+    Total VRAM Bytes: 68702699520.000000 68702699520.000000 68702699520.000000
+    Total Visible VRAM Bytes: 68702699520.000000 68702699520.000000 68702699520.000000
+    UVD|VCN Activity: 0.000000 0.000000 0.000000
+    Used GTT Bytes: 11452416.000000 11452416.000000 11452416.000000
+    Used VRAM Bytes: 13586432.000000 13586432.000000 13586432.000000
+    Used Visible VRAM Bytes: 13586432.000000 13586432.000000 13586432.000000
+    Voltage (mV): 818.000000 818.000000 818.000000
 ```
