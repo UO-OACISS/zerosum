@@ -7,6 +7,8 @@ see: https://code.ornl.gov/t4p/Hello_jsrun
 Notes:
     - Don't want to pin progress threads. Need to identify the origin of the threads.
       MPI, HIP, CUDA threads should be allowed to float within their resource set.
+    - ZeroSum spawns a thread to monitor the process, so there is one additional
+      thread. That thread is identified with type 'ZeroSum'.
 
 To get backtrace of each thread:
 https://github.com/albertz/openlierox/blob/0.59/src/common/Debug_GetCallstack.cpp
