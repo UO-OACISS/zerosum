@@ -78,20 +78,85 @@ namespace zerosum {
 
 extern "C" {
 
-//MPI_Send (done)
-//MPI_Bsend
-//MPI_Rsend
-//MPI_Ssend
+    int MPI_Send(const void *buf, int count, MPI_Datatype datatype, int dest,
+        int tag, MPI_Comm comm){
+        /* Get the byte count */
+        size_t bytes = zerosum::getBytesTransferred(count, datatype);
+        zerosum::ZeroSum::getInstance().recordSentBytes(
+            zerosum::translateRankToWorld(comm, dest), bytes);
+        return PMPI_Send(buf, count, datatype, dest, tag, comm);
+    }
+#define ZEROSUM_MPI_SEND_TEMPLATE(_symbol) \
+void  _symbol( void * buf, MPI_Fint * count, MPI_Fint * datatype, MPI_Fint * dest, \
+    MPI_Fint * tag, MPI_Fint * comm, MPI_Fint * ierr ) { \
+    *ierr = MPI_Send( buf, *count, MPI_Type_f2c(*datatype), *dest, *tag, MPI_Comm_f2c(*comm) ); \
+}
+    ZEROSUM_MPI_SEND_TEMPLATE(mpi_send)
+    ZEROSUM_MPI_SEND_TEMPLATE(mpi_send_)
+    ZEROSUM_MPI_SEND_TEMPLATE(mpi_send__)
+    ZEROSUM_MPI_SEND_TEMPLATE(MPI_SEND)
+    ZEROSUM_MPI_SEND_TEMPLATE(MPI_SEND_)
+    ZEROSUM_MPI_SEND_TEMPLATE(MPI_SEND__)
 
-//MPI_Send_init
+    int MPI_Bsend(const void *buf, int count, MPI_Datatype datatype,
+                              int dest, int tag, MPI_Comm comm){
+        /* Get the byte count */
+        size_t bytes = zerosum::getBytesTransferred(count, datatype);
+        zerosum::ZeroSum::getInstance().recordSentBytes(
+            zerosum::translateRankToWorld(comm, dest), bytes);
+        return PMPI_Bsend(buf, count, datatype, dest, tag, comm);
+    }
+#define ZEROSUM_MPI_BSEND_TEMPLATE(_symbol) \
+void  _symbol( void * buf, MPI_Fint * count, MPI_Fint * datatype, MPI_Fint * dest, \
+    MPI_Fint * tag, MPI_Fint * comm, MPI_Fint * ierr ) { \
+    *ierr = MPI_Bsend( buf, *count, MPI_Type_f2c(*datatype), *dest, *tag, MPI_Comm_f2c(*comm) ); \
+}
+    ZEROSUM_MPI_BSEND_TEMPLATE(mpi_bsend)
+    ZEROSUM_MPI_BSEND_TEMPLATE(mpi_bsend_)
+    ZEROSUM_MPI_BSEND_TEMPLATE(mpi_bsend__)
+    ZEROSUM_MPI_BSEND_TEMPLATE(MPI_BSEND)
+    ZEROSUM_MPI_BSEND_TEMPLATE(MPI_BSEND_)
+    ZEROSUM_MPI_BSEND_TEMPLATE(MPI_BSEND__)
 
-//MPI_Isend (done)
-//MPI_Ibsend
-//MPI_Irsend
-//MPI_Issend
+    int MPI_Rsend(const void *ibuf, int count, MPI_Datatype datatype, int dest,
+                             int tag, MPI_Comm comm){
+        /* Get the byte count */
+        size_t bytes = zerosum::getBytesTransferred(count, datatype);
+        zerosum::ZeroSum::getInstance().recordSentBytes(
+            zerosum::translateRankToWorld(comm, dest), bytes);
+        return PMPI_Rsend(ibuf, count, datatype, dest, tag, comm);
+    }
+#define ZEROSUM_MPI_RSEND_TEMPLATE(_symbol) \
+void  _symbol( void * ibuf, MPI_Fint * count, MPI_Fint * datatype, MPI_Fint * dest, \
+    MPI_Fint * tag, MPI_Fint * comm, MPI_Fint * ierr ) { \
+    *ierr = MPI_Rsend( ibuf, *count, MPI_Type_f2c(*datatype), *dest, *tag, MPI_Comm_f2c(*comm) ); \
+}
+    ZEROSUM_MPI_RSEND_TEMPLATE(mpi_rsend)
+    ZEROSUM_MPI_RSEND_TEMPLATE(mpi_rsend_)
+    ZEROSUM_MPI_RSEND_TEMPLATE(mpi_rsend__)
+    ZEROSUM_MPI_RSEND_TEMPLATE(MPI_RSEND)
+    ZEROSUM_MPI_RSEND_TEMPLATE(MPI_RSEND_)
+    ZEROSUM_MPI_RSEND_TEMPLATE(MPI_RSEND__)
 
-//MPI_Sendrecv
-//MPI_Sendrecv_replace
+    int MPI_Ssend(const void *buf, int count, MPI_Datatype datatype, int dest,
+                             int tag, MPI_Comm comm){
+        /* Get the byte count */
+        size_t bytes = zerosum::getBytesTransferred(count, datatype);
+        zerosum::ZeroSum::getInstance().recordSentBytes(
+            zerosum::translateRankToWorld(comm, dest), bytes);
+        return PMPI_Ssend(buf, count, datatype, dest, tag, comm);
+    }
+#define ZEROSUM_MPI_SSEND_TEMPLATE(_symbol) \
+void  _symbol( void * buf, MPI_Fint * count, MPI_Fint * datatype, MPI_Fint * dest, \
+    MPI_Fint * tag, MPI_Fint * comm, MPI_Fint * ierr ) { \
+    *ierr = MPI_Ssend( buf, *count, MPI_Type_f2c(*datatype), *dest, *tag, MPI_Comm_f2c(*comm) ); \
+}
+    ZEROSUM_MPI_SSEND_TEMPLATE(mpi_ssend)
+    ZEROSUM_MPI_SSEND_TEMPLATE(mpi_ssend_)
+    ZEROSUM_MPI_SSEND_TEMPLATE(mpi_ssend__)
+    ZEROSUM_MPI_SSEND_TEMPLATE(MPI_SSEND)
+    ZEROSUM_MPI_SSEND_TEMPLATE(MPI_SSEND_)
+    ZEROSUM_MPI_SSEND_TEMPLATE(MPI_SSEND__)
 
     int MPI_Isend(const void *buf, int count, MPI_Datatype datatype, int dest,
             int tag, MPI_Comm comm, MPI_Request *request) {
@@ -114,38 +179,6 @@ void  _symbol( void * buf, MPI_Fint * count, MPI_Fint * datatype, MPI_Fint * des
     ZEROSUM_MPI_ISEND_TEMPLATE(MPI_ISEND)
     ZEROSUM_MPI_ISEND_TEMPLATE(MPI_ISEND_)
     ZEROSUM_MPI_ISEND_TEMPLATE(MPI_ISEND__)
-
-    int MPI_Send(const void *buf, int count, MPI_Datatype datatype, int dest,
-        int tag, MPI_Comm comm){
-        /* Get the byte count */
-        size_t bytes = zerosum::getBytesTransferred(count, datatype);
-        zerosum::ZeroSum::getInstance().recordSentBytes(
-            zerosum::translateRankToWorld(comm, dest), bytes);
-        return PMPI_Send(buf, count, datatype, dest, tag, comm);
-    }
-#define ZEROSUM_MPI_SEND_TEMPLATE(_symbol) \
-void  _symbol( void * buf, MPI_Fint * count, MPI_Fint * datatype, MPI_Fint * dest, \
-    MPI_Fint * tag, MPI_Fint * comm, MPI_Fint * ierr ) { \
-    *ierr = MPI_Send( buf, *count, MPI_Type_f2c(*datatype), *dest, *tag, MPI_Comm_f2c(*comm) ); \
-}
-    ZEROSUM_MPI_SEND_TEMPLATE(mpi_send)
-    ZEROSUM_MPI_SEND_TEMPLATE(mpi_send_)
-    ZEROSUM_MPI_SEND_TEMPLATE(mpi_send__)
-    ZEROSUM_MPI_SEND_TEMPLATE(MPI_SEND)
-    ZEROSUM_MPI_SEND_TEMPLATE(MPI_SEND_)
-    ZEROSUM_MPI_SEND_TEMPLATE(MPI_SEND__)
-
-//MPI_Recv (done)
-//MPI_Brecv
-//MPI_Rrecv
-//MPI_Srecv
-
-//MPI_Recv_init
-
-//MPI_Irecv (done)
-//MPI_Ibrecv
-//MPI_Irrecv
-//MPI_Isrecv
 
     int MPI_Recv(void *buf, int count, MPI_Datatype datatype,
         int source, int tag, MPI_Comm comm, MPI_Status *status){
@@ -219,6 +252,5 @@ void _symbol(void * sendbuf, MPI_Fint *sendcount, MPI_Fint *sendtype, MPI_Fint *
     ZEROSUM_MPI_SENDRECV_TEMPLATE(MPI_SENDRECV)
     ZEROSUM_MPI_SENDRECV_TEMPLATE(MPI_SENDRECV_)
     ZEROSUM_MPI_SENDRECV_TEMPLATE(MPI_SENDRECV__)
-
 
 } // extern "C"
