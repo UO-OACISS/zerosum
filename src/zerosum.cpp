@@ -98,12 +98,14 @@ void ZeroSum::threadedFunction(void) {
 }
 
 inline void ZeroSum::getMPIinfo(void) {
+    std::cout << __func__ << std::endl;
     PERFSTUBS_SCOPED_TIMER_FUNC();
     int size, rank;
 #ifdef USE_MPI
     // get mpi info
     MPI_CALL(MPI_Comm_size(MPI_COMM_WORLD, &size));
     MPI_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &rank));
+    std::cout << "Rank: " << rank << std::endl;
     char name[MPI_MAX_PROCESSOR_NAME];
     int resultlength;
     MPI_CALL(MPI_Get_processor_name(name, &resultlength));
@@ -273,6 +275,14 @@ void ZeroSum::parseEnv(char** envp) {
             process.environment.insert(split(envp[i]));
         }
     }
+}
+
+void ZeroSum::recordSentBytes(int rank, size_t bytes) {
+    process.recordSentBytes(rank, bytes);
+}
+
+void ZeroSum::recordRecvBytes(int rank, size_t bytes) {
+    process.recordRecvBytes(rank, bytes);
 }
 
 } // namespace zerosum

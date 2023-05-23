@@ -245,6 +245,8 @@ public:
     std::map<std::string,std::string> environment;
     std::string executable;
     std::map<std::string, std::string> fields;
+    std::map<int, std::pair<size_t, size_t>> sentBytes;
+    std::map<int, std::pair<size_t, size_t>> recvBytes;
 
     uint32_t getMaxHWT(void) {
         // this is an iterator, so return the element
@@ -278,6 +280,26 @@ public:
         for (auto env : environment) {
             tmpstr += env.first + " = " + env.second + "\n";
         }
+#ifdef USE_MPI
+        tmpstr += "\nP2P Communication Summary:\n";
+        for (auto b : sentBytes) {
+            auto dest = b.first;
+            size_t count = b.second.first;
+            size_t bytes = b.second.second;
+            tmpstr += "Sent " + std::to_string(bytes)
+                    + " bytes to rank " + std::to_string(dest)
+                    + " in " + std::to_string(count) + " calls\n";
+        }
+        for (auto b : recvBytes) {
+            auto source = b.first;
+            size_t count = b.second.first;
+            size_t bytes = b.second.second;
+            tmpstr += "Received " + std::to_string(bytes)
+                    + " bytes from rank " + std::to_string(source)
+                    + " in " + std::to_string(count) + " calls\n";
+        }
+        tmpstr += "\n";
+#endif
         return tmpstr;
     }
     std::string logThreads(bool shutdown = false) {
@@ -335,7 +357,45 @@ public:
             // print assigned cores
             tmpstr += computeNode->getSummary(hwthreads);
         }
+
+#ifdef USE_MPI
+        tmpstr += "\nP2P Communication Summary:\n";
+        for (auto b : sentBytes) {
+            auto dest = b.first;
+            size_t count = b.second.first;
+            size_t bytes = b.second.second;
+            tmpstr += "Sent " + std::to_string(bytes)
+                    + " bytes to rank " + std::to_string(dest)
+                    + " in " + std::to_string(count) + " calls\n";
+        }
+        for (auto b : recvBytes) {
+            auto source = b.first;
+            size_t count = b.second.first;
+            size_t bytes = b.second.second;
+            tmpstr += "Received " + std::to_string(bytes)
+                    + " bytes from rank " + std::to_string(source)
+                    + " in " + std::to_string(count) + " calls\n";
+        }
+#endif
         return tmpstr;
+    }
+
+    void recordSentBytes(int rank, size_t bytes) {
+        if (sentBytes.count(rank) == 0) {
+            sentBytes.insert(std::pair(rank, std::pair(0, 0)));
+        }
+        auto& tmp = sentBytes[rank];
+        tmp.first++;
+        tmp.second += bytes;
+    }
+
+    void recordRecvBytes(int rank, size_t bytes) {
+        if (recvBytes.count(rank) == 0) {
+            recvBytes.insert(std::pair(rank, std::pair(0, 0)));
+        }
+        auto& tmp = recvBytes[rank];
+        tmp.first++;
+        tmp.second += bytes;
     }
 };
 

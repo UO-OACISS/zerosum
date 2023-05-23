@@ -42,7 +42,7 @@ add_test (NAME test_lu-decomp COMMAND taskset --cpu-list 0-7
 set_property (TEST test_lu-decomp PROPERTY
     ENVIRONMENT "OMP_NUM_THREADS=4;OMP_PROC_BIND=spread;OMP_PLACES=sockets")
 
-# MPI Example
+# MPI Examples
 
 add_executable(lu-decomp-mpi main.cpp)
 target_link_libraries (lu-decomp-mpi MPI::MPI_CXX OpenMP::OpenMP_CXX pthread stdc++)
@@ -67,4 +67,14 @@ add_test (NAME test_lu-decomp_apex COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
 
 set_property (TEST test_lu-decomp_apex PROPERTY
     ENVIRONMENT "OMP_NUM_THREADS=4;OMP_PROC_BIND=close;OMP_PLACES=cores")
+
+add_executable(random_walk random_walk.cpp)
+target_link_libraries (random_walk MPI::MPI_CXX OpenMP::OpenMP_CXX pthread stdc++)
+target_compile_definitions(random_walk PUBLIC USE_MPI)
+add_dependencies (zerosum.tests random_walk)
+
+add_test (NAME test_random_walk COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
+    --bind-to core --cpus-per-proc 2
+    ${CMAKE_BINARY_DIR}/bin/zerosum-mpi ${CMAKE_BINARY_DIR}/bin/random_walk 10000 1000000 1000)
+
 

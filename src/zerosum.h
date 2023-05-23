@@ -45,6 +45,8 @@ public:
     void handleCrash(void);
     void parseEnv(char** envp);
     uint32_t getRank(void) { return process.rank; }
+    void recordSentBytes(int rank, size_t bytes);
+    void recordRecvBytes(int rank, size_t bytes);
 
 private:
     /* Standard singleton definition follows */

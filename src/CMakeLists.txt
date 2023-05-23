@@ -62,7 +62,7 @@ add_library(zerosum SHARED ${SOURCES})
 target_link_libraries (zerosum ${PERFSTUBS_LIB} ${GPU_LIB} OpenMP::OpenMP_CXX pthread stdc++)
 add_dependencies (zerosum.tests zerosum)
 
-add_library(zerosum-mpi SHARED ${SOURCES})
+add_library(zerosum-mpi SHARED ${SOURCES} zerosum_mpi.cpp)
 target_compile_definitions(zerosum-mpi PUBLIC -DUSE_MPI=1)
 target_link_libraries (zerosum-mpi ${PERFSTUBS_LIB} ${GPU_LIB} MPI::MPI_CXX OpenMP::OpenMP_CXX pthread stdc++)
 add_dependencies (zerosum.tests zerosum-mpi)
