@@ -24,6 +24,7 @@
 
 #include "zerosum.h"
 #include "mpi.h"
+#include <signal.h>
 
 namespace zerosum {
 
@@ -35,6 +36,8 @@ namespace zerosum {
     }
 
     int translateRankToWorld(MPI_Comm comm, int rank) {
+        if (rank == MPI_ANY_SOURCE) return rank; // we don't know the source
+        if (rank == MPI_ROOT) return rank; // we don't know the source
         typedef std::map<int, int> rank_map;
         static struct comm_map : public std::map<MPI_Comm, rank_map> {
             virtual ~comm_map() = default;
@@ -63,6 +66,7 @@ namespace zerosum {
                     ranks[0] = rank;
                     PMPI_Comm_group(MPI_COMM_WORLD, &worldGroup);
                     PMPI_Comm_group(comm, &commGroup);
+                    //printf("translating rank: %d\n", ranks[0]);
                     PMPI_Group_translate_ranks(commGroup, 1, ranks, worldGroup, worldranks);
 
                     worldrank = worldranks[0];
@@ -205,6 +209,7 @@ void  _symbol( void * buf, MPI_Fint * count, MPI_Fint * datatype, MPI_Fint * sou
     int MPI_Irecv(void *buf, int count, MPI_Datatype datatype,
         int source, int tag, MPI_Comm comm, MPI_Request *request) {
         /* Get the byte count */
+        printf("%s: %p, %d, %d, %d, %d\n", __func__, buf, count, datatype, source, tag);
         double bytes = zerosum::getBytesTransferred(count, datatype);
         zerosum::ZeroSum::getInstance().recordRecvBytes(
             zerosum::translateRankToWorld(comm, source), bytes);
