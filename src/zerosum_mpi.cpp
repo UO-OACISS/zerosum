@@ -209,7 +209,6 @@ void  _symbol( void * buf, MPI_Fint * count, MPI_Fint * datatype, MPI_Fint * sou
     int MPI_Irecv(void *buf, int count, MPI_Datatype datatype,
         int source, int tag, MPI_Comm comm, MPI_Request *request) {
         /* Get the byte count */
-        printf("%s: %p, %d, %d, %d, %d\n", __func__, buf, count, datatype, source, tag);
         double bytes = zerosum::getBytesTransferred(count, datatype);
         zerosum::ZeroSum::getInstance().recordRecvBytes(
             zerosum::translateRankToWorld(comm, source), bytes);
