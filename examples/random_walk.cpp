@@ -12,6 +12,21 @@
 #include <cstdlib>
 #include <time.h>
 #include <mpi.h>
+#include <unistd.h>
+
+#define MPI_CALL(call) \
+    do { \
+        int _status = call; \
+        if (_status != MPI_SUCCESS) { \
+            char estring[MPI_MAX_ERROR_STRING]; \
+            int resultlen; \
+            MPI_Error_string(_status, estring, &resultlen); \
+            fprintf(stderr, "%s:%d: error: function %s failed with error %s.\n", \
+                    __FILE__, __LINE__, #call, estring); \
+            MPI_Abort(MPI_COMM_WORLD, _status); \
+        } \
+    } while (0)
+
 
 using namespace std;
 
@@ -71,9 +86,9 @@ void send_outgoing_walkers(vector<Walker>* outgoing_walkers,
                            int world_rank, int world_size) {
   // Send the data as an array of MPI_BYTEs to the next process.
   // The last process sends to process zero.
-  MPI_Send((void*)outgoing_walkers->data(),
+  MPI_CALL(MPI_Send((void*)outgoing_walkers->data(),
            outgoing_walkers->size() * sizeof(Walker), MPI_BYTE,
-           (world_rank + 1) % world_size, 0, MPI_COMM_WORLD);
+           (world_rank + 1) % world_size, 0, MPI_COMM_WORLD));
   // Clear the outgoing walkers list
   outgoing_walkers->clear();
 }
@@ -86,36 +101,39 @@ void receive_incoming_walkers(vector<Walker>* incoming_walkers,
   // receive from the last process
   int incoming_rank =
     (world_rank == 0) ? world_size - 1 : world_rank - 1;
-  MPI_Probe(incoming_rank, 0, MPI_COMM_WORLD, &status);
+  MPI_CALL(MPI_Probe(incoming_rank, 0, MPI_COMM_WORLD, &status));
   // Resize your incoming walker buffer based on how much data is
   // being received
   int incoming_walkers_size;
-  MPI_Get_count(&status, MPI_BYTE, &incoming_walkers_size);
+  MPI_CALL(MPI_Get_count(&status, MPI_BYTE, &incoming_walkers_size));
   incoming_walkers->resize(incoming_walkers_size / sizeof(Walker));
-  MPI_Recv((void*)incoming_walkers->data(), incoming_walkers_size,
+  MPI_CALL(MPI_Recv((void*)incoming_walkers->data(), incoming_walkers_size,
            MPI_BYTE, incoming_rank, 0, MPI_COMM_WORLD,
-           MPI_STATUS_IGNORE);
+           MPI_STATUS_IGNORE));
 }
 
 int main(int argc, char** argv) {
-  int domain_size;
-  int max_walk_size;
-  int num_walkers_per_proc;
+  int domain_size = 10000;
+  int max_walk_size = 1000;
+  int num_walkers_per_proc = 1000;
+
+  MPI_CALL(MPI_Init(&argc, &argv));
+  int world_size;
+  MPI_CALL(MPI_Comm_size(MPI_COMM_WORLD, &world_size));
+  int world_rank;
+  MPI_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &world_rank));
 
   if (argc < 4) {
-    cerr << "Usage: random_walk domain_size max_walk_size "
-         << "num_walkers_per_proc" << endl;
-    exit(1);
+    if (world_rank == 0) {
+        cerr << "Usage: random_walk domain_size max_walk_size "
+            << "num_walkers_per_proc" << endl;
+    }
+  } else {
+    domain_size = atoi(argv[1]);
+    max_walk_size = atoi(argv[2]);
+    num_walkers_per_proc = atoi(argv[3]);
   }
-  domain_size = atoi(argv[1]);
-  max_walk_size = atoi(argv[2]);
-  num_walkers_per_proc = atoi(argv[3]);
-
-  MPI_Init(NULL, NULL);
-  int world_size;
-  MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-  int world_rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+  usleep(500);
 
   srand(time(NULL) * world_rank);
   int subdomain_start, subdomain_size;
@@ -163,6 +181,6 @@ int main(int argc, char** argv) {
          << " incoming walkers" << endl;
   }
   cout << "Process " << world_rank << " done" << endl;
-  MPI_Finalize();
+  MPI_CALL(MPI_Finalize());
   return 0;
 }

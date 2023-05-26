@@ -81,11 +81,8 @@ void ZeroSum::threadedFunction(void) {
     while (working) {
         auto then = prev + 1s;
         auto stop = then - std::chrono::steady_clock::now();
-        std::unique_lock<std::mutex> lk(cv_m);
-        if(cv.wait_for(lk, stop, [&]{return !working;}))
-            return;
         // keep trying until MPI is initialized
-        if (!initialized) {
+        while (!initialized) {
             initialized = doOnce();
         }
         // once initialized, we can do our periodic checks.
@@ -93,6 +90,9 @@ void ZeroSum::threadedFunction(void) {
             doPeriodic();
             logfile << process.logThreads() << std::flush;
         }
+        std::unique_lock<std::mutex> lk(cv_m);
+        if(cv.wait_for(lk, stop, [&]{return !working;}))
+            return;
         prev = then;
     }
 }
@@ -229,6 +229,7 @@ void ZeroSum::shutdown(void) {
     }
     logfile << process.logThreads(true) << std::flush;
     logfile << computeNode.toString(process.hwthreads) << std::flush;
+    logfile << process.toString() << std::flush;
     if (logfile.is_open()) {
         logfile.close();
     }

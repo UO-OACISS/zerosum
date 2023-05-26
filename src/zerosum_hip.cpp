@@ -127,17 +127,17 @@ int ZeroSum::getgpu(void) {
 
             if(i > 0) busid_list.append(",");
             busid_list.append(temp_busid);
-            char buffer[1025];
-            snprintf(buffer, 1024,
-                "MPI %03d - Node %s - RT_GPU_ID %s - GPU_ID %s - Bus_ID %s",
-                ZeroSum::getInstance().process.rank,
-                ZeroSum::getInstance().computeNode.name.c_str(),
-                rt_gpu_id_list.c_str(),
-                gpu_id_list,
-                busid_list.c_str());
-            logfile << buffer << std::endl;
             fieldVector.push_back(fields);
 		}
+        char buffer[1025];
+        snprintf(buffer, 1024,
+            "MPI %03d - Node %s - RT_GPU_ID %s - GPU_ID %s - Bus_ID %s",
+            ZeroSum::getInstance().process.rank,
+            ZeroSum::getInstance().computeNode.name.c_str(),
+            rt_gpu_id_list.c_str(),
+            gpu_id_list,
+            busid_list.c_str());
+        logfile << buffer << std::endl;
 	}
     ZeroSum::getInstance().computeNode.addGpu(fieldVector);
 	return 0;
