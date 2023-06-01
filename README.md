@@ -78,3 +78,4 @@ GPU 0 - (metric: min  avg  max)
     Used Visible VRAM Bytes: 13586432.000000 13586432.000000 13586432.000000
     Voltage (mV): 818.000000 818.000000 818.000000
 ```
+In this example, the `stime` values are time spent in system calls, the `utime` is time spent in user code, `nv_ctx` is the number of nonvoluntary context switches, `ctx` is the number of context switches, and `CPUs allowed` is the list of hardware threads each thread can run on. In the hardware summary, each thread is monitored to determine utilization. In the GPU summary, utilization data is summarized.
