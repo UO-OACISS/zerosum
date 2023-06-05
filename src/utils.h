@@ -41,6 +41,7 @@ void getThreadStatus(const char * filename, std::map<std::string, std::string>& 
 std::vector<uint32_t> getAffinityList(int tid, int ncpus, int& nhwthr, std::string& tmpstr);
 std::string toString(std::set<uint32_t> allowed);
 std::vector<std::map<std::string,std::string>> parseProcStat(void);
+std::map<std::string,std::string> parseNodeInfo(void);
 void setThreadAffinity(int core);
 bool parseBool(const char * env, bool default_value);
 

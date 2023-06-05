@@ -158,7 +158,9 @@ void ZeroSum::doPeriodic(void) {
     step++;
     getpthreads();
     computeNode.updateFields(parseProcStat(),step);
+    computeNode.updateFields(parseNodeInfo());
     getgpustatus();
+    logfile << computeNode.reportMemory() << std::flush;
 }
 
 void ZeroSum::getProcStatus() {

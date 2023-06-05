@@ -239,6 +239,25 @@ public:
         }
         return tmpstr;
     }
+    std::string reportMemory(void) {
+        std::string tmpstr;
+        for (auto sf : stat_fields) {
+            if (sf.first.compare("Total VRAM Bytes") == 0) {
+                tmpstr += "GPU ";
+                tmpstr += sf.first;
+                tmpstr += ": ";
+                tmpstr += sf.second.back();
+                tmpstr += ", ";
+            }
+            if (sf.first.compare("Used VRAM Bytes") == 0) {
+                tmpstr += "GPU ";
+                tmpstr += sf.first;
+                tmpstr += ": ";
+                tmpstr += sf.second.back();
+            }
+        }
+        return tmpstr;
+    }
 };
 
 class ComputeNode {
@@ -258,6 +277,17 @@ public:
     std::vector<HWT> hwThreads;
     std::vector<GPU> gpus;
     bool doDetails;
+    std::map<std::string, std::vector<std::string>> stat_fields;
+    /* Update the node-level properties */
+    void updateFields(std::map<std::string, std::string> fields) {
+        for (auto f : fields) {
+            if (stat_fields.count(f.first) == 0) {
+                std::vector<std::string> v;
+                stat_fields.insert(std::pair(f.first, v));
+            }
+            stat_fields[f.first].push_back(f.second);
+        }
+    }
     void addGpu(std::vector<std::map<std::string,std::string>> props) {
         gpus.reserve(props.size());
         for (auto p : props) {
@@ -269,6 +299,7 @@ public:
             gpus[index].updateFields(fields[index]);
         }
     }
+    /* Update the hwthread-level properties */
     void updateFields(std::vector<std::map<std::string,std::string>> fields, uint32_t step) {
         for (unsigned index = 0 ; index < ncpus ; index++) {
             hwThreads[index].updateFields(fields[index], step);
@@ -324,6 +355,24 @@ public:
             }
         }
         return outstr;
+    }
+    std::string reportMemory(void) {
+        std::string tmpstr;
+        for (auto sf : stat_fields) {
+            if (sf.first.compare("MemTotal") == 0 ||
+                sf.first.compare("MemFree") == 0 ||
+                sf.first.compare("MemAvailable") == 0) {
+                tmpstr += sf.first;
+                tmpstr += ": ";
+                tmpstr += sf.second.back();
+                tmpstr += ", ";
+            }
+        }
+        for (auto gpu : gpus) {
+            tmpstr += gpu.reportMemory();
+        }
+        tmpstr += "\n";
+        return tmpstr;
     }
 };
 

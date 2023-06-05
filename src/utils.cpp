@@ -248,6 +248,34 @@ std::vector<std::map<std::string,std::string>> parseProcStat(void) {
     return fields;
 }
 
+std::map<std::string,std::string> parseNodeInfo(void) {
+    std::map<std::string,std::string> fields;
+    FILE * pFile;
+    char line[128];
+    pFile = fopen ("/proc/meminfo","r");
+    if (pFile == nullptr) {
+        perror ("Error opening file");
+        return fields;
+    }
+    while ( fgets( line, 4096, pFile)) {
+        std::string tmp(line);
+        const std::regex separator(":");
+        std::sregex_token_iterator token(tmp.begin(), tmp.end(),
+            separator, -1);
+        std::sregex_token_iterator end;
+        std::string name = *token++;
+        if (token != end && name.rfind("Mem", 0) == 0) {
+            name += " kB";
+            std::string value = *token;
+            unsigned d1 = strtoul (value.c_str(), nullptr, 0);
+            fields.insert(std::pair<std::string,std::string>(name,std::to_string(d1)));
+        }
+    }
+    fclose(pFile);
+    return fields;
+}
+
+
 void setThreadAffinity(int core) {
     cpu_set_t cpuset;
     cpu_set_t mask;

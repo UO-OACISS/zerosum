@@ -1,16 +1,18 @@
 #PATH=$PATH:$HOME/src/apex/install_gilgamesh_5.2.0/bin
 
-rm -rf build
+builddir=`pwd`/build.${ROCM_COMPILER_VERSION}
+instdir=`pwd`/install.${ROCM_COMPILER_VERSION}
+rm -rf ${builddir}
 
-cmake -B build \
+cmake -B ${builddir} \
 -DCMAKE_BUILD_TYPE=RelWithDebInfo \
--DCMAKE_INSTALL_PREFIX=`pwd`/install \
--DROCM_PATH=/opt/rocm-5.2.0 \
+-DCMAKE_INSTALL_PREFIX=${instdir} \
+-DROCM_PATH=/opt/rocm-${ROCM_COMPILER_VERSION} \
 -DZeroSum_WITH_HIP=TRUE \
 -DZeroSum_STANDALONE=TRUE \
 
-cmake --build build -j
-cmake --install build
+cmake --build ${builddir} -j
+cmake --install ${builddir}
 #ctest --test-dir build
 
 #-DZeroSum_WITH_PerfStubs=FALSE \

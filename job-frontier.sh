@@ -16,7 +16,7 @@
 export SLURM_CPU_BIND_VERBOSE=1
 
 dosrun() {
-    srun -n8 --gpus-per-task=1 --cpus-per-task=14 --gpu-bind=closest ./build/bin/zerosum-mpi ./build/bin/lu-decomp-mpi
+    srun -n8 --gpus-per-task=1 --cpus-per-task=14 --gpu-bind=closest ./build.5.4.3/bin/zerosum-mpi ./build.5.4.3/bin/lu-decomp-mpi
 }
 
 echo "Defaults"
