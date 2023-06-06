@@ -69,6 +69,17 @@ namespace zerosum {
 
 using namespace std::literals::chrono_literals;
 
+/*********************************************************************
+ * Parse an integer value
+ ********************************************************************/
+inline int parse_int(const char *env, int default_value = 0) {
+    const char * str = getenv(env);
+    if (str == NULL) { return default_value; }
+    int tmp = atoi(str);
+    if (tmp < 0) { return default_value; }
+    return tmp;
+}
+
 void ZeroSum::threadedFunction(void) {
     PERFSTUBS_SCOPED_TIMER_FUNC();
     async_tid = gettid();
@@ -78,8 +89,9 @@ void ZeroSum::threadedFunction(void) {
     // So, we take into consideration how long it takes to do
     // this measurement.
     auto prev = std::chrono::steady_clock::now();
+    std::chrono::seconds period{parse_int("ZS_PERIOD", 1)};
     while (working) {
-        auto then = prev + 1s;
+        auto then = prev + period;
         auto stop = then - std::chrono::steady_clock::now();
         // keep trying until MPI is initialized
         while (!initialized) {
@@ -148,6 +160,7 @@ bool ZeroSum::doOnce(void) {
     openLog();
     logfile << process.toString() << std::flush;
     getgpu();
+    computeNode.updateFields(parseNodeInfo());
     //getopenmp();
     done = true;
     return done;
@@ -160,7 +173,11 @@ void ZeroSum::doPeriodic(void) {
     computeNode.updateFields(parseProcStat(),step);
     computeNode.updateFields(parseNodeInfo());
     getgpustatus();
-    logfile << computeNode.reportMemory() << std::flush;
+    std::string tmpstr{computeNode.reportMemory()};
+    logfile << tmpstr << std::flush;
+    if (process.rank == 0) {
+        std::cout << tmpstr << std::flush;
+    }
 }
 
 void ZeroSum::getProcStatus() {

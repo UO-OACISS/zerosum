@@ -33,6 +33,62 @@ if [ ! -d ${BASEDIR}/${LIBDIR} ] ; then
     LIBDIR=lib64
 fi
 
+usage() {
+    message="
+Usage:
+$(basename "$0") <ZS options> executable <executable options>
+
+where ZS options are zero or more of:
+    --zs:period <value>         specify frequency of OS/HW sampling (integer seconds, default 1)
+    "
+    echo "${message}"
+    exit 1
+}
+
+period=1.0
+prog=""
+PARAMS=""
+
+if [ $# -eq 0 ] ; then
+    usage
+fi
+
+PARAMS=""
+while (( "$#" )); do
+  case "$1" in
+    --zs:period)
+      if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+        export ZS_PERIOD=$2
+        shift 2
+      else
+        echo "Error: Argument for $1 is missing" >&2
+        usage
+      fi
+      ;;
+    --zs:help)
+      usage
+      ;;
+    --zs:*) # unsupported flags
+      echo "Error: Unsupported flag $1" >&2
+      usage
+      ;;
+    *) # preserve positional arguments
+      if [ "$prog" = "" ] ; then
+        prog=$1
+      fi
+      PARAMS="$PARAMS $1"
+      shift
+      ;;
+  esac
+done
+# set positional arguments in their proper place
+eval set -- "${PARAMS}"
+
+if [ ${#PARAMS} -eq 0 ] ; then
+    usage
+fi
+
+
 # Setup all the library paths, and library preloads to support what was requested
 # NOTE: we add the ":" to each library name, becuase stupid APPLE isn't smart enough
 # to handle an empty library name and tries to load a library named '' :(
@@ -42,8 +98,8 @@ else
   LD_LIBRARY_PATH=${BASEDIR}/${LIBDIR}:${LD_LIBRARY_PATH}
 fi
 
-PRELOAD=${BASEDIR}/${LIBDIR}/libzerosum.so
+PRELOAD=${BASEDIR}/${LIBDIR}/@ZS_LIBNAME@.so
 
 export LD_PRELOAD=${PRELOAD}
 
-$@
+${PARAMS}

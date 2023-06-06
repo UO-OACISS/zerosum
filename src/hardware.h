@@ -240,20 +240,22 @@ public:
         return tmpstr;
     }
     std::string reportMemory(void) {
-        std::string tmpstr;
+        std::string tmpstr{"\nGPU VRAM (GB): "};
+        std::string mem{" VRAM Bytes"};
+        std::string mem2{" Visible VRAM Bytes"};
+        bool first{true};
         for (auto sf : stat_fields) {
-            if (sf.first.compare("Total VRAM Bytes") == 0) {
-                tmpstr += "GPU ";
-                tmpstr += sf.first;
-                tmpstr += ": ";
-                tmpstr += sf.second.back();
-                tmpstr += ", ";
-            }
-            if (sf.first.compare("Used VRAM Bytes") == 0) {
-                tmpstr += "GPU ";
-                tmpstr += sf.first;
-                tmpstr += ": ";
-                tmpstr += sf.second.back();
+            std::string name{sf.first};
+            std::string::size_type i = name.find(mem);
+            std::string::size_type i2 = name.find(mem2);
+            if (i != std::string::npos && i2 == std::string::npos) {
+                name.erase(i, mem.length());
+                if (!first) tmpstr += ", ";
+                tmpstr += name;
+                tmpstr += "= ";
+                double value = std::stod(sf.second.back());
+                tmpstr += std::to_string(value * 1.0e-9);
+                first = false;
             }
         }
         return tmpstr;
@@ -357,15 +359,23 @@ public:
         return outstr;
     }
     std::string reportMemory(void) {
-        std::string tmpstr;
+        std::string mem{"Mem"};
+        std::string kB{" kB"};
+        std::string tmpstr{"CPU " + mem + " (GB): "};
+        bool first{true};
         for (auto sf : stat_fields) {
-            if (sf.first.compare("MemTotal") == 0 ||
-                sf.first.compare("MemFree") == 0 ||
-                sf.first.compare("MemAvailable") == 0) {
-                tmpstr += sf.first;
-                tmpstr += ": ";
-                tmpstr += sf.second.back();
-                tmpstr += ", ";
+            std::string name{sf.first};
+            std::string::size_type i = name.find(mem);
+            if (i != std::string::npos) {
+                name.erase(i, mem.length());
+                if (!first) tmpstr += ", ";
+                i = name.find(kB);
+                name.erase(i, kB.length());
+                tmpstr += name;
+                tmpstr += " = ";
+                double value = std::stod(sf.second.back());
+                tmpstr += std::to_string(value * 1.0e-6);
+                first = false;
             }
         }
         for (auto gpu : gpus) {
