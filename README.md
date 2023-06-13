@@ -17,8 +17,10 @@ Some systems have their own scripts (like [job-frontier.sh](job-frontier.sh)).
 
 ## Sample Output
 
-Sample output from the first MPI rank of an 8 process job on Frontier (see [job-frontier.sh](job-frontier.sh)):
+Sample output from the first MPI rank of an 8 process job on Frontier (see 
+cores example from [job-frontier.sh](job-frontier.sh)):
 ```
+...
 Duration of execution: 12.4312 s
 
 Process Summary:
