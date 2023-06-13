@@ -292,6 +292,9 @@ void ZeroSum::parseEnv(char** envp) {
         else if (strncmp(envp[i], "CRAY_", 5) == 0) {
             process.environment.insert(split(envp[i]));
         }
+        else if (strncmp(envp[i], "ZE_", 3) == 0) {
+            process.environment.insert(split(envp[i]));
+        }
     }
 }
 

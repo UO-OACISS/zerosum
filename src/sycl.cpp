@@ -29,9 +29,13 @@
 namespace zerosum {
 
     std::vector<sycl::device> initialize_sycl(void) {
-        uint32_t deviceCount{0};
 	auto const& gpu_devices = sycl::device::get_devices(sycl::info::device_type::gpu);
         std::cout << "Number of Root GPUs: " << gpu_devices.size() << std::endl;
+
+	sycl::queue Q(sycl::gpu_selector_v);
+        std::cout << "Running on "
+            << Q.get_device().get_info<sycl::info::device::name>()
+            << "\n";
 
         std::vector<sycl::device> devices;
         for (const auto& d : gpu_devices) {
@@ -51,14 +55,14 @@ namespace zerosum {
         for (sycl::device d : doInit.devices) {
             std::map<std::string, std::string> fields;
 
-            std::cout << "(root-dev) GPU-ID: " << d.get_info<sycl::info::device::name>() << std::endl;
+            //std::cout << "(root-dev) GPU-ID: " << d.get_info<sycl::info::device::name>() << std::endl;
             size_t totalMemory = d.get_info<sycl::info::device::global_mem_size>();
             size_t freeMemory = d.get_info<sycl::ext::intel::info::device::free_memory>();
-            std::cout << "(root-dev) TotalMem (bytes): " << totalMemory << ", FreeMem (bytes): " << freeMemory << std::endl;
+            //std::cout << "(root-dev) TotalMem (bytes): " << totalMemory << ", FreeMem (bytes): " << freeMemory << std::endl;
 
-            fields.insert(std::pair(std::string("TotalMem (bytes):"),
+            fields.insert(std::pair(std::string("TotalMem (bytes)"),
                 std::to_string(totalMemory)));
-            fields.insert(std::pair(std::string("FreeMem (bytes):"),
+            fields.insert(std::pair(std::string("FreeMem (bytes)"),
                 std::to_string(freeMemory)));
 
             allfields.push_back(fields);

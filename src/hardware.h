@@ -243,8 +243,8 @@ public:
         std::string tmpstr{"\nGPU VRAM (GB): "};
         std::string mem{" VRAM Bytes"};
         std::string mem2{" Visible VRAM Bytes"};
-        std::string mem3{"TotalMem"};
-        std::string mem4{"FreeMem"};
+        std::string mem3{"TotalMem (bytes)"};
+        std::string mem4{"FreeMem (bytes)"};
         bool first{true};
         for (auto sf : stat_fields) {
             std::string name{sf.first};
