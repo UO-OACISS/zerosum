@@ -56,8 +56,8 @@ if (ZeroSum_WITH_SYCL)
     add_definitions(-DUSE_SYCL)
 endif (ZeroSum_WITH_SYCL)
 
-find_package(MPI REQUIRED) # optional
-find_package(OpenMP REQUIRED) # optional
+find_package(MPI REQUIRED)
+find_package(OpenMP REQUIRED)
 include(cmake/AddGitSubmodule.cmake)
 
 enable_testing()

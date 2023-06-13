@@ -17,6 +17,16 @@ to all Linux systems.
 Configure and build with cmake. See the examples in the various go-\*.sh scripts.
 Some systems have their own scripts (like [frontier.sh](frontier.sh)). 
 
+## Build Dependencies
+
+Support for specific GPUs is assumed to be installed on the machine already. ZeroSum
+does use the PerfStubs git submodule to allow collected data to be passsed on to other
+performance tools like [TAU](https://github.com/UO-OACISS/tau2/) or
+[APEX](https://github.com/UO-OACISS/apex/). For that reason, a working internet connection
+is needed at configuration time. PerfStubs can be disabled with the `-DZeroSum_WITH_PeffStubs=FALSE`
+CMake flag at configuration time. MPI and OpenMP are required currently, but not 
+inherently necessary - they could be disabled as a possible future 'todo'.
+
 ## Sample Output
 
 Sample output from the first MPI rank of an 8 process job on Frontier (see 
