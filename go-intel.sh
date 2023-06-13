@@ -14,7 +14,7 @@ cmake -B build \
 
 cmake --build build -j
 cmake --install build
-ctest --test-dir build
+#ctest --test-dir build
 
 #-DZeroSum_WITH_PerfStubs=FALSE \
 

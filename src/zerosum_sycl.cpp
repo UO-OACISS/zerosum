@@ -29,10 +29,36 @@
 #include <iomanip>
 #include <string.h>
 #include "zerosum.h"
+#include <sycl/sycl.hpp>
+
 
 namespace zerosum {
 
 int ZeroSum::getgpu(void) {
+    std::vector<std::map<std::string, std::string>> allfields;
+    auto const& gpu_devices = sycl::device::get_devices(sycl::info::device_type::gpu);
+    if (ZeroSum::getInstance().getRank() == 0) {
+        std::cout << "Number of Root GPUs: " << gpu_devices.size() << std::endl;
+    }
+    size_t index{0};
+    for (const auto& d : gpu_devices) {
+        std::map<std::string, std::string> fields;
+        size_t totalMemory = d.get_info<sycl::info::device::global_mem_size>();
+        size_t freeMemory = d.get_info<sycl::ext::intel::info::device::free_memory>();
+        if (ZeroSum::getInstance().getRank() == 0) {
+            std::cout << "(root-dev) GPU-ID: " << d.get_info<sycl::info::device::name>() << std::endl;
+            std::cout << "(root-dev) TotalMem (bytes): " << totalMemory << ", FreeMem (bytes): " << freeMemory << std::endl;
+        }
+        fields.insert(std::pair(std::string("Name"), d.get_info<sycl::info::device::name>()));
+        fields.insert(std::pair(std::string("RT_GPU_ID"), std::to_string(index++)));
+        fields.insert(std::pair(std::string("TotalMem (bytes)"),
+            std::to_string(totalMemory)));
+        fields.insert(std::pair(std::string("FreeMem (bytes)"),
+            std::to_string(freeMemory)));
+
+        allfields.push_back(fields);
+    }
+    ZeroSum::getInstance().computeNode.addGpu(allfields);
     return 0;
 }
 
