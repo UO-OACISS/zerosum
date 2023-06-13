@@ -99,7 +99,7 @@ In this example, the `stime` values are time spent in system calls, the `utime` 
 ## Notes
 
  * Don't want to pin progress threads from MPI or GPU runtimes.
-   Future todo: eed to identify the origin of the threads (if possible).
+   Future todo: Might want to identify the origin of the threads (if possible).
    MPI, HIP, CUDA threads should be allowed to float within their resource set.
  * ZeroSum spawns a thread to monitor the process, so there is one additional
    thread. That thread is identified with type 'ZeroSum'. It gets pinned to the last
