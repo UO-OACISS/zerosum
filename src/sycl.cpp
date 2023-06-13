@@ -23,7 +23,7 @@
  */
 
 #include "zerosum.h"
-#include "oneapi_zs.h"
+#include "sycl_zs.h"
 #include <climits>
 
 namespace zerosum {

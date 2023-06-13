@@ -4,16 +4,18 @@ Utility for monitoring process, thread, OS and HW resources.
 Inspired by Tom Pappatheodore's Hello jsrun code for testing layout of Summit resources.
 see: https://code.ornl.gov/t4p/Hello_jsrun
 
-Notes:
- * Don't want to pin progress threads. Need to identify the origin of the threads.
-   MPI, HIP, CUDA threads should be allowed to float within their resource set.
- * ZeroSum spawns a thread to monitor the process, so there is one additional
-   thread. That thread is identified with type 'ZeroSum'. It gets pinned to the last
-   core in the resource set, that could be configurable.
+## Overview
 
-To get backtrace of each thread:
-https://github.com/albertz/openlierox/blob/0.59/src/common/Debug_GetCallstack.cpp
-This could be useful to determine library source of thread, if needed.
+ZeroSum will monitor OS threads, OpenMP threads, MPI processes, and the hardware assigned
+to them including CPUs, memory usage and GPU utilization. Supported systems include all
+Linux operating systems and NVIDIA (CUDA/NVML), AMD (HIP/ROCm-SMI) and Intel (Intel SYCL) GPUs.
+
+## Build instructions
+
+Configure and build with cmake. See the examples in the various go-\*.sh scripts.
+Some systems have their own scripts (like [job-frontier.sh](job-frontier.sh)). 
+
+## Sample Output
 
 Sample output from the first MPI rank of an 8 process job on Frontier (see [job-frontier.sh](job-frontier.sh)):
 ```
@@ -79,3 +81,18 @@ GPU 0 - (metric: min  avg  max)
     Voltage (mV): 818.000000 818.000000 818.000000
 ```
 In this example, the `stime` values are time spent in system calls, the `utime` is time spent in user code, `nv_ctx` is the number of nonvoluntary context switches, `ctx` is the number of context switches, and `CPUs allowed` is the list of hardware threads each thread can run on. In the hardware summary, each thread is monitored to determine utilization. In the GPU summary, utilization data is summarized.
+
+## Notes
+
+ * Don't want to pin progress threads from MPI or GPU runtimes.
+   Future todo: eed to identify the origin of the threads (if possible).
+   MPI, HIP, CUDA threads should be allowed to float within their resource set.
+ * ZeroSum spawns a thread to monitor the process, so there is one additional
+   thread. That thread is identified with type 'ZeroSum'. It gets pinned to the last
+   core in the resource set, that could be configurable (future todo).
+ * Future todo: To get backtrace of each thread:
+   https://github.com/albertz/openlierox/blob/0.59/src/common/Debug_GetCallstack.cpp
+   This could be useful to determine library source of thread, if needed.
+
+
+
