@@ -23,7 +23,7 @@ Support for specific GPUs is assumed to be installed on the machine already. Zer
 does use the PerfStubs git submodule to allow collected data to be passsed on to other
 performance tools like [TAU](https://github.com/UO-OACISS/tau2/) or
 [APEX](https://github.com/UO-OACISS/apex/). For that reason, a working internet connection
-is needed at configuration time. PerfStubs can be disabled with the `-DZeroSum_WITH_PeffStubs=FALSE`
+is needed at configuration time. PerfStubs can be disabled with the `-DZeroSum_WITH_PerfStubs=FALSE`
 CMake flag at configuration time. MPI and OpenMP are required currently, but not 
 inherently necessary - they could be disabled as a possible future 'todo'.
 
