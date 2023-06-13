@@ -9,6 +9,8 @@ see: https://code.ornl.gov/t4p/Hello_jsrun
 ZeroSum will monitor OS threads, OpenMP threads, MPI processes, and the hardware assigned
 to them including CPUs, memory usage and GPU utilization. Supported systems include all
 Linux operating systems and NVIDIA (CUDA/NVML), AMD (HIP/ROCm-SMI) and Intel (Intel SYCL) GPUs.
+Host side monitoring happens through the virtual `/proc` filesystem, so should be portable
+to all Linux systems.
 
 ## Build instructions
 
