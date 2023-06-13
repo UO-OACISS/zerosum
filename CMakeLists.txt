@@ -51,6 +51,11 @@ if (ZeroSum_WITH_CUDA)
     add_definitions(-DUSE_CUDA)
 endif (ZeroSum_WITH_CUDA)
 
+if (ZeroSum_WITH_SYCL)
+    find_package(IntelSYCL REQUIRED VERBOSE)
+    add_definitions(-DUSE_SYCL)
+endif (ZeroSum_WITH_SYCL)
+
 find_package(MPI REQUIRED) # optional
 find_package(OpenMP REQUIRED) # optional
 include(cmake/AddGitSubmodule.cmake)

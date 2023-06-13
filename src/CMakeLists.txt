@@ -52,6 +52,12 @@ if (ZeroSum_WITH_CUDA)
     set(GPU_SOURCE zerosum_cuda.cpp nvml.cpp)
 endif ()
 
+if (ZeroSum_WITH_SYCL)
+    add_definitions(-DUSE_SYCL)
+    set(GPU_LIB IntelSYCL::SYCL_CXX)
+    set(GPU_SOURCE zerosum_oneapi.cpp oneapi.cpp)
+endif ()
+
 set(SOURCES
     zerosum.cpp
     zerosum_openmp.cpp

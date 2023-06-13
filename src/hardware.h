@@ -243,13 +243,36 @@ public:
         std::string tmpstr{"\nGPU VRAM (GB): "};
         std::string mem{" VRAM Bytes"};
         std::string mem2{" Visible VRAM Bytes"};
+        std::string mem3{"TotalMem"};
+        std::string mem4{"FreeMem"};
         bool first{true};
         for (auto sf : stat_fields) {
             std::string name{sf.first};
             std::string::size_type i = name.find(mem);
             std::string::size_type i2 = name.find(mem2);
-            if (i != std::string::npos && i2 == std::string::npos) {
+            std::string::size_type i3 = name.find(mem3);
+            std::string::size_type i4 = name.find(mem4);
+            if (i != std::string::npos &&
+                i2 == std::string::npos) {
                 name.erase(i, mem.length());
+                if (!first) tmpstr += ", ";
+                tmpstr += name;
+                tmpstr += "= ";
+                double value = std::stod(sf.second.back());
+                tmpstr += std::to_string(value * 1.0e-9);
+                first = false;
+            }
+            if (i3 != std::string::npos) {
+                name.erase(i3, mem3.length());
+                if (!first) tmpstr += ", ";
+                tmpstr += name;
+                tmpstr += "= ";
+                double value = std::stod(sf.second.back());
+                tmpstr += std::to_string(value * 1.0e-9);
+                first = false;
+            }
+            if (i4 != std::string::npos) {
+                name.erase(i4, mem4.length());
                 if (!first) tmpstr += ", ";
                 tmpstr += name;
                 tmpstr += "= ";

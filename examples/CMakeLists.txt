@@ -36,10 +36,10 @@ add_executable(lu-decomp main.cpp)
 target_link_libraries (lu-decomp zerosum OpenMP::OpenMP_CXX pthread stdc++)
 add_dependencies (zerosum.tests lu-decomp)
 
-add_test (NAME test_lu-decomp COMMAND taskset --cpu-list 0-7
+add_test (NAME test_lu-decomp-serial COMMAND taskset --cpu-list 0-7
     ${CMAKE_BINARY_DIR}/bin/lu-decomp)
 
-set_property (TEST test_lu-decomp PROPERTY
+set_property (TEST test_lu-decomp-serial PROPERTY
     ENVIRONMENT "OMP_NUM_THREADS=4;OMP_PROC_BIND=spread;OMP_PLACES=sockets")
 
 # MPI Examples
