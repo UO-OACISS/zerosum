@@ -15,7 +15,7 @@ to all Linux systems.
 ## Build instructions
 
 Configure and build with cmake. See the examples in the various go-\*.sh scripts.
-Some systems have their own scripts (like [job-frontier.sh](job-frontier.sh)). 
+Some systems have their own scripts (like [frontier.sh](frontier.sh)). 
 
 ## Sample Output
 
