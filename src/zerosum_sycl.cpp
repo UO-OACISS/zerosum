@@ -43,12 +43,7 @@ int ZeroSum::getgpu(void) {
     size_t index{0};
     for (const auto& d : gpu_devices) {
         std::map<std::string, std::string> fields;
-        size_t totalMemory = d.get_info<sycl::info::device::global_mem_size>();
-        size_t freeMemory = d.get_info<sycl::ext::intel::info::device::free_memory>();
-        if (ZeroSum::getInstance().getRank() == 0) {
-            std::cout << "(root-dev) GPU-ID: " << d.get_info<sycl::info::device::name>() << std::endl;
-            std::cout << "(root-dev) TotalMem (bytes): " << totalMemory << ", FreeMem (bytes): " << freeMemory << std::endl;
-        }
+        try {
         fields.insert(std::pair(std::string("Name"), d.get_info<sycl::info::device::name>()));
         fields.insert(std::pair(std::string("Vendor"), d.get_info<sycl::info::device::vendor>()));
         fields.insert(std::pair(std::string("Driver Version"), d.get_info<sycl::info::device::driver_version>()));
@@ -56,8 +51,10 @@ int ZeroSum::getgpu(void) {
 	/* Crashes on sunspot */
         //fields.insert(std::pair(std::string("Backend Version"), d.get_info<sycl::info::device::backend_version>()));
         fields.insert(std::pair(std::string("RT_GPU_ID"), std::to_string(index++)));
+        size_t totalMemory = d.get_info<sycl::info::device::global_mem_size>();
         fields.insert(std::pair(std::string("TotalMem (bytes)"),
             std::to_string(totalMemory)));
+        size_t freeMemory = d.get_info<sycl::ext::intel::info::device::free_memory>();
         fields.insert(std::pair(std::string("FreeMem (bytes)"),
             std::to_string(freeMemory)));
         fields.insert(std::pair(std::string("Max Compute Units"),
@@ -107,7 +104,9 @@ int ZeroSum::getgpu(void) {
             std::to_string(d.get_info<sycl::ext::intel::info::device::memory_bus_width>())));
         fields.insert(std::pair(std::string("Max Compute Queue Indices"),
             std::to_string(d.get_info<sycl::ext::intel::info::device::max_compute_queue_indices>())));
-
+        } catch (...) {
+            std::cerr << "Error reading SYCL device info" << std::endl;
+        }
         allfields.push_back(fields);
     }
     ZeroSum::getInstance().computeNode.addGpu(allfields);

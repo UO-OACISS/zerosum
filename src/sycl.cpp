@@ -68,12 +68,14 @@ namespace zerosum {
         for (sycl::device d : doInit.devices) {
             std::map<std::string, std::string> fields;
             /* do it with SYCL */
+#if 0
             size_t totalMemory = d.get_info<sycl::info::device::global_mem_size>();
             size_t freeMemory = d.get_info<sycl::ext::intel::info::device::free_memory>();
             fields.insert(std::pair(std::string("SYCL TotalMem (bytes)"),
                 std::to_string(totalMemory)));
             fields.insert(std::pair(std::string("SYCL FreeMem (bytes)"),
                 std::to_string(freeMemory)));
+#endif
             /* do it with L0 */
 #if 0
             zes_mem_state_t memory_props{
@@ -103,7 +105,7 @@ namespace zerosum {
             if( module_count > 0 ) {
               std::vector<zes_mem_handle_t> module_list(module_count);
               std::vector<zes_mem_state_t> state_list(module_count);
-          
+
               status = zesDeviceEnumMemoryModules(ze_dev, &module_count, module_list.data());
 	      if (status == ZE_RESULT_SUCCESS) {
                   for (uint32_t i = 0; i < module_count; ++i) {
