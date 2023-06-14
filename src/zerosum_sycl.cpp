@@ -104,10 +104,10 @@ int ZeroSum::getgpu(void) {
             std::to_string(d.get_info<sycl::ext::intel::info::device::memory_bus_width>())));
         fields.insert(std::pair(std::string("Max Compute Queue Indices"),
             std::to_string(d.get_info<sycl::ext::intel::info::device::max_compute_queue_indices>())));
-        } catch (...) {
-            std::cerr << "Error reading SYCL device info" << std::endl;
-        }
         allfields.push_back(fields);
+        } catch (...) {
+            std::cerr << "Error reading SYCL device info for device " << index-1 << std::endl;
+        }
     }
     ZeroSum::getInstance().computeNode.addGpu(allfields);
     return 0;

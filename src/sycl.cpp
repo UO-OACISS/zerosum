@@ -65,6 +65,7 @@ namespace zerosum {
         // create a scoped variable to initialize/finalize
         static ScopedSYCL doInit;
         std::vector<std::map<std::string, std::string>> allfields;
+        size_t index{0};
         for (sycl::device d : doInit.devices) {
             std::map<std::string, std::string> fields;
             /* do it with SYCL */
@@ -98,6 +99,7 @@ namespace zerosum {
                 std::to_string(free)));
 #else
             // Get level-zero device handle
+            try {
             ze_result_t status = ZE_RESULT_SUCCESS;
             auto ze_dev = ::sycl::get_native<::sycl::backend::ext_oneapi_level_zero>(d);
             uint32_t module_count = 0;
@@ -119,9 +121,12 @@ namespace zerosum {
                   }
                }
             }
-#endif
-
             allfields.push_back(fields);
+            } catch (...) {
+                std::cerr << "Error reading memory on device " << index << std::endl;
+            }
+#endif
+            index++;
         }
         computeNode.updateGPU(allfields);
         return 0;
