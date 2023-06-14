@@ -54,7 +54,7 @@ endif ()
 
 if (ZeroSum_WITH_SYCL)
     add_definitions(-DUSE_SYCL)
-    set(GPU_LIB IntelSYCL::SYCL_CXX)
+    set(GPU_LIB IntelSYCL::SYCL_CXX ze_loader)
     set(GPU_SOURCE zerosum_sycl.cpp sycl.cpp)
 endif ()
 

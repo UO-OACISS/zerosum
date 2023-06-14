@@ -53,6 +53,7 @@ int ZeroSum::getgpu(void) {
         fields.insert(std::pair(std::string("Vendor"), d.get_info<sycl::info::device::vendor>()));
         fields.insert(std::pair(std::string("Driver Version"), d.get_info<sycl::info::device::driver_version>()));
         fields.insert(std::pair(std::string("Version"), d.get_info<sycl::info::device::version>()));
+	/* Crashes on sunspot */
         //fields.insert(std::pair(std::string("Backend Version"), d.get_info<sycl::info::device::backend_version>()));
         fields.insert(std::pair(std::string("RT_GPU_ID"), std::to_string(index++)));
         fields.insert(std::pair(std::string("TotalMem (bytes)"),
@@ -81,7 +82,7 @@ int ZeroSum::getgpu(void) {
         fields.insert(std::pair(std::string("Device ID"),
             std::to_string(d.get_info<sycl::ext::intel::info::device::device_id>())));
 	/* Crashes on sunspot? */
-        //fields.insert(std::pair(std::string("PCI Address"), d.get_info<sycl::ext::intel::info::device::pci_address>()));
+        fields.insert(std::pair(std::string("PCI Address"), d.get_info<sycl::ext::intel::info::device::pci_address>()));
         fields.insert(std::pair(std::string("EU Count"),
             std::to_string(d.get_info<sycl::ext::intel::info::device::gpu_eu_count>())));
         fields.insert(std::pair(std::string("EU SIMD Width"),
@@ -97,6 +98,7 @@ int ZeroSum::getgpu(void) {
 	/* Crashes on sunspot? */
         //fields.insert(std::pair(std::string("Max Memory Bandwidth"),
             //std::to_string(d.get_info<sycl::ext::intel::info::device::max_mem_bandwidth>())));
+	/* don't know how to convert uuid type */
         //fields.insert(std::pair(std::string("UUID"),
             //std::to_string(d.get_info<sycl::ext::intel::info::device::uuid>())));
         fields.insert(std::pair(std::string("Memory Clock Rate"),

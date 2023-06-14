@@ -25,10 +25,21 @@
 #include "zerosum.h"
 #include "sycl_zs.h"
 #include <climits>
+#include "level_zero/ze_api.h"
+#include "level_zero/zes_api.h"
+#include "sycl/ext/oneapi/backend/level_zero.hpp"
 
 namespace zerosum {
 
     std::vector<sycl::device> initialize_sycl(void) {
+        /* First things first - check if the environment is set correctly. */
+        auto env = getenv("ZES_ENABLE_SYSMAN");
+        if (env == nullptr || strncmp(env,"1",1) != 0) {
+            std::cerr << "Error! Please set ZES_ENABLE_SYSMAN=1 in your environment for the monitoring to work correctly." << std::endl;
+            //abort();
+            std::cerr << "Exiting." << std::endl;
+            exit(1);
+        }
         auto const& gpu_devices = sycl::device::get_devices(sycl::info::device_type::gpu);
         if (ZeroSum::getInstance().getRank() == 0) {
                 std::cout << "Number of Root GPUs: " << gpu_devices.size() << std::endl;
@@ -56,12 +67,58 @@ namespace zerosum {
         std::vector<std::map<std::string, std::string>> allfields;
         for (sycl::device d : doInit.devices) {
             std::map<std::string, std::string> fields;
+            /* do it with SYCL */
             size_t totalMemory = d.get_info<sycl::info::device::global_mem_size>();
             size_t freeMemory = d.get_info<sycl::ext::intel::info::device::free_memory>();
-            fields.insert(std::pair(std::string("TotalMem (bytes)"),
+            fields.insert(std::pair(std::string("SYCL TotalMem (bytes)"),
                 std::to_string(totalMemory)));
-            fields.insert(std::pair(std::string("FreeMem (bytes)"),
+            fields.insert(std::pair(std::string("SYCL FreeMem (bytes)"),
                 std::to_string(freeMemory)));
+            /* do it with L0 */
+#if 0
+            zes_mem_state_t memory_props{
+              ZES_STRUCTURE_TYPE_MEM_PROPERTIES,
+            };
+
+            // Get level-zero device handle
+            auto ze_dev = ::sycl::get_native<::sycl::backend::ext_oneapi_level_zero>(d);
+
+            uint32_t n_mem_modules = 1;
+            std::vector<zes_mem_handle_t> module_list(n_mem_modules);
+            zesDeviceEnumMemoryModules(ze_dev, &n_mem_modules, module_list.data());
+
+            zesMemoryGetState(module_list[0], &memory_props);
+            size_t total = memory_props.size;
+            size_t free = memory_props.free;
+            fields.insert(std::pair(std::string("L0 TotalMem (bytes)"),
+                std::to_string(total)));
+            fields.insert(std::pair(std::string("L0 FreeMem (bytes)"),
+                std::to_string(free)));
+#else
+            // Get level-zero device handle
+            ze_result_t status = ZE_RESULT_SUCCESS;
+            auto ze_dev = ::sycl::get_native<::sycl::backend::ext_oneapi_level_zero>(d);
+            uint32_t module_count = 0;
+            status = zesDeviceEnumMemoryModules(ze_dev, &module_count, nullptr);
+            if( module_count > 0 ) {
+              std::vector<zes_mem_handle_t> module_list(module_count);
+              std::vector<zes_mem_state_t> state_list(module_count);
+          
+              status = zesDeviceEnumMemoryModules(ze_dev, &module_count, module_list.data());
+	      if (status == ZE_RESULT_SUCCESS) {
+                  for (uint32_t i = 0; i < module_count; ++i) {
+                    status = zesMemoryGetState(module_list[i], &(state_list[i]));
+                    std::string prefix{"L0 M"};
+                    prefix += std::to_string(i);
+                    fields.insert(std::pair(prefix + std::string(" TotalMem (bytes)"),
+                        std::to_string(state_list[i].size)));
+                    fields.insert(std::pair(prefix + std::string(" FreeMem (bytes)"),
+                        std::to_string(state_list[i].free)));
+                  }
+               }
+            }
+#endif
+
             allfields.push_back(fields);
         }
         computeNode.updateGPU(allfields);
