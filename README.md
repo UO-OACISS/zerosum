@@ -107,6 +107,7 @@ In this example, the `stime` values are time spent in system calls, the `utime` 
  * Future todo: To get backtrace of each thread:
    https://github.com/albertz/openlierox/blob/0.59/src/common/Debug_GetCallstack.cpp
    This could be useful to determine library source of thread, if needed.
-
+ * On SYCL machines, you have to set `ZES_ENABLE_SYSMAN=1` or else device queries
+   will fail.
 
 

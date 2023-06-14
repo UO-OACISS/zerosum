@@ -263,7 +263,7 @@ public:
                 first = false;
             }
             if (i3 != std::string::npos) {
-                name.erase(i, mem.length());
+                name.erase(i3, mem3.length());
                 name += " TotalMem ";
                 if (!first) tmpstr += ", ";
                 tmpstr += name;
@@ -273,7 +273,7 @@ public:
                 first = false;
             }
             if (i4 != std::string::npos) {
-                name.erase(i, mem.length());
+                name.erase(i4, mem4.length());
                 name += " FreeMem ";
                 if (!first) tmpstr += ", ";
                 tmpstr += name;

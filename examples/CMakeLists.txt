@@ -77,4 +77,7 @@ add_test (NAME test_random_walk COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
     --bind-to core --cpus-per-proc 2
     ${CMAKE_BINARY_DIR}/bin/zerosum-mpi ${CMAKE_BINARY_DIR}/bin/random_walk 10000 1000000 1000)
 
-
+if (ZeroSum_WITH_SYCL)
+add_executable(sycl_query sycl_query.cpp)
+target_link_libraries (sycl_query pthread stdc++ IntelSYCL::SYCL_CXX ze_loader)
+endif (ZeroSum_WITH_SYCL)
