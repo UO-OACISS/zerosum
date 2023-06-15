@@ -69,7 +69,7 @@ namespace zerosum {
         for (sycl::device d : doInit.devices) {
             std::map<std::string, std::string> fields;
             /* do it with SYCL */
-#if 0
+#if 1
             size_t totalMemory = d.get_info<sycl::info::device::global_mem_size>();
             size_t freeMemory = d.get_info<sycl::ext::intel::info::device::free_memory>();
             fields.insert(std::pair(std::string("SYCL TotalMem (bytes)"),

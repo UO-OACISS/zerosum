@@ -3,7 +3,7 @@
 ####PBS -q workq
 #PBS -q debug
 #PBS -l select=1
-#PBS -l walltime=10:00
+#PBS -l walltime=05:00
 #PBS -l filesystems=home
 #PBS -e error.log
 #PBS -o output.log
@@ -13,80 +13,61 @@ echo Jobid: $PBS_JOBID
 echo Running on host `hostname`
 echo Running on nodes `cat $PBS_NODEFILE`
 
-env | grep PBS_
-env | grep ZE_
-
 # set the number of threads based on --cpus-per-task
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
-export OMP_PROC_BIND=close
+xport OMP_PROC_BIND=spread
 # Bind OpenMP threads to cores
-export OMP_PLACES=cores
-export OMP_NUM_THREADS=8
+export OMP_PLACES=threads
+export OMP_NUM_THREADS=16
 
 NNODES=1
 export RANKS_PER_NODE=12           # Number of MPI ranks per node
 NRANKS=$(( NNODES * RANKS_PER_NODE ))
 
-echo "NUM_OF_NODES=${NNODES}  TOTAL_NUM_RANKS=${NRANKS}  RANKS_PER_NODE=${RANKS_PER_NODE}"
-
-if ((PALS_LOCAL_RANKID==0)); then
-  export ZE_AFFINITY_MASK=0.0
-fi
-
-if ((PALS_LOCAL_RANKID==1)); then
-  export ZE_AFFINITY_MASK=0.1
-fi
-
-if ((PALS_LOCAL_RANKID==2)); then
-  export ZE_AFFINITY_MASK=1.0
-fi
-
-if ((PALS_LOCAL_RANKID==3)); then
-  export ZE_AFFINITY_MASK=1.1
-fi
-
-if ((PALS_LOCAL_RANKID==4)); then
-  export ZE_AFFINITY_MASK=2.0
-fi
-
-if ((PALS_LOCAL_RANKID==5)); then
-  export ZE_AFFINITY_MASK=2.1
-fi
-
-if ((PALS_LOCAL_RANKID==6)); then
-  export ZE_AFFINITY_MASK=3.0
-fi
-
-if ((PALS_LOCAL_RANKID==7)); then
-  export ZE_AFFINITY_MASK=3.1
-fi
-
-if ((PALS_LOCAL_RANKID==8)); then
-  export ZE_AFFINITY_MASK=4.0
-fi
-
-if ((PALS_LOCAL_RANKID==9)); then
-  export ZE_AFFINITY_MASK=4.1
-fi
-
-if ((PALS_LOCAL_RANKID==10)); then
-  export ZE_AFFINITY_MASK=5.0
-fi
-
-if ((PALS_LOCAL_RANKID==11)); then
-  export ZE_AFFINITY_MASK=5.1
-fi
-
 # This enables the ability to query SYCL for free GPU memory
 export ZES_ENABLE_SYSMAN=1
 
+# The complicated bind policy ensures that we skip core 0, and
+# we assign 8 cores per process. There are 52 cores per socket.
+# We have 12 processes, 16 threads per process. The threads are
+# pinned to a core. Optionally, they could be pinned to a HW thread,
+# as there are 2 HW threads per core. The bind list is HW threads IDs.
+# --cpu-bind verbose,list:2-17:18-33:34-49:50-65:66-81:82-97:106-121:122-137:138-153:154-169:170-185:186-201 \
+
+let nthreads=16
+mylist=""
+
+let first_hwthread=2
+let first_core=${first_hwthread}
+let last_core=${first_core}+${nthreads}-1
+
+for i in {1..6} ; do
+    mylist="${mylist}:${first_core}-${last_core}"
+    let first_core=${first_core}+${nthreads}
+    let last_core=${last_core}+${nthreads}
+done
+
+let first_hwthread=106
+let first_core=${first_hwthread}
+let last_core=${first_core}+${nthreads}-1
+
+for i in {1..6} ; do
+    mylist="${mylist}:${first_core}-${last_core}"
+    let first_core=${first_core}+${nthreads}
+    let last_core=${last_core}+${nthreads}
+done
+
+echo ${mylist}
+
 mpiexec --np ${NRANKS} -ppn ${RANKS_PER_NODE} \
---cpu-bind verbose,depth -d 16 \
+--cpu-bind verbose,list${mylist} \
 -envall \
 /soft/tools/mpi_wrapper_utils/gpu_tile_compact.sh \
 ./build/bin/zerosum-mpi \
 ./build/bin/lu-decomp-mpi
 
+#--cpu-bind verbose,list:1-8:9-16:17-24:25-32:33-40:41-48:53-60:61-68:69-76:77-84:85-92:93-100 \
+#--cpu-bind verbose,depth -d 16 \
 #--cpu-bind verbose,list:0-7:8-15:16-25:26-33:34-41:42-51:52-59:60-67:68-77:78-85:86-93:94-103 \
 #./build/bin/random_walk 10000 1000000 1000
 
