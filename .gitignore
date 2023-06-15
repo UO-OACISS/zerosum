@@ -38,4 +38,4 @@ build_*
 # Install directory
 install
 install_*
-zs.*.log
+*.log
