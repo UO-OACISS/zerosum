@@ -13,7 +13,8 @@ int main() {
         std::cout << "SYCL GPU-ID: " << d.get_info<sycl::info::device::name>() << std::endl;
         size_t totalMemory = d.get_info<sycl::info::device::global_mem_size>();
         size_t freeMemory = d.get_info<sycl::ext::intel::info::device::free_memory>();
-        std::cout << "SYCL TotalMem (GB): " << totalMemory * 1.0e-9 << ", FreeMem (GB): " << freeMemory * 1.0e-9 << std::endl;
+        std::cout << "SYCL TotalMem (GB): " << totalMemory / std::pow(1024, 3)
+            << ", FreeMem (GB): " << freeMemory / std::pow(1024, 3) << std::endl;
 
         /* go through level0 */
         ze_result_t status = ZE_RESULT_SUCCESS;
@@ -31,9 +32,9 @@ int main() {
                     std::string prefix{"Level0 Module "};
                     prefix += std::to_string(i);
                     std::cout << prefix << " TotalMem (GB): "
-                        << state_list[i].size * 1.0e-9
+                        << state_list[i].size / std::pow(1024, 3)
                         << ", FreeMem (GB): "
-                        << state_list[i].free * 1.0e-9 << std::endl;
+                        << state_list[i].free / std::pow(1024, 3) << std::endl;
                 }
             }
         }

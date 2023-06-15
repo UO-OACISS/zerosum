@@ -93,7 +93,7 @@ private:
     void doPeriodic(void);
     int getOtherProcesses(void);
 #ifdef USE_HWLOC
-    void validate_hwloc(void);
+    void validate_hwloc(size_t rank);
 #endif
 };
 

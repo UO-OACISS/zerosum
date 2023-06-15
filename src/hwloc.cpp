@@ -13,9 +13,11 @@ void ScopedHWLOC::traverse(hwloc_obj_t obj, size_t indent) {
     }
 }
 
-void ZeroSum::validate_hwloc(void) {
+void ZeroSum::validate_hwloc(size_t rank) {
     static ScopedHWLOC myloc;
-    myloc.traverse();
+    if (rank == 0) {
+        myloc.traverse();
+    }
 }
 
 }

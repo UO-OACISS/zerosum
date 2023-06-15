@@ -27,10 +27,10 @@
 #include "zerosum.h"
 #include <sycl/sycl.hpp>
 
-#define MILLIONTH 1.0e-6 // scale to MB
-#define BILLIONTH 1.0e-9 // scale to GB
-#define PCIE_THROUGHPUT 1.0e-3  // to scale KB to MB
-#define NVLINK_BW 1.0e-3  // to scale MB/s to GB/s
+#define MILLIONTH 1.0/(1024.0*1024.0) // scale to MB
+#define BILLIONTH 1.0/(1024.0*1024.0*1024.0) // scale to GB
+#define PCIE_THROUGHPUT 1.0/1024.0  // to scale KB to MB
+#define NVLINK_BW 1.0/1024.0  // to scale MB/s to GB/s
 #define WATTS 1.0e-3  // scale mW to W
 
 namespace zerosum {

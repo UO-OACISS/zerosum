@@ -40,6 +40,9 @@ namespace zerosum {
 
 namespace hardware {
 
+const double giga{1024*1024*1024};
+const double mega{1024*1024};
+
 class HWT {
 public:
     HWT(uint32_t _id) : id(_id) {}
@@ -259,7 +262,7 @@ public:
                 tmpstr += name;
                 tmpstr += "= ";
                 double value = std::stod(sf.second.back());
-                tmpstr += std::to_string(value * 1.0e-9);
+                tmpstr += std::to_string(value / giga);
                 first = false;
             }
             if (i3 != std::string::npos) {
@@ -269,7 +272,7 @@ public:
                 tmpstr += name;
                 tmpstr += "= ";
                 double value = std::stod(sf.second.back());
-                tmpstr += std::to_string(value * 1.0e-9);
+                tmpstr += std::to_string(value / giga);
                 first = false;
             }
             if (i4 != std::string::npos) {
@@ -279,7 +282,7 @@ public:
                 tmpstr += name;
                 tmpstr += "= ";
                 double value = std::stod(sf.second.back());
-                tmpstr += std::to_string(value * 1.0e-9);
+                tmpstr += std::to_string(value / giga);
                 first = false;
             }
         }
@@ -399,7 +402,7 @@ public:
                 tmpstr += name;
                 tmpstr += " = ";
                 double value = std::stod(sf.second.back());
-                tmpstr += std::to_string(value * 1.0e-6);
+                tmpstr += std::to_string(value / mega);
                 first = false;
             }
         }

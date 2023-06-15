@@ -161,6 +161,9 @@ bool ZeroSum::doOnce(void) {
     logfile << process.toString() << std::flush;
     getgpu();
     computeNode.updateFields(parseNodeInfo());
+#ifdef USE_HWLOC
+    validate_hwloc(process.rank);
+#endif
     //getopenmp();
     done = true;
     return done;
@@ -212,13 +215,11 @@ ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()), doShu
      * and this thread gets pinned to any cores */
     getProcStatus();
     computeNode.updateFields(parseProcStat(),step);
+    /* Make sure we query the node with Hwloc before we launch the thread */
     worker = std::thread{&ZeroSum::threadedFunction, this};
     // increase the step, because the main thread will be one of the OpenMP threads.
     step++;
     getopenmp();
-#ifdef USE_HWLOC
-    validate_hwloc();
-#endif
     //worker.detach();
 }
 

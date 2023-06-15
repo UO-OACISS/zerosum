@@ -81,11 +81,12 @@ fi
 export ZES_ENABLE_SYSMAN=1
 
 mpiexec --np ${NRANKS} -ppn ${RANKS_PER_NODE} \
---cpu-bind verbose,list:0-7:8-15:16-25:26-33:34-41:42-51:52-59:60-67:68-77:78-85:86-93:94-103 \
+--cpu-bind verbose,depth -d 16 \
 -envall \
 /soft/tools/mpi_wrapper_utils/gpu_tile_compact.sh \
 ./build/bin/zerosum-mpi \
 ./build/bin/lu-decomp-mpi
 
+#--cpu-bind verbose,list:0-7:8-15:16-25:26-33:34-41:42-51:52-59:60-67:68-77:78-85:86-93:94-103 \
 #./build/bin/random_walk 10000 1000000 1000
 
