@@ -216,6 +216,9 @@ ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()), doShu
     // increase the step, because the main thread will be one of the OpenMP threads.
     step++;
     getopenmp();
+#ifdef USE_HWLOC
+    validate_hwloc();
+#endif
     //worker.detach();
 }
 

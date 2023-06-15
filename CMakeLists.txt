@@ -30,6 +30,7 @@ option (ZeroSum_WITH_PerfStubs "Enable PerfStubs support" TRUE)
 option (ZeroSum_WITH_HIP "Enable HIP support" FALSE)
 option (ZeroSum_WITH_CUDA "Enable CUDA support" FALSE)
 option (ZeroSum_STANDALONE "Enable standalone support" FALSE)
+option (ZeroSum_WITH_HWLOC "Enable HWLOC support" FALSE)
 
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -55,6 +56,12 @@ if (ZeroSum_WITH_SYCL)
     find_package(IntelSYCL REQUIRED VERBOSE)
     add_definitions(-DUSE_SYCL)
 endif (ZeroSum_WITH_SYCL)
+
+if (ZeroSum_WITH_HWLOC)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(HWLOC REQUIRED hwloc)
+    add_definitions(-DUSE_HWLOC)
+endif (ZeroSum_WITH_HWLOC)
 
 find_package(MPI REQUIRED)
 find_package(OpenMP REQUIRED)

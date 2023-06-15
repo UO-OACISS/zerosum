@@ -11,6 +11,7 @@ cmake -B build \
 -DCMAKE_INSTALL_PREFIX=`pwd`/install \
 -DZeroSum_WITH_SYCL=TRUE \
 -DZeroSum_STANDALONE=TRUE \
+-DZeroSum_WITH_HWLOC=TRUE \
 
 cmake --build build -j
 cmake --install build

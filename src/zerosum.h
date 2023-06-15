@@ -92,6 +92,9 @@ private:
     bool doOnce(void);
     void doPeriodic(void);
     int getOtherProcesses(void);
+#ifdef USE_HWLOC
+    void validate_hwloc(void);
+#endif
 };
 
 } // namespace zerosum

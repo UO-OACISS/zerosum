@@ -58,6 +58,10 @@ if (ZeroSum_WITH_SYCL)
     set(GPU_SOURCE zerosum_sycl.cpp sycl.cpp)
 endif ()
 
+if (ZeroSum_WITH_HWLOC)
+    set(HWLOC_SOURCE hwloc.cpp)
+endif (ZeroSum_WITH_HWLOC)
+
 set(SOURCES
     zerosum.cpp
     zerosum_openmp.cpp
@@ -65,6 +69,7 @@ set(SOURCES
     zerosum_pthreads.cpp
     utils.cpp
     ${GPU_SOURCE}
+    ${HWLOC_SOURCE}
     ${ERROR_HANDLING})
 
 add_library(zerosum SHARED ${SOURCES})
@@ -75,4 +80,13 @@ add_library(zerosum-mpi SHARED ${SOURCES} zerosum_mpi.cpp)
 target_compile_definitions(zerosum-mpi PUBLIC -DUSE_MPI=1)
 target_link_libraries (zerosum-mpi ${PERFSTUBS_LIB} ${GPU_LIB} MPI::MPI_CXX OpenMP::OpenMP_CXX pthread stdc++)
 add_dependencies (zerosum.tests zerosum-mpi)
+
+if (ZeroSum_WITH_HWLOC)
+    target_link_libraries(zerosum ${HWLOC_LIBRARIES})
+    target_link_libraries(zerosum-mpi ${HWLOC_LIBRARIES})
+    target_include_directories(zerosum PUBLIC ${HWLOC_INCLUDE_DIRS})
+    target_include_directories(zerosum-mpi PUBLIC ${HWLOC_INCLUDE_DIRS})
+    target_compile_options(zerosum PUBLIC ${HWLOC_CFLAGS_OTHER})
+    target_compile_options(zerosum-mpi PUBLIC ${HWLOC_CFLAGS_OTHER})
+endif (ZeroSum_WITH_HWLOC)
 
