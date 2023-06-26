@@ -98,11 +98,15 @@ In this example, the `stime` values are time spent in system calls, the `utime` 
 
 ## Notes
 
- * Don't want to pin progress threads from MPI or GPU runtimes.
+ * Don't want to pin progress threads from MPI or GPU runtimes. They are designed
+   and expected to "run free".
    Future todo: Might want to identify the origin of the threads (if possible).
-   MPI, HIP, CUDA threads should be allowed to float within their resource set.
+   MPI, HIP, CUDA threads should be allowed to float within their
+   assigned resource set.
  * ZeroSum spawns a thread to monitor the process, so there is one additional
-   thread. That thread is identified with type 'ZeroSum'. It gets pinned to the last
+   thread. That thread is identified with type 'ZeroSum'. It will always report as
+   "running", because it is running when all the threads are queried. However,
+   it is almost always sleeping. It gets pinned to the last
    core in the resource set, that could be configurable (future todo).
  * Future todo: To get backtrace of each thread:
    https://github.com/albertz/openlierox/blob/0.59/src/common/Debug_GetCallstack.cpp
