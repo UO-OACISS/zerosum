@@ -24,7 +24,7 @@
 
 if (ZeroSum_STANDALONE)
     add_executable(crasher crasher.c)
-    target_link_libraries (crasher zerosum pthread stdc++)
+    target_link_libraries (crasher zerosum pthread)
     add_dependencies (zerosum.tests crasher)
 
     add_test (NAME test_crasher COMMAND taskset --cpu-list 0-7
@@ -33,7 +33,7 @@ if (ZeroSum_STANDALONE)
 endif()
 
 add_executable(lu-decomp main.cpp)
-target_link_libraries (lu-decomp zerosum OpenMP::OpenMP_CXX pthread stdc++)
+target_link_libraries (lu-decomp zerosum OpenMP::OpenMP_CXX pthread)
 add_dependencies (zerosum.tests lu-decomp)
 
 add_test (NAME test_lu-decomp-serial COMMAND taskset --cpu-list 0-7
@@ -45,7 +45,7 @@ set_property (TEST test_lu-decomp-serial PROPERTY
 # MPI Examples
 
 add_executable(lu-decomp-mpi main.cpp)
-target_link_libraries (lu-decomp-mpi MPI::MPI_CXX OpenMP::OpenMP_CXX pthread stdc++)
+target_link_libraries (lu-decomp-mpi MPI::MPI_CXX OpenMP::OpenMP_CXX pthread)
 target_compile_definitions(lu-decomp-mpi PUBLIC USE_MPI)
 add_dependencies (zerosum.tests lu-decomp-mpi)
 
@@ -69,7 +69,7 @@ set_property (TEST test_lu-decomp_apex PROPERTY
     ENVIRONMENT "OMP_NUM_THREADS=4;OMP_PROC_BIND=close;OMP_PLACES=cores")
 
 add_executable(random_walk random_walk.cpp)
-target_link_libraries (random_walk MPI::MPI_CXX OpenMP::OpenMP_CXX pthread stdc++)
+target_link_libraries (random_walk MPI::MPI_CXX OpenMP::OpenMP_CXX pthread)
 target_compile_definitions(random_walk PUBLIC USE_MPI)
 add_dependencies (zerosum.tests random_walk)
 
@@ -79,5 +79,5 @@ add_test (NAME test_random_walk COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
 
 if (ZeroSum_WITH_SYCL)
 add_executable(sycl_query sycl_query.cpp)
-target_link_libraries (sycl_query pthread stdc++ IntelSYCL::SYCL_CXX ze_loader)
+target_link_libraries (sycl_query pthread IntelSYCL::SYCL_CXX ze_loader)
 endif (ZeroSum_WITH_SYCL)
