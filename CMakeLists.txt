@@ -59,7 +59,7 @@ endif (ZeroSum_WITH_SYCL)
 
 if (ZeroSum_WITH_HWLOC)
     find_package(PkgConfig REQUIRED)
-    pkg_check_modules(HWLOC REQUIRED hwloc)
+    pkg_check_modules(HWLOC REQUIRED IMPORTED_TARGET hwloc)
     add_definitions(-DUSE_HWLOC)
 endif (ZeroSum_WITH_HWLOC)
 
