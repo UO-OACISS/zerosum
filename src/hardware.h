@@ -243,7 +243,7 @@ public:
         return tmpstr;
     }
     std::string reportMemory(void) {
-        std::string tmpstr{"\nGPU VRAM (GB): "};
+        std::string tmpstr{"\nGPU Mem (GB): "};
         std::string mem{" VRAM Bytes"};
         std::string mem2{" Visible VRAM Bytes"};
         std::string mem3{"TotalMem (bytes)"};
@@ -267,7 +267,7 @@ public:
             }
             if (i3 != std::string::npos) {
                 name.erase(i3, mem3.length());
-                name += " TotalMem ";
+                name += "TotalMem ";
                 if (!first) tmpstr += ", ";
                 tmpstr += name;
                 tmpstr += "= ";
@@ -277,7 +277,7 @@ public:
             }
             if (i4 != std::string::npos) {
                 name.erase(i4, mem4.length());
-                name += " FreeMem ";
+                name += "FreeMem ";
                 if (!first) tmpstr += ", ";
                 tmpstr += name;
                 tmpstr += "= ";
