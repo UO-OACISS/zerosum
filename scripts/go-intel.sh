@@ -1,4 +1,4 @@
-set -e 
+set -e
 
 PATH=$PATH:$HOME/src/apex/install/bin
 

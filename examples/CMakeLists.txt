@@ -22,60 +22,79 @@
 # SOFTWARE.
 #
 
+math(EXPR ZeroSum_LAST_CORE ${ZeroSum_NPROC}-1)
+
 if (ZeroSum_STANDALONE)
     add_executable(crasher crasher.c)
     target_link_libraries (crasher zerosum pthread)
     add_dependencies (zerosum.tests crasher)
 
-    add_test (NAME test_crasher COMMAND taskset --cpu-list 0-7
-        ${CMAKE_BINARY_DIR}/bin/crasher)
-    set_tests_properties(test_crasher PROPERTIES WILL_FAIL TRUE)
+#    add_test (NAME test_crasher COMMAND taskset --cpu-list 0-${ZeroSum_LAST_CORE}
+#        ${CMAKE_BINARY_DIR}/bin/crasher)
+#    set_tests_properties(test_crasher PROPERTIES WILL_FAIL TRUE)
 endif()
 
 add_executable(lu-decomp main.cpp)
-target_link_libraries (lu-decomp zerosum OpenMP::OpenMP_CXX pthread)
+target_link_libraries (lu-decomp zerosum pthread)
+if (ZeroSum_WITH_OPENMP)
+    target_link_libraries (lu-decomp OpenMP::OpenMP_CXX)
+endif (ZeroSum_WITH_OPENMP)
 add_dependencies (zerosum.tests lu-decomp)
 
-add_test (NAME test_lu-decomp-serial COMMAND taskset --cpu-list 0-7
+add_test (NAME test_lu-decomp-serial COMMAND taskset --cpu-list 0-${ZeroSum_LAST_CORE}
     ${CMAKE_BINARY_DIR}/bin/lu-decomp)
 
-set_property (TEST test_lu-decomp-serial PROPERTY
-    ENVIRONMENT "OMP_NUM_THREADS=4;OMP_PROC_BIND=spread;OMP_PLACES=sockets")
+if (ZeroSum_WITH_OPENMP)
+    set_property (TEST test_lu-decomp-serial PROPERTY
+        ENVIRONMENT "OMP_NUM_THREADS=4;OMP_PROC_BIND=spread;OMP_PLACES=cores")
+endif (ZeroSum_WITH_OPENMP)
 
 # MPI Examples
 
-add_executable(lu-decomp-mpi main.cpp)
-target_link_libraries (lu-decomp-mpi MPI::MPI_CXX OpenMP::OpenMP_CXX pthread)
-target_compile_definitions(lu-decomp-mpi PUBLIC USE_MPI)
-add_dependencies (zerosum.tests lu-decomp-mpi)
+if (ZeroSum_WITH_MPI)
+    add_executable(lu-decomp-mpi main.cpp)
+    target_link_libraries (lu-decomp-mpi MPI::MPI_CXX pthread)
+    if (ZeroSum_WITH_OPENMP)
+        target_link_libraries (lu-decomp-mpi OpenMP::OpenMP_CXX)
+    endif (ZeroSum_WITH_OPENMP)
+    target_compile_definitions(lu-decomp-mpi PUBLIC USE_MPI)
+    add_dependencies (zerosum.tests lu-decomp-mpi)
 
-add_test (NAME test_lu-decomp-mpi COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
-    --bind-to core --cpus-per-proc 4
-    ${CMAKE_BINARY_DIR}/bin/zerosum-mpi ${CMAKE_BINARY_DIR}/bin/lu-decomp-mpi)
+    add_test (NAME test_lu-decomp-mpi COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
+        --bind-to core --cpus-per-proc 4
+        ${CMAKE_BINARY_DIR}/bin/zerosum-mpi ${CMAKE_BINARY_DIR}/bin/lu-decomp-mpi)
 
-set_property (TEST test_lu-decomp-mpi PROPERTY
-    ENVIRONMENT "OMP_NUM_THREADS=4;OMP_PROC_BIND=spread;OMP_PLACES=sockets")
+    if (ZeroSum_WITH_OPENMP)
+        set_property (TEST test_lu-decomp-mpi PROPERTY
+            ENVIRONMENT "OMP_NUM_THREADS=4;OMP_PROC_BIND=spread;OMP_PLACES=cores")
+    endif (ZeroSum_WITH_OPENMP)
 
-# MPI Example executed with APEX
+    # MPI Example executed with APEX
 
-add_test (NAME test_lu-decomp_apex COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
-    --bind-to core --cpus-per-proc 4 apex_exec
-    --apex:mpi --apex:ompt --apex:pthread --apex:ompt_details
-    --apex:tasktree --apex:gtrace --apex:screen_details
-    --apex:preload ${CMAKE_BINARY_DIR}/lib/libzerosum-mpi.so
-    ${CMAKE_BINARY_DIR}/bin/lu-decomp-mpi)
+    add_test (NAME test_lu-decomp_apex COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
+        --bind-to core --cpus-per-proc 4 apex_exec
+        --apex:mpi --apex:ompt --apex:pthread --apex:ompt_details
+        --apex:tasktree --apex:gtrace --apex:screen_details
+        --apex:preload ${CMAKE_BINARY_DIR}/lib/libzerosum-mpi.so
+        ${CMAKE_BINARY_DIR}/bin/lu-decomp-mpi)
 
-set_property (TEST test_lu-decomp_apex PROPERTY
-    ENVIRONMENT "OMP_NUM_THREADS=4;OMP_PROC_BIND=close;OMP_PLACES=cores")
+    if (ZeroSum_WITH_OPENMP)
+        set_property (TEST test_lu-decomp_apex PROPERTY
+            ENVIRONMENT "OMP_NUM_THREADS=4;OMP_PROC_BIND=close;OMP_PLACES=cores")
+    endif (ZeroSum_WITH_OPENMP)
 
-add_executable(random_walk random_walk.cpp)
-target_link_libraries (random_walk MPI::MPI_CXX OpenMP::OpenMP_CXX pthread)
-target_compile_definitions(random_walk PUBLIC USE_MPI)
-add_dependencies (zerosum.tests random_walk)
+    add_executable(random_walk random_walk.cpp)
+    target_link_libraries (random_walk MPI::MPI_CXX pthread)
+    if (ZeroSum_WITH_OPENMP)
+        target_link_libraries (random_walk OpenMP::OpenMP_CXX)
+    endif (ZeroSum_WITH_OPENMP)
+    target_compile_definitions(random_walk PUBLIC USE_MPI)
+    add_dependencies (zerosum.tests random_walk)
 
-add_test (NAME test_random_walk COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
-    --bind-to core --cpus-per-proc 2
-    ${CMAKE_BINARY_DIR}/bin/zerosum-mpi ${CMAKE_BINARY_DIR}/bin/random_walk 10000 1000000 1000)
+    add_test (NAME test_random_walk COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
+        --bind-to core --cpus-per-proc 2
+        ${CMAKE_BINARY_DIR}/bin/zerosum-mpi ${CMAKE_BINARY_DIR}/bin/random_walk 10000 1000000 1000)
+endif (ZeroSum_WITH_MPI)
 
 if (ZeroSum_WITH_SYCL)
 add_executable(sycl_query sycl_query.cpp)

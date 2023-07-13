@@ -280,7 +280,7 @@ public:
         for (auto env : environment) {
             tmpstr += env.first + " = " + env.second + "\n";
         }
-#ifdef USE_MPI
+#ifdef ZEROSUM_USE_MPI
         tmpstr += "\nP2P Communication Summary:\n";
         for (auto b : sentBytes) {
             auto dest = b.first;
@@ -358,7 +358,7 @@ public:
             tmpstr += computeNode->getSummary(hwthreads);
         }
 
-#ifdef USE_MPI
+#ifdef ZEROSUM_USE_MPI
         tmpstr += "\nP2P Communication Summary:\n";
         for (auto b : sentBytes) {
             auto dest = b.first;

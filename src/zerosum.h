@@ -85,7 +85,9 @@ private:
     void openLog(void);
     int getgpu(void);
     int getgpustatus(void);
+#ifdef ZEROSUM_USE_OPENMP
     void getopenmp(void);
+#endif
     int getpthreads(void);
     void getProcStatus(void);
     void threadedFunction(void);

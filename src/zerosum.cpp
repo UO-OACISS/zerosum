@@ -46,7 +46,7 @@ DEFINE_DESTRUCTOR(zerosum_finalize_static_void)
 #endif // ZEROSUM_USE_STATIC_GLOBAL_CONSTRUCTOR
 #endif // ZEROSUM_STANDALONE
 
-#ifdef USE_MPI
+#ifdef ZEROSUM_USE_MPI
 #include <mpi.h>
 #define MPI_CALL(call) \
     do { \
@@ -112,7 +112,7 @@ void ZeroSum::threadedFunction(void) {
 inline void ZeroSum::getMPIinfo(void) {
     PERFSTUBS_SCOPED_TIMER_FUNC();
     int size, rank;
-#ifdef USE_MPI
+#ifdef ZEROSUM_USE_MPI
     // get mpi info
     MPI_CALL(MPI_Comm_size(MPI_COMM_WORLD, &size));
     MPI_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &rank));
@@ -150,7 +150,7 @@ bool ZeroSum::doOnce(void) {
     if (done) return done;
     PERFSTUBS_SCOPED_TIMER_FUNC();
 
-#ifdef USE_MPI
+#ifdef ZEROSUM_USE_MPI
     int ready;
     MPI_CALL(MPI_Initialized(&ready));
     if (!ready) return done;
@@ -164,7 +164,6 @@ bool ZeroSum::doOnce(void) {
 #ifdef USE_HWLOC
     validate_hwloc(process.rank);
 #endif
-    //getopenmp();
     done = true;
     return done;
 }
@@ -219,7 +218,9 @@ ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()), doShu
     worker = std::thread{&ZeroSum::threadedFunction, this};
     // increase the step, because the main thread will be one of the OpenMP threads.
     step++;
+#ifdef ZEROSUM_USE_OPENMP
     getopenmp();
+#endif
     //worker.detach();
 }
 

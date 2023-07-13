@@ -34,17 +34,14 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <set>
-#include "omp.h"
 #include "utils.h"
 
 namespace zerosum {
 
 void ZeroSum::getopenmp() {
-    std::string outdata;
-
 #pragma omp parallel default(shared)
     {
-        auto nthreads = omp_get_num_threads();
+        int nthreads = omp_get_num_threads();
 #pragma omp for ordered
         for (int i = 0 ; i < nthreads ; i++)
         {

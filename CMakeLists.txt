@@ -31,6 +31,9 @@ option (ZeroSum_WITH_HIP "Enable HIP support" FALSE)
 option (ZeroSum_WITH_CUDA "Enable CUDA support" FALSE)
 option (ZeroSum_STANDALONE "Enable standalone support" FALSE)
 option (ZeroSum_WITH_HWLOC "Enable HWLOC support" FALSE)
+option (ZeroSum_WITH_MPI "Enable MPI support" TRUE)
+option (ZeroSum_WITH_OPENMP "Enable OpenMP support" TRUE)
+option (ZeroSum_NPROC "Max number of cores to bind to for tests" 8)
 
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -63,8 +66,14 @@ if (ZeroSum_WITH_HWLOC)
     add_definitions(-DUSE_HWLOC)
 endif (ZeroSum_WITH_HWLOC)
 
-find_package(MPI REQUIRED)
-find_package(OpenMP REQUIRED)
+if (ZeroSum_WITH_MPI)
+    find_package(MPI REQUIRED)
+endif (ZeroSum_WITH_MPI)
+
+if (ZeroSum_WITH_OPENMP)
+    find_package(OpenMP REQUIRED)
+endif (ZeroSum_WITH_OPENMP)
+
 include(cmake/AddGitSubmodule.cmake)
 
 enable_testing()
@@ -96,6 +105,14 @@ if (ZeroSum_USE_STATIC_GLOBAL_CONSTRUCTOR OR APPLE)
     add_definitions(-DZEROSUM_USE_STATIC_GLOBAL_CONSTRUCTOR)
 endif()
 
+include(ProcessorCount)
+ProcessorCount(ZeroSum_NPROC)
+if(ZeroSum_NPROC EQUAL 0)
+    set(ZeroSum_NPROC 1)
+elseif(ZeroSum_NPROC GREATER 8)
+    set(ZeroSum_NPROC 8)
+endif()
+
 add_subdirectory(src)
 add_subdirectory(examples)
 
@@ -114,26 +131,39 @@ function(dump_cmake_variables)
     endforeach()
 endfunction()
 
-INSTALL(TARGETS zerosum zerosum-mpi
+if (ZeroSum_WITH_MPI)
+    INSTALL(TARGETS zerosum zerosum-mpi
         EXPORT ZeroSumTargets
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         INCLUDES DESTINATION include)
+    INSTALL(FILES
+        ${PROJECT_BINARY_DIR}/bin/zerosum
+        ${PROJECT_BINARY_DIR}/bin/zerosum-mpi
+        DESTINATION bin
+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+        GROUP_EXECUTE GROUP_READ
+        WORLD_EXECUTE WORLD_READ)
+else (ZeroSum_WITH_MPI)
+    INSTALL(TARGETS zerosum
+        EXPORT ZeroSumTargets
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        INCLUDES DESTINATION include)
+    INSTALL(FILES
+        ${PROJECT_BINARY_DIR}/bin/zerosum
+        DESTINATION bin
+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+        GROUP_EXECUTE GROUP_READ
+        WORLD_EXECUTE WORLD_READ)
+endif (ZeroSum_WITH_MPI)
 
-install(EXPORT ZeroSumTargets
+INSTALL(EXPORT ZeroSumTargets
         FILE ZeroSumTargets.cmake
         NAMESPACE ZeroSum::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ZeroSum)
-
-install(FILES
-    ${PROJECT_BINARY_DIR}/bin/zerosum
-    ${PROJECT_BINARY_DIR}/bin/zerosum-mpi
-    DESTINATION bin
-    PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-    GROUP_EXECUTE GROUP_READ
-    WORLD_EXECUTE WORLD_READ
-    )
 
 message(STATUS "----------------------------------------------------------------------")
 message(STATUS "ZeroSum Variable Report:")
