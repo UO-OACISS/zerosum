@@ -28,6 +28,7 @@
 #include "level_zero/ze_api.h"
 #include "level_zero/zes_api.h"
 #include "sycl/ext/oneapi/backend/level_zero.hpp"
+#include <string.h>
 
 namespace zerosum {
 

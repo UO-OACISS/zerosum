@@ -32,6 +32,7 @@
 #include <set>
 #include <chrono>
 #include <unistd.h>
+#include <string.h>
 #include "zerosum.h"
 #include "perfstubs.h"
 #include "utils.h"

@@ -33,6 +33,7 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <iostream>
+#include <string.h>
 
 namespace zerosum {
 
