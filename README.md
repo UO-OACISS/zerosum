@@ -1,5 +1,7 @@
 # zerosum
 Utility for monitoring process, thread, OS and HW resources.
+Current CI status on develop branch : [![CircleCI](https://circleci.com/gh/khuck/zerosum.svg?style=svg)](https://circleci.com/gh/khuck/zerosum)
+
 
 Inspired by Tom Pappatheodore's Hello jsrun code for testing layout of Summit resources.
 see: https://code.ornl.gov/t4p/Hello_jsrun
