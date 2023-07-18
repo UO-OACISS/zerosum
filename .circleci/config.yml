@@ -4,7 +4,7 @@ version: 2.1
 executors:
   basic:
     docker:
-      - image: ubuntu-2204:2023.04.2
+      - image: cimg/base:2023.07
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/configuration-reference/#jobs
@@ -39,7 +39,7 @@ jobs:
     # See: https://circleci.com/docs/configuration-reference/#executor-job
     machine:
       image: linux-cuda-11:default
-    resource_class: gpu.nvidia.small.multi
+    #resource_class: gpu.nvidia.small.multi
 
     # Add steps to the job
     # See: https://circleci.com/docs/configuration-reference/#steps
