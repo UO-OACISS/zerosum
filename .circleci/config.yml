@@ -25,7 +25,7 @@ jobs:
       - run:
           name: "Configure"
           command: |
-            cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DZeroSum_STANDALONE=TRUE
+            cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DZeroSum_STANDALONE=TRUE -DZeroSum_WITH_MPI=FALSE
       - run:
           name: "Build"
           command: |
@@ -52,7 +52,7 @@ jobs:
       - run:
           name: "Configure"
           command: |
-            cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DZeroSum_STANDALONE=TRUE -DZeroSum_WITH_CUDA=TRUE -DCMAKE_C_COMPILER=`which nvc` -DCMAKE_CXX_COMPILER=`which nvc++`
+            cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DZeroSum_STANDALONE=TRUE -DZeroSum_WITH_CUDA=TRUE -DCMAKE_C_COMPILER=`which nvc` -DCMAKE_CXX_COMPILER=`which nvc++` -DZeroSum_WITH_MPI=FALSE
       - run:
           name: "Build"
           command: |
