@@ -47,6 +47,8 @@ public:
     uint32_t getRank(void) { return process.rank; }
     void recordSentBytes(int rank, size_t bytes);
     void recordRecvBytes(int rank, size_t bytes);
+    software::Process& getProcess(void) { return process; }
+    hardware::ComputeNode getComputeNode() { return computeNode; }
 
 private:
     /* Standard singleton definition follows */

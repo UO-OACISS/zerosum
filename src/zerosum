@@ -88,7 +88,6 @@ if [ ${#PARAMS} -eq 0 ] ; then
     usage
 fi
 
-
 # Setup all the library paths, and library preloads to support what was requested
 # NOTE: we add the ":" to each library name, becuase stupid APPLE isn't smart enough
 # to handle an empty library name and tries to load a library named '' :(
@@ -99,6 +98,9 @@ else
 fi
 
 PRELOAD=${BASEDIR}/${LIBDIR}/@ZS_LIBNAME@.so
+export OMP_TOOL=enabled
+export OMP_TOOL_LIBRARIES=${PRELOAD}
+export OMP_TOOL_VERBOSE_INIT=stdout
 
 export LD_PRELOAD=${PRELOAD}
 
