@@ -34,6 +34,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <set>
+#include <atomic>
 #include "utils.h"
 #ifdef ZEROSUM_USE_OPENMP
 #include <omp-tools.h>
@@ -94,19 +95,20 @@ void zerosum_thread_begin(
     ompt_data_t *thread_data     /* data of thread */)
 {
     UNUSED(thread_data);
+    static std::atomic<size_t> index{0};
     switch (thread_type) {
         case ompt_thread_initial:
-            DEBUG_PRINT("New OpenMP Initial Thread\n");
+            DEBUG_PRINT("New OpenMP Initial Thread %lu\n", index++);
             break;
         case ompt_thread_worker:
-            DEBUG_PRINT("New OpenMP Worker Thread\n");
+            DEBUG_PRINT("New OpenMP Worker Thread %lu\n", index++);
             break;
         case ompt_thread_other:
-            DEBUG_PRINT("New OpenMP Other Thread\n");
+            DEBUG_PRINT("New OpenMP Other Thread %lu\n", index++);
             break;
         case ompt_thread_unknown:
         default:
-            DEBUG_PRINT("New OpenMP Unknown Thread\n");
+            DEBUG_PRINT("New OpenMP Unknown Thread %lu\n", index++);
     }
     int nhwthr = 0;
     std::string tmpstr;
