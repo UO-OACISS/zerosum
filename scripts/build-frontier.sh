@@ -1,7 +1,8 @@
 #PATH=$PATH:$HOME/src/apex/install_gilgamesh_5.2.0/bin
 
 builddir=`pwd`/build.${ROCM_COMPILER_VERSION}
-instdir=`pwd`/install.${ROCM_COMPILER_VERSION}
+#instdir=`pwd`/install.${ROCM_COMPILER_VERSION}
+instdir=/lustre/orion/world-shared/phy122/khuck/zerosum.amd_${ROCM_COMPILER_VERSION}
 rm -rf ${builddir}
 
 cmake -B ${builddir} \
