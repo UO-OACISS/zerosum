@@ -33,6 +33,7 @@ option (ZeroSum_STANDALONE "Enable standalone support" TRUE)
 option (ZeroSum_WITH_HWLOC "Enable HWLOC support" FALSE)
 option (ZeroSum_WITH_MPI "Enable MPI support" TRUE)
 option (ZeroSum_WITH_OPENMP "Enable OpenMP support" TRUE)
+option (ZeroSum_WITH_OMPT "Enable OpenMP Tools support" TRUE)
 option (ZeroSum_NPROC "Max number of cores to bind to for tests" 8)
 
 # specify the C++ standard
@@ -72,7 +73,9 @@ endif (ZeroSum_WITH_MPI)
 
 if (ZeroSum_WITH_OPENMP)
     find_package(OpenMP REQUIRED)
-    find_package(OMPT)
+    if (ZeroSum_WITH_OMPT)
+        find_package(OMPT)
+    endif (ZeroSum_WITH_OMPT)
 endif (ZeroSum_WITH_OPENMP)
 
 include(cmake/AddGitSubmodule.cmake)

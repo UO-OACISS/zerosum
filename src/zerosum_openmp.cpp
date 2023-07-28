@@ -80,6 +80,8 @@ void ZeroSum::getopenmp(void) {
 #endif
 }
 
+} // namespace
+
 #ifdef ZEROSUM_USE_OMPT
 extern "C" {
 
@@ -114,16 +116,16 @@ void zerosum_thread_begin(
     std::string tmpstr;
     auto lwp = gettid();
     std::vector<uint32_t> allowed_list =
-        getAffinityList(lwp, ZeroSum::getInstance().getComputeNode().ncpus, nhwthr, tmpstr);
+        zerosum::getAffinityList(lwp, zerosum::ZeroSum::getInstance().getComputeNode().ncpus, nhwthr, tmpstr);
     // also want to read /proc/<pid>/task/<tid>/status!
     std::string filename = "/proc/self/task/";
     filename += std::to_string(lwp);
     filename += "/stat";
-    auto fields = getThreadStat(filename.c_str());
+    auto fields = zerosum::getThreadStat(filename.c_str());
     filename += "us";
-    getThreadStatus(filename.c_str(), fields);
+    zerosum::getThreadStatus(filename.c_str(), fields);
     //fields.insert(std::pair("step",std::to_string(step)));
-    ZeroSum::getInstance().getProcess().add(lwp, allowed_list, fields, software::ThreadType::OpenMP);
+    zerosum::ZeroSum::getInstance().getProcess().add(lwp, allowed_list, fields, zerosum::software::ThreadType::OpenMP);
 }
 
 // This function is for checking that the function registration worked.
@@ -211,10 +213,10 @@ ompt_start_tool_result_t * ompt_start_tool(
     result.finalize = &ompt_finalize;
     result.tool_data.value = 0L;
     result.tool_data.ptr = nullptr;
+    zerosum::ZeroSum::getInstance();
     return &result;
 }
 
 } // extern "C"
 #endif // ZEROSUM_USE_OMPT
 
-}

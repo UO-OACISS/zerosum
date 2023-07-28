@@ -99,6 +99,8 @@ void ZeroSum::threadedFunction(void) {
     }
 }
 
+#include "banner.h"
+
 inline void ZeroSum::getMPIinfo(void) {
     PERFSTUBS_SCOPED_TIMER_FUNC();
     int size, rank;
@@ -118,6 +120,7 @@ inline void ZeroSum::getMPIinfo(void) {
     computeNode = hardware::ComputeNode(name, doDetails);
     process.rank = rank;
     process.size = size;
+    if (rank == 0) { std::cout << ghost_banner << std::endl; }
 }
 
 inline void ZeroSum::openLog(void) {
@@ -198,6 +201,8 @@ ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()), doShu
     if (parseBool("ZS_SIGNAL_HANDLER", false)) {
         register_signal_handler();
     }
+#if defined(ZEROSUM_STANDALONE)
+    register_signal_handler();
 #endif
     PERFSTUBS_INITIALIZE();
     doDetails = parseBool("ZS_DETAILS", false);
