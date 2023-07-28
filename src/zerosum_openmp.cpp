@@ -36,9 +36,9 @@
 #include <set>
 #include <atomic>
 #include "utils.h"
-#ifdef ZEROSUM_USE_OPENMP
+#ifdef ZEROSUM_USE_OMPT
 #include <omp-tools.h>
-#endif // ZEROSUM_USE_OPENMP
+#endif // ZEROSUM_USE_OMPT
 
 #define DEBUG
 #ifdef DEBUG
@@ -51,7 +51,7 @@
 namespace zerosum {
 
 void ZeroSum::getopenmp(void) {
-#ifndef ZEROSUM_USE_OPENMP
+#ifndef ZEROSUM_USE_OMPT
 #pragma omp parallel default(shared)
     {
         int nthreads = omp_get_num_threads();
@@ -80,7 +80,7 @@ void ZeroSum::getopenmp(void) {
 #endif
 }
 
-#ifdef ZEROSUM_USE_OPENMP
+#ifdef ZEROSUM_USE_OMPT
 extern "C" {
 
 /* Function pointers.  These are all queried from the runtime during
@@ -215,6 +215,6 @@ ompt_start_tool_result_t * ompt_start_tool(
 }
 
 } // extern "C"
-#endif // ZEROSUM_USE_OPENMP
+#endif // ZEROSUM_USE_OMPT
 
 }
