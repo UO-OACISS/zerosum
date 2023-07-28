@@ -47,6 +47,8 @@ where ZS options are zero or more of:
                             (boolean, default: false)
     --zs:verbose            provide verbose diagnostic output
                             (boolean, default: false)
+    --zs:heartbeat          provide periodic memory consumption 'heartbeat'
+                            (boolean, default: false)
     --zs:signal-handler     register a signal handler in ZeroSum to handle crashes
                             (boolean, default: false)
     "
@@ -85,6 +87,10 @@ while (( "$#" )); do
     --zs:verbose)
       export ZS_VERBOSE=1
       export OMP_TOOL_VERBOSE_INIT=stdout
+      shift
+      ;;
+    --zs:heartbeat)
+      export ZS_HEART_BEAT=1
       shift
       ;;
     --zs:async-core)
