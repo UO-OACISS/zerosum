@@ -328,4 +328,14 @@ bool parseBool(const char * env, bool default_value = false) {
     }
 }
 
+bool getVerbose(void) {
+    static bool verbose{parseBool("ZS_VERBOSE",false)};
+    return verbose;
+}
+
+bool getHeartBeat(void) {
+    static bool verbose{parseBool("ZS_HEART_BEAT",false)};
+    return verbose;
+}
+
 }

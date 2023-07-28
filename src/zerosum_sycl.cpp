@@ -37,7 +37,7 @@ namespace zerosum {
 int ZeroSum::getgpu(void) {
     std::vector<std::map<std::string, std::string>> allfields;
     auto const& gpu_devices = sycl::device::get_devices(sycl::info::device_type::gpu);
-    if (ZeroSum::getInstance().getRank() == 0) {
+    if (ZeroSum::getInstance().getRank() == 0 && getVerbose()) {
         std::cout << "Number of Root GPUs: " << gpu_devices.size() << std::endl;
     }
     size_t index{0};

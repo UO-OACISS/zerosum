@@ -45,6 +45,8 @@ where ZS options are zero or more of:
                             (integer id, default: last ID in process affinity list)
     --zs:details            report detailed output
                             (boolean, default: false)
+    --zs:verbose            provide verbose diagnostic output
+                            (boolean, default: false)
     --zs:signal-handler     register a signal handler in ZeroSum to handle crashes
                             (boolean, default: false)
     "
@@ -78,6 +80,11 @@ while (( "$#" )); do
       ;;
     --zs:details)
       export ZS_DETAILS=1
+      shift
+      ;;
+    --zs:verbose)
+      export ZS_VERBOSE=1
+      export OMP_TOOL_VERBOSE_INIT=stdout
       shift
       ;;
     --zs:async-core)
@@ -124,7 +131,6 @@ fi
 PRELOAD=${BASEDIR}/${LIBDIR}/@ZS_LIBNAME@.so
 export OMP_TOOL=enabled
 export OMP_TOOL_LIBRARIES=${PRELOAD}
-export OMP_TOOL_VERBOSE_INIT=stdout
 
 export LD_PRELOAD=${PRELOAD}
 

@@ -42,7 +42,7 @@
 
 #define DEBUG
 #ifdef DEBUG
-#define DEBUG_PRINT(...) fprintf( stderr, __VA_ARGS__ ); fflush(stderr);
+#define DEBUG_PRINT(...) if (zerosum::getVerbose()) { fprintf( stderr, __VA_ARGS__ ); fflush(stderr); }
 #else
 #define DEBUG_PRINT(...) do{ } while ( false )
 #endif

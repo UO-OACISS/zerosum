@@ -42,7 +42,7 @@ namespace zerosum {
             exit(1);
         }
         auto const& gpu_devices = sycl::device::get_devices(sycl::info::device_type::gpu);
-        if (ZeroSum::getInstance().getRank() == 0) {
+        if (ZeroSum::getInstance().getRank() == 0 && getVerbose()) {
             std::cout << "Number of Root GPUs: " << gpu_devices.size() << std::endl;
         }
 #if 0
@@ -79,7 +79,11 @@ namespace zerosum {
                 fields.insert(std::pair(std::string("SYCL FreeMem (bytes)"),
                             std::to_string(freeMemory)));
             } catch (...) {
-                std::cerr << "Error reading memory on device " << index << std::endl;
+                static bool once{true};
+                if (once) {
+                    std::cerr << "Error reading memory on device " << index << std::endl;
+                    once = false;
+                }
             }
 #endif
             /* do it with L0 */
@@ -128,7 +132,11 @@ namespace zerosum {
                 }
                 allfields.push_back(fields);
             } catch (...) {
-                std::cerr << "Error reading memory on device " << index << std::endl;
+                static bool once{true};
+                if (once) {
+                    std::cerr << "Error reading memory on device " << index << std::endl;
+                    once = false;
+                }
             }
 #endif
             index++;

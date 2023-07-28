@@ -167,7 +167,7 @@ void ZeroSum::doPeriodic(void) {
     getgpustatus();
     std::string tmpstr{computeNode.reportMemory()};
     logfile << tmpstr << std::flush;
-    if (process.rank == 0) {
+    if (process.rank == 0 && getHeartBeat()) {
         std::cout << tmpstr << std::flush;
     }
 }
