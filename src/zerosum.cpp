@@ -197,13 +197,9 @@ void ZeroSum::getProcStatus() {
 /* The main singleton constructor for the ZeroSum class */
 ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()), doShutdown(true) {
     working = true;
-#ifdef ZEROSUM_STANDALONE
     if (parseBool("ZS_SIGNAL_HANDLER", false)) {
         register_signal_handler();
     }
-#if defined(ZEROSUM_STANDALONE)
-    register_signal_handler();
-#endif
     PERFSTUBS_INITIALIZE();
     doDetails = parseBool("ZS_DETAILS", false);
 
