@@ -39,7 +39,14 @@ Usage:
 $(basename "$0") <ZS options> executable <executable options>
 
 where ZS options are zero or more of:
-    --zs:period <value>         specify frequency of OS/HW sampling (integer seconds, default 1)
+    --zs:period <value>     specify frequency of OS/HW sampling
+                            (integer seconds, default: 1)
+    --zs:async-core <value> specify core/HWT where ZeroSum async thread should be pinned
+                            (integer id, default: last ID in process affinity list)
+    --zs:details            report detailed output
+                            (boolean, default: false)
+    --zs:signal-handler     register a signal handler in ZeroSum to handle crashes
+                            (boolean, default: false)
     "
     echo "${message}"
     exit 1
@@ -59,6 +66,23 @@ while (( "$#" )); do
     --zs:period)
       if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
         export ZS_PERIOD=$2
+        shift 2
+      else
+        echo "Error: Argument for $1 is missing" >&2
+        usage
+      fi
+      ;;
+    --zs:signal-handler)
+      export ZS_SIGNAL_HANDLER=1
+      shift
+      ;;
+    --zs:details)
+      export ZS_DETAILS=1
+      shift
+      ;;
+    --zs:async-core)
+      if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+        export ZS_ASYNC_CORE=$2
         shift 2
       else
         echo "Error: Argument for $1 is missing" >&2

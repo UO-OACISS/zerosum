@@ -293,6 +293,17 @@ void setThreadAffinity(int core) {
 }
 
 /*********************************************************************
+ * Parse an integer value
+ ********************************************************************/
+int parseInt(const char *env, int default_value = 0) {
+    const char * str = getenv(env);
+    if (str == NULL) { return default_value; }
+    int tmp = atoi(str);
+    if (tmp < 0) { return default_value; }
+    return tmp;
+}
+
+/*********************************************************************
  * Parse a boolean value
  ********************************************************************/
 bool parseBool(const char * env, bool default_value = false) {
@@ -316,7 +327,5 @@ bool parseBool(const char * env, bool default_value = false) {
         return 0;
     }
 }
-
-
 
 }

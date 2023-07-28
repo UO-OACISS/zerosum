@@ -70,27 +70,16 @@ namespace zerosum {
 
 using namespace std::literals::chrono_literals;
 
-/*********************************************************************
- * Parse an integer value
- ********************************************************************/
-inline int parse_int(const char *env, int default_value = 0) {
-    const char * str = getenv(env);
-    if (str == NULL) { return default_value; }
-    int tmp = atoi(str);
-    if (tmp < 0) { return default_value; }
-    return tmp;
-}
-
 void ZeroSum::threadedFunction(void) {
     PERFSTUBS_SCOPED_TIMER_FUNC();
     async_tid = gettid();
-    setThreadAffinity(process.getMaxHWT());
+    setThreadAffinity(parseInt("ZS_ASYNC_CORE", process.getMaxHWT()));
     bool initialized = false;
     // We want to measure periodically, ON THE SECOND.
     // So, we take into consideration how long it takes to do
     // this measurement.
     auto prev = std::chrono::steady_clock::now();
-    std::chrono::seconds period{parse_int("ZS_PERIOD", 1)};
+    std::chrono::seconds period{parseInt("ZS_PERIOD", 1)};
     while (working) {
         auto then = prev + period;
         auto stop = then - std::chrono::steady_clock::now();
@@ -206,10 +195,12 @@ void ZeroSum::getProcStatus() {
 ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()), doShutdown(true) {
     working = true;
 #ifdef ZEROSUM_STANDALONE
-    register_signal_handler();
+    if (parseBool("ZS_SIGNAL_HANDLER", false)) {
+        register_signal_handler();
+    }
 #endif
     PERFSTUBS_INITIALIZE();
-    doDetails = parseBool("ZEROSUM_DETAILS", false);
+    doDetails = parseBool("ZS_DETAILS", false);
 
     /* Important to do this now, before OpenMP is initialized
      * and this thread gets pinned to any cores */

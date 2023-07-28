@@ -44,5 +44,6 @@ std::vector<std::map<std::string,std::string>> parseProcStat(void);
 std::map<std::string,std::string> parseNodeInfo(void);
 void setThreadAffinity(int core);
 bool parseBool(const char * env, bool default_value);
+int parseInt(const char * env, int default_value);
 
 }
