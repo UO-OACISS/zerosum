@@ -120,7 +120,14 @@ inline void ZeroSum::getMPIinfo(void) {
     computeNode = hardware::ComputeNode(name, doDetails);
     process.rank = rank;
     process.size = size;
+#ifdef ZEROSUM_USE_STATIC_GLOBAL_CONSTRUCTOR
+    /* We can't call std::cout from a static global constructor, which is
+     * where the thread that this function is spawned from starts
+     * its life when run without MPI. */
+    if (rank == 0) { printf("%s\n", ghost_banner); }
+#else
     if (rank == 0) { std::cout << ghost_banner << std::endl; }
+#endif
 }
 
 inline void ZeroSum::openLog(void) {
