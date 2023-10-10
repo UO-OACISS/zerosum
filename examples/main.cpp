@@ -69,21 +69,28 @@ int main(int argc, char *argv[]){
 
     /* Set up MPI */
     MPI_INIT;
-    UNUSED(argc);
-    UNUSED(argv);
+    size_t iterations = 1;
+    if (argc > 1) {
+        iterations = atol(argv[1]);
+    }
 
+    for (int iter = 0 ; iter < iterations ; iter++) {
     /* do some work */
 #ifdef NDEBUG
-    constexpr int n = 1024*4;
+        constexpr int n = 1024*4;
 #else
-    constexpr int n = 1024*2;
+        constexpr int n = 1024*2;
 #endif
-    double * matrix[n];
-    for (int i = 0 ; i < n ; i++) {
-        matrix[i] = (double*)malloc(sizeof(double)*n);
+        double * matrix[n];
+        for (int i = 0 ; i < n ; i++) {
+            matrix[i] = (double*)malloc(sizeof(double)*n);
+        }
+        init_matrix(n,matrix);
+        lup_od_omp(n, matrix);
+        for (int i = 0 ; i < n ; i++) {
+            free (matrix[i]);
+        }
     }
-    init_matrix(n,matrix);
-    lup_od_omp(n, matrix);
 
     /* Finalize MPI */
     MPI_FINI;
