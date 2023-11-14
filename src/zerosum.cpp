@@ -135,9 +135,21 @@ inline void ZeroSum::openLog(void) {
     // open a log file
     std::string filename{"zs."};
     // prefix the rank with as many zeros as needed to sort correctly.
-    size_t len = std::to_string(process.size-1).size();
-    std::string tmp = std::to_string(process.rank);
-    int precision = len - std::min(len,tmp.size());
+    static bool use_pid{parseBool("ZS_USE_PID",false)};
+    size_t len{1};
+    int precision{5};
+    std::string tmp;
+    if (use_pid) {
+        len = 6;
+        tmp = std::to_string(process.id);
+        precision = len - std::min(len,tmp.size());
+        filename += computeNode.name;
+        filename += ".";
+    } else {
+        len = std::to_string(process.size-1).size();
+        tmp = std::to_string(process.rank);
+        precision = len - std::min(len,tmp.size());
+    }
     tmp.insert(0, precision, '0');
     filename += tmp;
     filename += ".log";
