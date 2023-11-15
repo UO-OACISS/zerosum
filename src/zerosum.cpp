@@ -140,7 +140,8 @@ inline void ZeroSum::openLog(void) {
     int precision{5};
     std::string tmp;
     if (use_pid) {
-        len = 6;
+        len = std::to_string(parseMaxPid()).size();
+        printf("Got len: %lu\n", len);
         tmp = std::to_string(process.id);
         precision = len - std::min(len,tmp.size());
         filename += computeNode.name;

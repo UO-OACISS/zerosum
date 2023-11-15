@@ -47,5 +47,6 @@ bool parseBool(const char * env, bool default_value);
 int parseInt(const char * env, int default_value);
 bool getVerbose(void);
 bool getHeartBeat(void);
+size_t parseMaxPid(void);
 
 }

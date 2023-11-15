@@ -276,6 +276,21 @@ std::map<std::string,std::string> parseNodeInfo(void) {
     return fields;
 }
 
+size_t parseMaxPid(void) {
+    size_t maxpid{0};
+    FILE * pFile;
+    char line[128];
+    pFile = fopen ("/proc/sys/kernel/pid_max","r");
+    if (pFile == nullptr) {
+        perror ("Error opening file");
+        return maxpid;
+    }
+    while ( fgets( line, 4096, pFile)) {
+        maxpid = atol(line);
+    }
+    fclose(pFile);
+    return maxpid;
+}
 
 void setThreadAffinity(int core) {
     cpu_set_t cpuset;
