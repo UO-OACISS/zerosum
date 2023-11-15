@@ -53,6 +53,8 @@ where ZS options are zero or more of:
                             (boolean, default: false)
     --zs:use-pid            Use the hostname.pid instead of MPI rank for log file name
                             (boolean, default: false)
+    --zs:openmp             Enable OpenMP support without OMPT (GCC for example)
+                            (boolean, default: false)
     "
     echo "${message}"
     exit 1
@@ -97,6 +99,10 @@ while (( "$#" )); do
       ;;
     --zs:use-pid)
       export ZS_USE_PID=1
+      shift
+      ;;
+    --zs:openmp)
+      export ZS_USE_OPENMP=1
       shift
       ;;
     --zs:async-core)

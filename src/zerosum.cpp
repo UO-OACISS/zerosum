@@ -232,7 +232,9 @@ ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()), doShu
     // increase the step, because the main thread will be one of the OpenMP threads.
     step++;
 #ifdef ZEROSUM_USE_OPENMP
-    getopenmp();
+    if (parseBool("ZS_USE_OPENMP", false)) {
+        getopenmp();
+    }
 #endif
     //worker.detach();
 }
