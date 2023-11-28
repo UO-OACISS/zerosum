@@ -16,8 +16,8 @@ to all Linux systems.
 
 ## Build instructions
 
-Configure and build with cmake. See the examples in the various go-\*.sh scripts.
-Some systems have their own scripts (like [frontier.sh](scripts/frontier.sh)).
+Configure and build with cmake. See the examples in the various build-\*.sh scripts.
+Some systems have their own scripts (like [build-frontier.sh](scripts/build-frontier.sh)).
 
 ## Build Dependencies
 
