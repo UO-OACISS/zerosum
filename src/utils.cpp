@@ -135,6 +135,9 @@ std::map<std::string, std::string> getThreadStat(const char * filename) {
     fields.insert(std::pair("majflt", v[12]));
     fields.insert(std::pair("utime", v[14]));
     fields.insert(std::pair("stime", v[15]));
+    fields.insert(std::pair("startstack", v[28]));
+    fields.insert(std::pair("kstkesp", v[29]));
+    fields.insert(std::pair("kstkeip", v[30]));
     fields.insert(std::pair("nswap", v[36]));
     fields.insert(std::pair("processor", v[39]));
     fclose(f);
