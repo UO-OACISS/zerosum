@@ -24,6 +24,7 @@
 
 #include <string.h>
 #include <dirent.h>
+#include <signal.h>
 #include "zerosum.h"
 #include "utils.h"
 
@@ -34,8 +35,12 @@ int ZeroSum::getpthreads() {
     DIR *dp;
     struct dirent *ep;
     dp = opendir ("/proc/self/task");
+    static bool deadlock{parseBool("ZS_DETECT_DEADLOCK",false)};
+    static int deadlock_duration{parseInt("ZS_DEADLOCK_DURATION",5)};
+    static int deadlock_detected_seconds = -1;
     if (dp != NULL)
     {
+        size_t running = 0;
         while ((ep = readdir (dp)) != NULL) {
             if (strncmp(ep->d_name, ".", 1) == 0) continue;
             if (tmpstr.size() > 0) { tmpstr = tmpstr + ","; }
@@ -51,6 +56,7 @@ int ZeroSum::getpthreads() {
             filename += "/stat";
             //std::string allowed_string = getCpusAllowed(filename.c_str());
             auto fields = getThreadStat(filename.c_str());
+            if (isRunning(fields)) { running++; }
             filename += "us";
             getThreadStatus(filename.c_str(), fields);
             //std::cout << filename << " : " << allowed_string << std::endl;
@@ -62,6 +68,23 @@ int ZeroSum::getpthreads() {
             }
         }
         (void) closedir (dp);
+        // if there is only one running thread (this one, belonging to ZS), be concerned...
+        if (deadlock) {
+            int real_running = running-1;
+            std::cout << real_running << " threads running" << std::endl;
+            if (real_running <= 1) {
+                deadlock_detected_seconds++;
+                std::cout << "All threads sleeping for " <<
+                    deadlock_detected_seconds << " seconds...?" << std::endl;
+            } else {
+                deadlock_detected_seconds = -1;
+            }
+            if (deadlock_detected_seconds >= deadlock_duration) {
+                std::cout << "Deadlock detected! Aborting!" << std::endl;
+                //abort();
+                pthread_kill(this->process.id, SIGQUIT);
+            }
+        }
     }
     return 0;
 }

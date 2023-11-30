@@ -22,32 +22,60 @@
  * SOFTWARE.
  */
 
-#pragma once
-#include <string>
-#include <set>
-#include <map>
-#include <vector>
+#include <cstdlib>
+#include <cstdio>
+#include <thread>
+#include <mutex>
+#include <sstream>
+#include <iostream>
 #include <unistd.h>
 #include <sys/syscall.h>
 #define gettid() syscall(SYS_gettid)
+#ifdef USE_MPI
+#include <mpi.h>
+#define MPI_INIT  MPI_Init(&argc, &argv);
+#define MPI_FINI  MPI_Finalize();
+#define MPI_BARRIER MPI_Barrier(MPI_COMM_WORLD);
+#define MPI_COMM_RANK MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+#define UNUSED(expr)
+#else
+#define MPI_INIT
+#define MPI_FINI
+#define MPI_BARRIER
+#define MPI_COMM_RANK
 #define UNUSED(expr) do { (void)(expr); } while (0)
+#endif
 
-namespace zerosum {
+std::mutex m1;
 
-std::vector<uint32_t> parseDiscreteValues(std::string inputString);
-std::string getCpusAllowed(const char * filename);
-std::map<std::string, std::string> getThreadStat(const char * filename);
-void getThreadStatus(const char * filename, std::map<std::string, std::string>& fields);
-bool isRunning(std::map<std::string, std::string>& fields);
-std::vector<uint32_t> getAffinityList(int tid, int ncpus, int& nhwthr, std::string& tmpstr);
-std::string toString(std::set<uint32_t> allowed);
-std::vector<std::map<std::string,std::string>> parseProcStat(void);
-std::map<std::string,std::string> parseNodeInfo(void);
-void setThreadAffinity(int core);
-bool parseBool(const char * env, bool default_value);
-int parseInt(const char * env, int default_value);
-bool getVerbose(void);
-bool getHeartBeat(void);
-size_t parseMaxPid(void);
+void worker_function(int rank) {
+    sleep(1);
+    std::unique_lock l1{m1};
+    std::stringstream ss;
+    ss << "Hello, I am thread " << gettid() << " from rank " << rank;
+    std::cout << ss.rdbuf() << std::endl;
+    sleep(9);
+}
 
+int main(int argc, char *argv[]){
+
+    int rank{0};
+    /* Set up MPI */
+    MPI_INIT
+    MPI_COMM_RANK
+
+    /* do deadlock */
+    std::thread t1(worker_function, rank);
+    std::thread t2(worker_function, rank);
+    std::stringstream ss;
+    ss << "Hello, I am the main thread " << gettid() << " from rank " << rank;
+    std::cout << ss.rdbuf() << std::endl;
+    MPI_BARRIER
+    t1.join();
+    t2.join();
+
+    /* Finalize MPI */
+    MPI_FINI
+
+    return 0;
 }

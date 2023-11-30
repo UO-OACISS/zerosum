@@ -55,6 +55,10 @@ where ZS options are zero or more of:
                             (boolean, default: false)
     --zs:openmp             Enable OpenMP support without OMPT (GCC for example)
                             (boolean, default: false)
+    --zs:deadlock           Enable deadlock detection support
+                            (boolean, default: false)
+    --zs:lock-duration <value>   Deadlock detection support after <value> seconds
+                            (integer seconds, default: 5)
     "
     echo "${message}"
     exit 1
@@ -104,6 +108,20 @@ while (( "$#" )); do
     --zs:openmp)
       export ZS_USE_OPENMP=1
       shift
+      ;;
+    --zs:deadlock)
+      export ZS_DETECT_DEADLOCK=1
+      #export ZS_SIGNAL_HANDLER=1
+      shift
+      ;;
+    --zs:lock-duration)
+      if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+        export ZS_DEADLOCK_DURATION=$2
+        shift 2
+      else
+        echo "Error: Argument for $1 is missing" >&2
+        usage
+      fi
       ;;
     --zs:async-core)
       if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then

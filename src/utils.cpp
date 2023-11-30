@@ -144,6 +144,37 @@ std::map<std::string, std::string> getThreadStat(const char * filename) {
     return fields;
 }
 
+// Return true if the thread is running, false otherwise.
+/* The state will be one of:
+    (3) state  %c
+         One of the following characters, indicating process
+         state:
+         R      Running
+         S      Sleeping in an interruptible wait
+         D      Waiting in uninterruptible disk sleep
+         Z      Zombie
+         T      Stopped (on a signal) or (before Linux
+                2.6.33) trace stopped
+         t      Tracing stop (Linux 2.6.33 onward)
+         W      Paging (only before Linux 2.6.0)
+         X      Dead (from Linux 2.6.0 onward)
+         x      Dead (Linux 2.6.33 to 3.13 only)
+         K      Wakekill (Linux 2.6.33 to 3.13 only)
+         W      Waking (Linux 2.6.33 to 3.13 only)
+         P      Parked (Linux 3.9 to 3.13 only)
+         I      Idle (Linux 4.14 onward)
+*/
+bool isRunning(std::map<std::string, std::string>& fields) {
+    static bool deadlock{parseBool("ZS_DETECT_DEADLOCK",false)};
+    if (!deadlock) {return true;}
+    static std::string state{"state"};
+    static std::string sleeping{"R"};
+    if (fields.count(state) > 0) {
+        if (sleeping.compare(fields[state]) == 0) { return true; }
+    }
+    return false;
+}
+
 void getThreadStatus(const char * filename, std::map<std::string, std::string>& fields) {
     //std::cout << std::endl << filename << std::endl;
     FILE *f = fopen(filename, "r");

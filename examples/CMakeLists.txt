@@ -24,6 +24,9 @@
 
 math(EXPR ZeroSum_LAST_CORE ${ZeroSum_NPROC}-1)
 
+add_executable(deadlock deadlock.cpp)
+target_link_libraries (deadlock pthread)
+
 if (ZeroSum_STANDALONE)
     add_executable(crasher crasher.c)
     target_link_libraries (crasher zerosum pthread)
@@ -58,6 +61,10 @@ endif (ZeroSum_WITH_OPENMP)
 # MPI Examples
 
 if (ZeroSum_WITH_MPI)
+    add_executable(deadlock-mpi deadlock.cpp)
+    target_link_libraries (deadlock-mpi MPI::MPI_CXX pthread)
+    target_compile_definitions(deadlock-mpi PUBLIC USE_MPI)
+
     add_executable(lu-decomp-mpi main.cpp)
     target_link_libraries (lu-decomp-mpi MPI::MPI_CXX pthread)
     if (ZeroSum_WITH_OPENMP)
