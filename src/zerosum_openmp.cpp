@@ -192,6 +192,12 @@ void ompt_finalize(ompt_data_t* tool_data)
     DEBUG_PRINT("OpenMP runtime is shutting down...\n");
 }
 
+void ompt_force_finalize(void) {
+    if (ompt_finalize_tool != nullptr) {
+        ompt_finalize_tool();
+    }
+}
+
 /* According to the OpenMP 5.0 specification, this function needs to be
  * defined in the application address space.  The runtime will see it,
  * and run it. */

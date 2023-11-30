@@ -4,7 +4,7 @@ rm -rf ${builddir}
 
 export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/home/users/khuck/src/hwloc-2.4.0/install_voltar_gcc/lib/pkgconfig
 cmake -B ${builddir} \
--DCMAKE_BUILD_TYPE=RelWithDebInfo \
+-DCMAKE_BUILD_TYPE=Debug \
 -DCMAKE_INSTALL_PREFIX=${instdir} \
 -DZeroSum_WITH_CUDA=TRUE \
 -DZeroSum_WITH_HWLOC=TRUE \

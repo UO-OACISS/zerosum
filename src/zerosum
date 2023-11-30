@@ -59,6 +59,10 @@ where ZS options are zero or more of:
                             (boolean, default: false)
     --zs:lock-duration <value>   Deadlock detection support after <value> seconds
                             (integer seconds, default: 5)
+    --zs:debug              Run in debugger 'gdb'
+                            (boolean, default: false)
+    --zs:debugger <name>    Run in debugger <name>
+                            (boolean, default: false)
     "
     echo "${message}"
     exit 1
@@ -67,6 +71,8 @@ where ZS options are zero or more of:
 period=1.0
 prog=""
 PARAMS=""
+debug=no
+debugger=`which gdb`
 
 if [ $# -eq 0 ] ; then
     usage
@@ -111,7 +117,6 @@ while (( "$#" )); do
       ;;
     --zs:deadlock)
       export ZS_DETECT_DEADLOCK=1
-      #export ZS_SIGNAL_HANDLER=1
       shift
       ;;
     --zs:lock-duration)
@@ -131,6 +136,20 @@ while (( "$#" )); do
         echo "Error: Argument for $1 is missing" >&2
         usage
       fi
+      ;;
+    --zs:debugger)
+      if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+        export debugger=$2
+        debug=yes
+        shift 2
+      else
+        echo "Error: Argument for $1 is missing" >&2
+        usage
+      fi
+      ;;
+    --zs:debug)
+      debug=yes
+      shift
       ;;
     --zs:help)
       usage
@@ -168,6 +187,12 @@ PRELOAD=${BASEDIR}/${LIBDIR}/@ZS_LIBNAME@.so
 export OMP_TOOL=enabled
 export OMP_TOOL_LIBRARIES=${PRELOAD}
 
-export LD_PRELOAD=${PRELOAD}
-
-${PARAMS}
+if [ $debug = yes ] ; then
+    echo "set env LD_PRELOAD=${PRELOAD}" >> ./.gdbcmds
+    ${debugger} -x ./.gdbcmds --args ${PARAMS}
+    rm ./.gdbcmds
+else
+    export LD_PRELOAD=${PRELOAD}
+    ${PARAMS}
+    unset LD_PRELOAD
+fi

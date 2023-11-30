@@ -72,7 +72,7 @@ int ZeroSum::getpthreads() {
         if (deadlock) {
             int real_running = running-1;
             std::cout << real_running << " threads running" << std::endl;
-            if (real_running <= 1) {
+            if (real_running == 0) {
                 deadlock_detected_seconds++;
                 std::cout << "All threads sleeping for " <<
                     deadlock_detected_seconds << " seconds...?" << std::endl;
