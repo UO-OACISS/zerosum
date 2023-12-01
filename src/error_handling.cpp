@@ -35,6 +35,9 @@
 #include "utils.h"
 #include "error_handling.h"
 #include "zerosum.h"
+#ifdef USE_MPI
+#include "mpi.h"
+#endif
 
 namespace zerosum {
 
@@ -42,16 +45,14 @@ void print_backtrace() {
   void *trace[32];
   size_t size, i;
   char **strings;
+  std::stringstream ss;
 
   size    = backtrace( trace, 32 );
   /* overwrite sigaction with caller's address */
   //trace[1] = (void *)ctx.eip;
   strings = backtrace_symbols( trace, size );
 
-  std::cerr << std::endl;
-  std::cerr << "BACKTRACE (backtrace_symbols):";
-  std::cerr << std::endl;
-  std::cerr << std::endl;
+  ss << "\nBACKTRACE (backtrace_symbols):\n\n";
 
   char exe[256];
   int len = readlink("/proc/self/exe", exe, 256);
@@ -61,35 +62,35 @@ void print_backtrace() {
 
   // skip the first frame, it is this handler
   for( i = 1; i < size; i++ ){
-   std::cerr << strings[i] << std::endl;
+   ss << strings[i] << "\n";
   }
-  std::cerr << std::endl;
-
+  ZeroSum::getInstance().getLogfile() << ss.str() <<std::endl;
+  std::cerr << ss.rdbuf() << std::endl;
 }
 
 static void custom_signal_handler(int sig) {
-
+  std::stringstream ss;
   int errnum = errno;
 
   fflush(stderr);
-  std::cerr << std::endl;
   print_backtrace();
-  std::cerr << std::endl;
 
-    std::cerr << "********* Node " << ZeroSum::getInstance().getRank() <<
-                " " << strsignal(sig) << " *********" << std::endl;
-    std::cerr << std::endl;
+    ss << "\n********* Node " << ZeroSum::getInstance().getRank() <<
+                " " << strsignal(sig) << " *********\n\n";
     if(errnum) {
-        std::cerr << "Value of errno: " << errno << std::endl;
+        ss << "\nValue of errno: " << errno << std::endl;
         perror("Error printed by perror");
-        std::cerr << "Error string: " << strerror( errnum ) << std::endl;
+        ss << "\nError string: " << strerror( errnum );
     }
 
-  std::cerr << "***************************************";
-  std::cerr << std::endl;
-  std::cerr << std::endl;
+  ss << "\n***************************************\n\n";
+  ZeroSum::getInstance().getLogfile() << ss.str() <<std::endl;
+  std::cerr << ss.rdbuf() << std::endl;
   fflush(stderr);
   ZeroSum::getInstance().handleCrash();
+#ifdef USE_MPI
+  MPI_Abort(MPI_COMM_WORLD, errnum);
+#endif
   exit(sig);
 }
 
@@ -101,47 +102,60 @@ static void custom_signal_handler_advanced(int sig, siginfo_t * info, void * con
     other_handlers[sig].sa_sigaction(sig, info, context);
 }
 
-int register_signal_handler() {
-  //std::cout << "ZeroSum signal handler registering..." << std::endl;
-  static bool once{false};
-  if (once) return 0;
-  struct sigaction act;
-  struct sigaction old;
-  memset(&act, 0, sizeof(act));
-  memset(&old, 0, sizeof(old));
-  /* call backtrace once, to "prime the pump" so calling backtrace
-   * during a async-signal-safe handler doesn't allocate memory to
-   * dynamically load glibc */
-  void* dummy = NULL;
-  backtrace(&dummy, 1);
+#define handle_error_en(en, msg) \
+        do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
 
-  sigemptyset(&act.sa_mask);
-  std::array<int,13> mysignals = {
-    SIGHUP,
-    SIGINT,
-    SIGQUIT,
-    SIGILL,
-    //SIGTRAP,
-    SIGIOT,
-    SIGBUS,
-    SIGFPE,
-    SIGKILL,
-    SIGSEGV,
-    SIGABRT,
-    SIGTERM,
-    SIGXCPU,
-    SIGXFSZ
-  };
-  //act.sa_handler = custom_signal_handler;
-  act.sa_flags = SA_RESTART | SA_SIGINFO;
-  act.sa_sigaction = custom_signal_handler_advanced;
-  for (auto s : mysignals) {
-    sigaction(s, &act, &old);
-    other_handlers[s] = old;
-  }
-  once = true;
-  //std::cout << "ZeroSum signal handler registered!" << std::endl;
-  return 0;
+void block_signal() {
+    // block SIGQUIT in the calling thread (our async thread)
+    // see: https://linux.die.net/man/3/pthread_sigmask
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGQUIT);
+    int rc = pthread_sigmask(SIG_BLOCK, &set, NULL);
+    if (rc != 0) handle_error_en(rc, "pthread_sigmask");
+}
+
+int register_signal_handler() {
+    //std::cout << "ZeroSum signal handler registering..." << std::endl;
+    static bool once{false};
+    if (once) return 0;
+    struct sigaction act;
+    struct sigaction old;
+    memset(&act, 0, sizeof(act));
+    memset(&old, 0, sizeof(old));
+    /* call backtrace once, to "prime the pump" so calling backtrace
+    * during a async-signal-safe handler doesn't allocate memory to
+    * dynamically load glibc */
+    void* dummy = NULL;
+    backtrace(&dummy, 1);
+
+    sigemptyset(&act.sa_mask);
+    std::array<int,13> mysignals = {
+        SIGHUP,
+        SIGINT,
+        SIGQUIT,
+        SIGILL,
+        SIGIOT,
+        SIGBUS,
+        SIGFPE,
+        SIGKILL,
+        SIGSEGV,
+        SIGABRT,
+        SIGTERM,
+        SIGXCPU,
+        SIGXFSZ
+    };
+    //act.sa_handler = custom_signal_handler;
+    //act.sa_flags = 0;
+    act.sa_flags = SA_RESTART | SA_SIGINFO;
+    act.sa_sigaction = custom_signal_handler_advanced;
+    for (auto s : mysignals) {
+        sigaction(s, &act, &old);
+        other_handlers[s] = old;
+    }
+    once = true;
+    //std::cout << "ZeroSum signal handler registered!" << std::endl;
+    return 0;
 }
 
 void test_signal_handler() {

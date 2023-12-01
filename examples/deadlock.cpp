@@ -33,7 +33,7 @@
 #define gettid() syscall(SYS_gettid)
 #ifdef USE_MPI
 #include <mpi.h>
-#define MPI_INIT  MPI_Init(&argc, &argv);
+#define MPI_INIT  {int provided ; MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);}
 #define MPI_FINI  MPI_Finalize();
 #define MPI_BARRIER MPI_Barrier(MPI_COMM_WORLD);
 #define MPI_COMM_RANK MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -63,6 +63,8 @@ int main(int argc, char *argv[]){
     /* Set up MPI */
     MPI_INIT
     MPI_COMM_RANK
+    UNUSED(argc);
+    UNUSED(argv);
 
     /* do deadlock */
     std::thread t1(worker_function, rank);

@@ -48,7 +48,8 @@ public:
     void recordSentBytes(int rank, size_t bytes);
     void recordRecvBytes(int rank, size_t bytes);
     software::Process& getProcess(void) { return process; }
-    hardware::ComputeNode getComputeNode() { return computeNode; }
+    hardware::ComputeNode getComputeNode(void) { return computeNode; }
+    std::ofstream& getLogfile(void) { return logfile; }
 
 private:
     /* Standard singleton definition follows */

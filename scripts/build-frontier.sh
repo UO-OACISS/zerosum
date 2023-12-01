@@ -1,4 +1,5 @@
 #PATH=$PATH:$HOME/src/apex/install_gilgamesh_5.2.0/bin
+export ROCM_COMPILER_VERSION=5.7.0
 
 builddir=`pwd`/build.${ROCM_COMPILER_VERSION}
 #instdir=`pwd`/install.${ROCM_COMPILER_VERSION}

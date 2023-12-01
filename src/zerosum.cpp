@@ -80,6 +80,7 @@ void ZeroSum::threadedFunction(void) {
     // this measurement.
     auto prev = std::chrono::steady_clock::now();
     std::chrono::seconds period{parseInt("ZS_PERIOD", 1)};
+    block_signal();
     while (working) {
         auto then = prev + period;
         auto stop = then - std::chrono::steady_clock::now();

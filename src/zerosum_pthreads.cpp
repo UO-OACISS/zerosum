@@ -70,18 +70,21 @@ int ZeroSum::getpthreads() {
         (void) closedir (dp);
         // if there is only one running thread (this one, belonging to ZS), be concerned...
         if (deadlock) {
+            static bool verbose{parseBool("ZS_VERBOSE",false)};
             int real_running = running-1;
-            std::cout << real_running << " threads running" << std::endl;
+            if (verbose) {
+                std::cout << real_running << " threads running" << std::endl;
+            }
             if (real_running == 0) {
                 deadlock_detected_seconds++;
-                std::cout << "All threads sleeping for " <<
+                std::cerr << "All threads sleeping for " <<
                     deadlock_detected_seconds << " seconds...?" << std::endl;
             } else {
                 deadlock_detected_seconds = -1;
             }
             if (deadlock_detected_seconds >= deadlock_duration) {
-                std::cout << "Deadlock detected! Aborting!" << std::endl;
-                //abort();
+                std::cerr << "Deadlock detected! Aborting!" << std::endl;
+                std::cerr << "Thread " << gettid() << " signalling " << this->process.id << std::endl;
                 pthread_kill(this->process.id, SIGQUIT);
             }
         }
