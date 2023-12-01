@@ -27,7 +27,6 @@
 #include <signal.h>
 #include "zerosum.h"
 #include "utils.h"
-#include "hwloc_zs.h"
 
 namespace zerosum {
 
