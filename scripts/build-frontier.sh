@@ -11,10 +11,11 @@ cmake -B ${builddir} \
 -DCMAKE_INSTALL_PREFIX=${instdir} \
 -DROCM_PATH=/opt/rocm-${ROCM_COMPILER_VERSION} \
 -DZeroSum_WITH_HIP=TRUE \
+-DZeroSum_WITH_HWLOC=TRUE \
 -DZeroSum_STANDALONE=TRUE \
 
 cmake --build ${builddir} -j
-cmake --install ${builddir}
+#cmake --install ${builddir}
 #ctest --test-dir build
 
 #-DZeroSum_WITH_PerfStubs=FALSE \

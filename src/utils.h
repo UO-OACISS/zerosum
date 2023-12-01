@@ -32,6 +32,9 @@
 #define gettid() syscall(SYS_gettid)
 #define UNUSED(expr) do { (void)(expr); } while (0)
 
+#define handle_error_en(en, msg) \
+               do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
+
 namespace zerosum {
 
 std::vector<uint32_t> parseDiscreteValues(std::string inputString);

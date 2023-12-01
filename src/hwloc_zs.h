@@ -24,8 +24,9 @@
 
 #pragma once
 
-#include "zerosum.h"
 #include "hwloc.h"
+#include <map>
+#include <iostream>
 
 namespace zerosum {
 
@@ -39,6 +40,8 @@ public:
         std::cout << "HWLOC Node topology:" << std::endl;
         traverse(root);
     }
+    static std::map<size_t, size_t>& getHWTMap();
+    static void validate_hwloc(size_t rank);
     ScopedHWLOC(void) {
         hwloc_topology_init(&topo);
 	    hwloc_topology_load(topo);

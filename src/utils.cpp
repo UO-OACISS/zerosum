@@ -336,7 +336,9 @@ void setThreadAffinity(int core) {
     if (CPU_ISSET(core, &mask)) {
         CPU_ZERO(&cpuset);
         CPU_SET(core, &cpuset);
-        sched_setaffinity(0, sizeof(cpu_set_t), &cpuset);
+        if (sched_setaffinity(0, sizeof(cpu_set_t), &cpuset) == -1) {
+            perror("sched_setaffinity");
+        }
     }
     return;
 }

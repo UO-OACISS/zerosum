@@ -1,3 +1,4 @@
+#pragma once
 const char * money_banner = R"(
 $$$$$$$$\                               $$$$$$\
 \____$$  |                             $$  __$$\

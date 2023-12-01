@@ -62,6 +62,11 @@ where ZS options are zero or more of:
     --zs:debug              Run in debugger 'gdb'
                             (boolean, default: false)
     --zs:debugger <name>    Run in debugger <name>
+                            (boolean, default: gdb)
+    --zs:map-cores          Map cores from OS index to Core (requires HWLOC)
+                            (boolean, default: false)
+    --zs:map-pus            Map cores from OS index to PU (requires HWLOC
+                            and assumes that SMP/hyperthreading is enabled and used)
                             (boolean, default: false)
     "
     echo "${message}"
@@ -105,6 +110,14 @@ while (( "$#" )); do
       ;;
     --zs:heartbeat)
       export ZS_HEART_BEAT=1
+      shift
+      ;;
+    --zs:map-cores)
+      export ZS_MAP_CORES=1
+      shift
+      ;;
+    --zs:map-pus)
+      export ZS_MAP_PUS=1
       shift
       ;;
     --zs:use-pid)

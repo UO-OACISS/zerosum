@@ -74,7 +74,7 @@ int main(int argc, char *argv[]){
         iterations = atol(argv[1]);
     }
 
-    for (int iter = 0 ; iter < iterations ; iter++) {
+    for (size_t iter = 0 ; iter < iterations ; iter++) {
     /* do some work */
 #ifdef NDEBUG
         constexpr int n = 1024*4;

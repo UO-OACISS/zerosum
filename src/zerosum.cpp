@@ -65,6 +65,9 @@ DEFINE_DESTRUCTOR(zerosum_finalize_static_void)
 #include <unistd.h>
 #include <limits.h>
 #endif
+#ifdef USE_HWLOC
+#include "hwloc_zs.h"
+#endif
 
 namespace zerosum {
 
@@ -176,7 +179,7 @@ bool ZeroSum::doOnce(void) {
     getgpu();
     computeNode.updateFields(parseNodeInfo());
 #ifdef USE_HWLOC
-    validate_hwloc(process.rank);
+    ScopedHWLOC::validate_hwloc(process.rank);
 #endif
     done = true;
     return done;
@@ -199,7 +202,7 @@ void ZeroSum::doPeriodic(void) {
 void ZeroSum::getProcStatus() {
     PERFSTUBS_SCOPED_TIMER_FUNC();
     std::string allowed_string = getCpusAllowed("/proc/self/status");
-    //std::cout << "/proc/self/status : " << allowed_string << std::endl;
+    std::cout << "/proc/self/status : " << allowed_string << std::endl;
     std::vector<uint32_t> allowed_list = parseDiscreteValues(allowed_string);
     std::string filename = "/proc/self/stat";
     auto fields = getThreadStat(filename.c_str());

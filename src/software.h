@@ -31,6 +31,9 @@
 #include <algorithm>
 #include <array>
 #include "utils.h"
+#ifdef USE_HWLOC
+#include "hwloc_zs.h"
+#endif
 
 namespace zerosum {
 
@@ -354,8 +357,25 @@ public:
                 tmpstr += t.second.getSummary();
                 tmpstr += "\n";
             }
+#ifdef USE_HWLOC
+            static bool doMap{parseBool("ZS_MAP_CORES",false)};
+            static bool doMap2{parseBool("ZS_MAP_PUS",false)};
+            if (doMap || doMap2) {
+                // before we can print the assigned cores, map them 
+                // from the OS indexes to the HW indexes.
+                std::set<uint32_t> hwthreads_mapped;
+                auto& theMap = ::zerosum::ScopedHWLOC::getHWTMap();
+                for (auto t : hwthreads) {
+                    hwthreads_mapped.insert(theMap[t]);
+                }
+                tmpstr += computeNode->getSummary(hwthreads_mapped);
+            } else {
+                tmpstr += computeNode->getSummary(hwthreads);
+            }
+#else
             // print assigned cores
             tmpstr += computeNode->getSummary(hwthreads);
+#endif
         }
 
 #ifdef ZEROSUM_USE_MPI
