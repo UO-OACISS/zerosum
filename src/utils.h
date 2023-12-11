@@ -27,6 +27,7 @@
 #include <set>
 #include <map>
 #include <vector>
+#include <cstdint>
 #include <unistd.h>
 #include <sys/syscall.h>
 #define gettid() syscall(SYS_gettid)
