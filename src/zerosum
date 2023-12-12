@@ -187,6 +187,38 @@ if [ ${#PARAMS} -eq 0 ] ; then
     usage
 fi
 
+myrank=0
+# Detect our MPI rank!
+if [ ! -z ${PMI_RANK+x} ] ; then
+    myrank=${PMI_RANK}
+fi
+if [ ! -z ${ALPS_APP_PE+x} ] ; then
+    myrank=${ALPS_APP_PE}
+fi
+if [ ! -z ${CRAY_PMI_RANK+x} ] ; then
+    myrank=${CRAY_PMI_RANK}
+fi
+if [ ! -z ${OMPI_COMM_WORLD_RANK+x} ] ; then
+    myrank=${OMPI_COMM_WORLD_RANK}
+fi
+if [ ! -z ${PBS_TASKNUM+x} ] ; then
+    myrank=${PBS_TASKNUM}
+fi
+if [ ! -z ${PBS_O_TASKNUM+x} ] ; then
+    myrank=${PBS_O_TASKNUM}
+fi
+if [ ! -z ${SLURM_PROCID+x} ] ; then
+    myrank=${SLURM_PROCID}
+fi
+
+if [ $debug = yes ] ; then
+    if [ "${myrank}" == "0" ] ; then
+        rm -f ./.gdbcmds
+    else
+        sleep 1
+    fi
+fi
+
 # Setup all the library paths, and library preloads to support what was requested
 # NOTE: we add the ":" to each library name, becuase stupid APPLE isn't smart enough
 # to handle an empty library name and tries to load a library named '' :(
@@ -197,13 +229,30 @@ else
 fi
 
 PRELOAD=${BASEDIR}/${LIBDIR}/@ZS_LIBNAME@.so
+mpi=@ZS_USE_MPI@
 export OMP_TOOL=enabled
 export OMP_TOOL_LIBRARIES=${PRELOAD}
 
 if [ $debug = yes ] ; then
-    echo "set env LD_PRELOAD=${PRELOAD}" >> ./.gdbcmds
-    ${debugger} -x ./.gdbcmds --args ${PARAMS}
-    rm ./.gdbcmds
+    if [ "${myrank}" == "0" ] ; then
+        echo "set env LD_PRELOAD=${PRELOAD}" >> ./.gdbcmds
+        if [ $mpi = yes ]; then
+            echo "run" >> ./.gdbcmds
+            echo "info threads" >> ./.gdbcmds
+            echo "bt" >> ./.gdbcmds
+            echo "thread 1" >> ./.gdbcmds
+            echo "bt" >> ./.gdbcmds
+            echo "quit" >> ./.gdbcmds
+                gdbargs="-batch -q"
+        fi
+    else
+        # Give rank 0 enough time to write the .gdbcmds file
+        until [ -f ./.gdbcmds ] ; do
+            sleep 1
+        done
+    fi
+    ${debugger} -x ./.gdbcmds ${gdbargs} --args ${PARAMS}
+    rm -f ./.gdbcmds
 else
     export LD_PRELOAD=${PRELOAD}
     ${PARAMS}

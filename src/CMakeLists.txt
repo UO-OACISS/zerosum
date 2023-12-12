@@ -21,14 +21,17 @@
 # SOFTWARE.
 
 set(ZS_LIBNAME "libzerosum")
+set(ZS_USE_MPI "no")
 CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/src/zerosum
     ${PROJECT_BINARY_DIR}/bin/zerosum @ONLY)
 
 if (ZeroSum_WITH_MPI)
     set(ZS_LIBNAME "libzerosum-mpi")
+    set(ZS_USE_MPI "yes")
     CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/src/zerosum
         ${PROJECT_BINARY_DIR}/bin/zerosum-mpi @ONLY)
     unset(ZS_LIBNAME)
+    unset(ZS_USE_MPI)
 endif (ZeroSum_WITH_MPI)
 
 if (ZeroSum_STANDALONE)

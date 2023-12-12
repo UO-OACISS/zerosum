@@ -1,7 +1,7 @@
 
-module load nvhpc
+module load nvhpc/22.11
 
-PATH=$PATH:$HOME/src/apex/install_nvhpc22.9/bin
+PATH=$PATH:$HOME/src/apex/install_nvhpc22.11/bin
 
 rm -rf build_cuda
 
