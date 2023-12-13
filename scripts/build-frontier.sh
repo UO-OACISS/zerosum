@@ -15,7 +15,7 @@ cmake -B ${builddir} \
 -DZeroSum_STANDALONE=TRUE \
 
 cmake --build ${builddir} -j
-#cmake --install ${builddir}
+cmake --install ${builddir}
 #ctest --test-dir build
 
 #-DZeroSum_WITH_PerfStubs=FALSE \
