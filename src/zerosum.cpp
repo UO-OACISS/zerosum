@@ -88,7 +88,7 @@ void ZeroSum::threadedFunction(void) {
         auto then = prev + period;
         auto stop = then - std::chrono::steady_clock::now();
         // keep trying until MPI is initialized
-        while (!initialized) {
+        while (!initialized && working) {
             initialized = doOnce();
         }
         // once initialized, we can do our periodic checks.

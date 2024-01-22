@@ -79,8 +79,16 @@ if (ZeroSum_WITH_MPI)
     target_compile_definitions(lu-decomp-mpi PUBLIC USE_MPI)
     add_dependencies (zerosum.tests lu-decomp-mpi)
 
+    set(MPIEXEC_BIND_OPTIONS "")
+    if(${MPIEXEC} MATCHES ".*srun")
+        set(MPIEXEC_BIND_OPTIONS -c 4)
+    endif()
+    if(${MPIEXEC} MATCHES ".*mpiexec")
+        set(MPIEXEC_BIND_OPTIONS --bind-to core --cpus-per-proc 4)
+    endif()
+
     add_test (NAME test_lu-decomp-mpi COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
-        --bind-to core --cpus-per-proc 4
+        ${MPIEXEC_BIND_OPTIONS}
         ${CMAKE_BINARY_DIR}/bin/zerosum-mpi ${CMAKE_BINARY_DIR}/bin/lu-decomp-mpi)
 
     if (ZeroSum_WITH_OPENMP)
@@ -91,7 +99,7 @@ if (ZeroSum_WITH_MPI)
     # MPI Example executed with APEX
 
     add_test (NAME test_lu-decomp_apex COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
-        --bind-to core --cpus-per-proc 4 apex_exec
+        ${MPIEXEC_BIND_OPTIONS} apex_exec
         --apex:mpi --apex:ompt --apex:pthread --apex:ompt_details
         --apex:tasktree --apex:gtrace --apex:screen_details
         --apex:preload ${CMAKE_BINARY_DIR}/lib/libzerosum-mpi.so
@@ -117,7 +125,7 @@ if (ZeroSum_WITH_MPI)
     add_dependencies (zerosum.tests random_walk)
 
     add_test (NAME test_random_walk COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
-        --bind-to core --cpus-per-proc 2
+        ${MPIEXEC_BIND_OPTIONS}
         ${CMAKE_BINARY_DIR}/bin/zerosum-mpi ${CMAKE_BINARY_DIR}/bin/random_walk 10000 1000000 1000)
 endif (ZeroSum_WITH_MPI)
 

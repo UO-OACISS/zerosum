@@ -27,6 +27,9 @@
 #include <signal.h>
 #include "zerosum.h"
 #include "utils.h"
+#ifdef ZEROSUM_USE_MPI
+#include <mpi.h>
+#endif
 
 namespace zerosum {
 
@@ -86,7 +89,11 @@ int ZeroSum::getpthreads() {
             if (deadlock_detected_seconds >= deadlock_duration) {
                 std::cerr << "Deadlock detected! Aborting!" << std::endl;
                 std::cerr << "Thread " << gettid() << " signalling " << this->process.id << std::endl;
+#ifdef ZEROSUM_USE_MPI
+                MPI_Abort(MPI_COMM_WORLD, 1);
+#else
                 pthread_kill(this->process.id, SIGQUIT);
+#endif
             }
         }
     }

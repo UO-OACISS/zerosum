@@ -211,13 +211,8 @@ if [ ! -z ${SLURM_PROCID+x} ] ; then
     myrank=${SLURM_PROCID}
 fi
 
-if [ $debug = yes ] ; then
-    if [ "${myrank}" == "0" ] ; then
-        rm -f ./.gdbcmds
-    else
-        sleep 1
-    fi
-fi
+gdbcmds=./.gdbcmds.${myrank}
+rm -f ${gdbcmds}
 
 # Setup all the library paths, and library preloads to support what was requested
 # NOTE: we add the ":" to each library name, becuase stupid APPLE isn't smart enough
@@ -234,25 +229,22 @@ export OMP_TOOL=enabled
 export OMP_TOOL_LIBRARIES=${PRELOAD}
 
 if [ $debug = yes ] ; then
-    if [ "${myrank}" == "0" ] ; then
-        echo "set env LD_PRELOAD=${PRELOAD}" >> ./.gdbcmds
-        if [ $mpi = yes ]; then
-            echo "run" >> ./.gdbcmds
-            echo "info threads" >> ./.gdbcmds
-            echo "bt" >> ./.gdbcmds
-            echo "thread 1" >> ./.gdbcmds
-            echo "bt" >> ./.gdbcmds
-            echo "quit" >> ./.gdbcmds
-                gdbargs="-batch -q"
-        fi
-    else
-        # Give rank 0 enough time to write the .gdbcmds file
-        until [ -f ./.gdbcmds ] ; do
-            sleep 1
-        done
+    echo "set env LD_PRELOAD=${PRELOAD}" >> ${gdbcmds}
+    if [ $mpi = yes ]; then
+        echo "set pagination off" >> ${gdbcmds}
+        echo "set logging overwrite on" >> ${gdbcmds}
+        echo "set logging redirect on" >> ${gdbcmds}
+        echo "set logging file zsgdb.${myrank}.log" >> ${gdbcmds}
+        echo "set logging enabled on" >> ${gdbcmds}
+        echo "run" >> ${gdbcmds}
+        echo "bt -full" >> ${gdbcmds}
+        echo "info threads" >> ${gdbcmds}
+        echo "thread apply all bt -full" >> ${gdbcmds}
+        echo "quit" >> ${gdbcmds}
+        gdbargs="-batch -q"
     fi
-    ${debugger} -x ./.gdbcmds ${gdbargs} --args ${PARAMS}
-    rm -f ./.gdbcmds
+    ${debugger} -x ${gdbcmds} ${gdbargs} --args ${PARAMS}
+    rm -f ${gdbcmds}
 else
     export LD_PRELOAD=${PRELOAD}
     ${PARAMS}

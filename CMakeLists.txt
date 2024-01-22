@@ -36,6 +36,15 @@ option (ZeroSum_WITH_OPENMP "Enable OpenMP support" TRUE)
 option (ZeroSum_WITH_OMPT "Enable OpenMP Tools support" TRUE)
 option (ZeroSum_NPROC "Max number of cores to bind to for tests" 8)
 
+string (REPLACE ":" " " MY_PATH_STR $ENV{PATH})
+#set(CMAKE_FIND_DEBUG_MODE ON)
+find_program(DARSHAN_CONFIG_IN_PATH NAMES "darshan-config" PATHS "${MY_PATH_STR}")
+#set(CMAKE_FIND_DEBUG_MODE OFF)
+message(STATUS "DARSHAN_CONFIG_IN_PATH = ${DARSHAN_CONFIG_IN_PATH}")
+if(NOT ${DARSHAN_CONFIG_IN_PATH} STREQUAL DARSHAN_CONFIG_IN_PATH-NOTFOUND)
+    message(FATAL_ERROR "Darshan detected in path. Please unload the darshan and/or darshan-runtime module before building.")
+endif(NOT ${DARSHAN_CONFIG_IN_PATH} STREQUAL DARSHAN_CONFIG_IN_PATH-NOTFOUND)
+
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
