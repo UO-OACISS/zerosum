@@ -233,6 +233,7 @@ export OMP_TOOL=enabled
 export OMP_TOOL_LIBRARIES=${PRELOAD}
 
 if [ $debug = yes ] ; then
+    echo "set env LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" >> ${gdbcmds}
     echo "set env LD_PRELOAD=${PRELOAD}" >> ${gdbcmds}
     if [ $mpi = yes ]; then
         echo "set pagination off" >> ${gdbcmds}
@@ -258,6 +259,7 @@ if [ $debug = yes ] ; then
     ${debugger} -x ${gdbcmds} ${gdbargs} --args ${PARAMS}
     rm -f ${gdbcmds}
 else
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}
     export LD_PRELOAD=${PRELOAD}
     ${PARAMS}
     unset LD_PRELOAD
