@@ -232,6 +232,7 @@ if [ $debug = yes ] ; then
     echo "set env LD_PRELOAD=${PRELOAD}" >> ${gdbcmds}
     if [ $mpi = yes ]; then
         echo "set pagination off" >> ${gdbcmds}
+        echo "set height 0" >> ${gdbcmds}
         echo "set logging overwrite on" >> ${gdbcmds}
         echo "set logging redirect on" >> ${gdbcmds}
         echo "set logging file zsgdb.${myrank}.log" >> ${gdbcmds}
