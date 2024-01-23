@@ -78,6 +78,7 @@ prog=""
 PARAMS=""
 debug=no
 debugger=`which gdb`
+enabled=""
 
 if [ $# -eq 0 ] ; then
     usage
@@ -154,6 +155,9 @@ while (( "$#" )); do
       if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
         export debugger=$2
         debug=yes
+        if [ $debugger = rocgdb ] ; then
+            enabled=enabled
+        fi
         shift 2
       else
         echo "Error: Argument for $1 is missing" >&2
@@ -211,7 +215,7 @@ if [ ! -z ${SLURM_PROCID+x} ] ; then
     myrank=${SLURM_PROCID}
 fi
 
-gdbcmds=./.gdbcmds.${myrank}
+gdbcmds=/tmp/gdbcmds.${myrank}
 rm -f ${gdbcmds}
 
 # Setup all the library paths, and library preloads to support what was requested
@@ -236,11 +240,18 @@ if [ $debug = yes ] ; then
         echo "set logging overwrite on" >> ${gdbcmds}
         echo "set logging redirect on" >> ${gdbcmds}
         echo "set logging file zsgdb.${myrank}.log" >> ${gdbcmds}
-        echo "set logging enabled on" >> ${gdbcmds}
+        echo "set logging ${enabled} on" >> ${gdbcmds}
         echo "run" >> ${gdbcmds}
-        echo "bt -full" >> ${gdbcmds}
+        echo "echo \n\nBacktrace:\n\n" >> ${gdbcmds}
+        echo "backtrace full" >> ${gdbcmds}
+        echo "echo \n\nRegisters:\n\n" >> ${gdbcmds}
+        echo "info registers" >> ${gdbcmds}
+        echo "echo \n\nCurrent instructions:\n\n" >> ${gdbcmds}
+        echo "x/16i \$pc" >> ${gdbcmds}
+        echo "echo \n\nThreads:\n\n" >> ${gdbcmds}
         echo "info threads" >> ${gdbcmds}
-        echo "thread apply all bt -full" >> ${gdbcmds}
+        echo "echo \n\nThread Backtrace:\n\n" >> ${gdbcmds}
+        echo "thread apply all bt full" >> ${gdbcmds}
         echo "quit" >> ${gdbcmds}
         gdbargs="-batch -q"
     fi
