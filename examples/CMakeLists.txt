@@ -25,7 +25,7 @@
 math(EXPR ZeroSum_LAST_CORE ${ZeroSum_NPROC}-1)
 
 add_executable(deadlock deadlock.cpp)
-target_link_libraries (deadlock zerosum pthread)
+target_link_libraries (deadlock pthread)
 
 if (ZeroSum_STANDALONE)
     add_executable(crasher crasher.c)

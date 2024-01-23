@@ -14,7 +14,7 @@ cmake -B build_cuda \
 
 cmake --build build_cuda -j
 cmake --install build_cuda
-ctest --test-dir build_cuda
+ctest --test-dir build_cuda --rerun-failed --output-on-failure
 
 #-DCMAKE_CXX_COMPILER=`whic nvc++` \
 #-DCMAKE_C_COMPILER=`which nvc` \
