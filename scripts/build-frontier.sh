@@ -1,5 +1,5 @@
 #PATH=$PATH:$HOME/src/apex/install_gilgamesh_5.2.0/bin
-export ROCM_COMPILER_VERSION=5.7.0
+export ROCM_COMPILER_VERSION=5.7.1
 module unload darshan-runtime
 
 builddir=`pwd`/build.${ROCM_COMPILER_VERSION}

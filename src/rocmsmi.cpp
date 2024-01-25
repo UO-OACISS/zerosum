@@ -94,9 +94,12 @@ namespace zerosum {
             timerPrefix += std::to_string(d) + " ";
             /* Power, energy, temp, voltage */
             int64_t sensor_index{0};
+            /* Power stopped working on Frontier in 5.7.1... */
+            /*
             RSMI_CALL(rsmi_dev_power_ave_get(d, sensor_index, &value));
             fields.insert(std::pair(std::string("Power Average (W)"),
                 std::to_string((double(value))*MICROWATTS)));
+                */
             float counter_resolution = 0;
             uint64_t timestamp;
             RSMI_CALL(rsmi_dev_energy_count_get(d, &value, &counter_resolution, &timestamp));

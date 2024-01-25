@@ -78,7 +78,6 @@ prog=""
 PARAMS=""
 debug=no
 debugger=`which gdb`
-enabled=""
 
 if [ $# -eq 0 ] ; then
     usage
@@ -155,9 +154,6 @@ while (( "$#" )); do
       if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
         export debugger=$2
         debug=yes
-        if [ $debugger = rocgdb ] ; then
-            enabled=enabled
-        fi
         shift 2
       else
         echo "Error: Argument for $1 is missing" >&2
@@ -241,7 +237,7 @@ if [ $debug = yes ] ; then
         echo "set logging overwrite on" >> ${gdbcmds}
         echo "set logging redirect on" >> ${gdbcmds}
         echo "set logging file zsgdb.${myrank}.log" >> ${gdbcmds}
-        echo "set logging ${enabled} on" >> ${gdbcmds}
+        echo "set logging enabled on" >> ${gdbcmds}
         echo "run" >> ${gdbcmds}
         echo "echo \n\nBacktrace:\n\n" >> ${gdbcmds}
         echo "backtrace full" >> ${gdbcmds}
