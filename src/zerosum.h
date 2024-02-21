@@ -41,6 +41,7 @@ public:
     }
 
     // Other public member functions...
+    void finalizeLog(void);
     void shutdown(void);
     void handleCrash(void);
     void parseEnv(char** envp);
@@ -96,6 +97,7 @@ private:
     void threadedFunction(void);
     bool doOnce(void);
     void doPeriodic(void);
+    void checkForStop(void);
     int getOtherProcesses(void);
 };
 

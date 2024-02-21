@@ -129,15 +129,15 @@ std::map<std::string, std::string> getThreadStat(const char * filename) {
         }
     }
     // parsing the fields as defined by https://man7.org/linux/man-pages/man5/proc.5.html
-    fields.insert(std::pair("executable", v[2]));
+    // fields.insert(std::pair("executable", v[2])); // always 0
     fields.insert(std::pair("state", v[3]));
     fields.insert(std::pair("minflt", v[10]));
     fields.insert(std::pair("majflt", v[12]));
     fields.insert(std::pair("utime", v[14]));
     fields.insert(std::pair("stime", v[15]));
-    fields.insert(std::pair("startstack", v[28]));
-    fields.insert(std::pair("kstkesp", v[29]));
-    fields.insert(std::pair("kstkeip", v[30]));
+    // fields.insert(std::pair("startstack", v[28])); // probably not available without ptrace, always 0
+    // fields.insert(std::pair("kstkesp", v[29])); // probably not available without ptrace, always 0
+    // fields.insert(std::pair("kstkeip", v[30])); // probably not available without ptrace, always 0
     fields.insert(std::pair("nswap", v[36]));
     fields.insert(std::pair("processor", v[39]));
     fclose(f);
@@ -167,10 +167,21 @@ std::map<std::string, std::string> getThreadStat(const char * filename) {
 bool isRunning(std::map<std::string, std::string>& fields) {
     static bool deadlock{parseBool("ZS_DETECT_DEADLOCK",false)};
     if (!deadlock) {return true;}
-    static std::string state{"state"};
-    static std::string sleeping{"R"};
+    const std::string state{"state"};
+    const std::string minflt{"minflt"};
+    const std::string running{"R"};
+    const std::string tracingStop{"t"};
+    const std::string zeroFaults{"0"};
+    /* If the thread state is Running (R), and the minflt value is non-zero, then we are running.
+     * Why the minflt? Because MPI will busy wait, which looks like running. But running with
+     * no minor faults is highly unlikely. 
+     * We also check for the tracing stop state (t), because that seems to be related to 
+     * GPU processing on AMD machines. 
+     */
     if (fields.count(state) > 0) {
-        if (sleeping.compare(fields[state]) == 0) { return true; }
+        if ((running.compare(fields[state]) == 0) &&
+            (zeroFaults.compare(fields[minflt]) != 0)) { return true; }
+        if (tracingStop.compare(fields[state]) == 0) { return true; }
     }
     return false;
 }
@@ -351,6 +362,16 @@ int parseInt(const char *env, int default_value = 0) {
     if (str == NULL) { return default_value; }
     int tmp = atoi(str);
     if (tmp < 0) { return default_value; }
+    return tmp;
+}
+
+/*********************************************************************
+ * Parse a string value
+ ********************************************************************/
+std::string parseString(const char * env, std::string default_value) {
+    const char * str = getenv(env);
+    if (str == NULL) { return default_value; }
+    std::string tmp{str};
     return tmp;
 }
 

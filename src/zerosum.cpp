@@ -33,6 +33,11 @@
 #include <chrono>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
+#include <fstream>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <time.h>
 #include "zerosum.h"
 #include "perfstubs.h"
 #include "utils.h"
@@ -70,6 +75,8 @@ DEFINE_DESTRUCTOR(zerosum_finalize_static_void)
 #endif
 
 namespace zerosum {
+
+std::mutex software::Process::thread_mtx;
 
 using namespace std::literals::chrono_literals;
 
@@ -185,6 +192,43 @@ bool ZeroSum::doOnce(void) {
     return done;
 }
 
+/* If the user creates a file named "zerosum.stop", dump everything and exit */
+void ZeroSum::checkForStop(void) {
+    if(access("./zerosum.stop", F_OK) == 0) {
+        std::cerr << "Stop file detected! Aborting!" << std::endl;
+        std::cerr << "Thread " << gettid() << " signalling " << this->process.id << std::endl;
+        finalizeLog();
+        pthread_kill(this->process.id, SIGQUIT);
+    }
+    static bool monitorLog{parseBool("ZS_MONITOR_LOG", false)};
+    if (monitorLog) {
+        static std::string logfileName = parseString("ZS_MONITOR_LOG_FILENAME", "log.out");
+        static int duration = parseInt("ZS_MONITOR_LOG_TIMEOUT", 300);
+        struct stat fileStat;
+        if (stat(logfileName.c_str(), &fileStat) == 0) {
+            // Get the current time
+            time_t currentTime;
+            time(&currentTime);
+
+            // Calculate the time difference in seconds
+            long timeDifference = difftime(currentTime, fileStat.st_mtime);
+            if (process.rank == 0) {
+                if (logfile.is_open()) {
+                    logfile << "logfile time freshness: " << timeDifference << " seconds" << std::endl;
+                }
+            }
+
+            // Check if the file has been updated in the last N seconds
+            if(timeDifference > duration) {
+                std::cerr << "Log file " << logfileName << " went stale! Aborting!" << std::endl;
+                std::cerr << "Thread " << gettid() << " signalling " << this->process.id << std::endl;
+                finalizeLog();
+                pthread_kill(this->process.id, SIGQUIT);
+            }
+        }
+    }
+}
+
 void ZeroSum::doPeriodic(void) {
     PERFSTUBS_SCOPED_TIMER_FUNC();
     step++;
@@ -197,6 +241,7 @@ void ZeroSum::doPeriodic(void) {
     if (process.rank == 0 && getHeartBeat()) {
         std::cout << tmpstr << std::flush;
     }
+    checkForStop();
 }
 
 void ZeroSum::getProcStatus() {
@@ -269,13 +314,17 @@ void ZeroSum::shutdown(void) {
             std::cout << std::endl;
         }
     }
-    logfile << process.logThreads(true) << std::flush;
-    logfile << computeNode.toString(process.hwthreads) << std::flush;
-    logfile << process.toString() << std::flush;
+    finalizeLog();
+    PERFSTUBS_FINALIZE();
+}
+
+void ZeroSum::finalizeLog() {
     if (logfile.is_open()) {
+        logfile << process.logThreads(true) << std::flush;
+        logfile << computeNode.toString(process.hwthreads) << std::flush;
+        logfile << process.toString() << std::flush;
         logfile.close();
     }
-    PERFSTUBS_FINALIZE();
 }
 
 std::pair<std::string,std::string> split (const std::string &s) {

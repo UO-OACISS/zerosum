@@ -50,6 +50,7 @@ std::map<std::string,std::string> parseNodeInfo(void);
 void setThreadAffinity(int core);
 bool parseBool(const char * env, bool default_value);
 int parseInt(const char * env, int default_value);
+std::string parseString(const char * env, std::string default_value);
 bool getVerbose(void);
 bool getHeartBeat(void);
 size_t parseMaxPid(void);

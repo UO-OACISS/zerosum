@@ -59,10 +59,16 @@ where ZS options are zero or more of:
                             (boolean, default: false)
     --zs:lock-duration <value>   Deadlock detection support after <value> seconds
                             (integer seconds, default: 5)
+    --zs:monitor-log        Enable logfile monitoring support (experimental, may not work on shared filesystems)
+                            (boolean, default: false)
+    --zs:monitor-log-filename <value>   Log filename to monitor (experimental, may not work on shared filesystems)
+                            (string, default: '')
+    --zs:monitor-log-timeout <value>   Stale logfile support after <value> seconds (experimental, may not work on shared filesystems)
+                            (integer seconds, default: 300)
     --zs:debug              Run in debugger 'gdb'
                             (boolean, default: false)
     --zs:debugger <name>    Run in debugger <name>
-                            (boolean, default: gdb)
+                            (string, default: gdb)
     --zs:map-cores          Map cores from OS index to Core (requires HWLOC)
                             (boolean, default: false)
     --zs:map-pus            Map cores from OS index to PU (requires HWLOC
@@ -132,9 +138,33 @@ while (( "$#" )); do
       export ZS_DETECT_DEADLOCK=1
       shift
       ;;
+    --zs:monitor-log)
+      export ZS_MONITOR_LOG=1
+      shift
+      ;;
     --zs:lock-duration)
       if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
         export ZS_DEADLOCK_DURATION=$2
+        shift 2
+      else
+        echo "Error: Argument for $1 is missing" >&2
+        usage
+      fi
+      ;;
+    --zs:monitor-log-filename)
+      if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+        export ZS_MONITOR_LOG=1
+        export ZS_MONITOR_LOG_FILENAME=$2
+        shift 2
+      else
+        echo "Error: Argument for $1 is missing" >&2
+        usage
+      fi
+      ;;
+    --zs:monitor-log-timeout)
+      if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+        export ZS_MONITOR_LOG=1
+        export ZS_MONITOR_LOG_TIMEOUT=$2
         shift 2
       else
         echo "Error: Argument for $1 is missing" >&2
@@ -211,6 +241,8 @@ if [ ! -z ${SLURM_PROCID+x} ] ; then
     myrank=${SLURM_PROCID}
 fi
 
+printf -v myrank_padded "%04g" $myrank
+
 gdbcmds=/tmp/gdbcmds.${myrank}
 rm -f ${gdbcmds}
 
@@ -232,23 +264,33 @@ if [ $debug = yes ] ; then
     echo "set env LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" >> ${gdbcmds}
     echo "set env LD_PRELOAD=${PRELOAD}" >> ${gdbcmds}
     if [ $mpi = yes ]; then
+        # Set up logging
         echo "set pagination off" >> ${gdbcmds}
         echo "set height 0" >> ${gdbcmds}
         echo "set logging overwrite on" >> ${gdbcmds}
         echo "set logging redirect on" >> ${gdbcmds}
-        echo "set logging file zsgdb.${myrank}.log" >> ${gdbcmds}
+        echo "set logging file zsgdb.${myrank_padded}.log" >> ${gdbcmds}
         echo "set logging enabled on" >> ${gdbcmds}
+
+        # Run the executable
         echo "run" >> ${gdbcmds}
+
+        # If non-zero exit, do the following:
         echo "echo \n\nBacktrace:\n\n" >> ${gdbcmds}
-        echo "backtrace full" >> ${gdbcmds}
-        echo "echo \n\nRegisters:\n\n" >> ${gdbcmds}
-        echo "info registers" >> ${gdbcmds}
-        echo "echo \n\nCurrent instructions:\n\n" >> ${gdbcmds}
-        echo "x/16i \$pc" >> ${gdbcmds}
+        echo "backtrace" >> ${gdbcmds}
+        echo "echo \n\nMain thread Backtrace:\n\n" >> ${gdbcmds}
+        echo "thread 1" >> ${gdbcmds}
+        echo "backtrace" >> ${gdbcmds}
+        #echo "echo \n\nRegisters:\n\n" >> ${gdbcmds}
+        #echo "info registers" >> ${gdbcmds}
+        #echo "echo \n\nCurrent instructions:\n\n" >> ${gdbcmds}
+        #echo "x/16i \$pc" >> ${gdbcmds}
         echo "echo \n\nThreads:\n\n" >> ${gdbcmds}
         echo "info threads" >> ${gdbcmds}
         echo "echo \n\nThread Backtrace:\n\n" >> ${gdbcmds}
-        echo "thread apply all bt full" >> ${gdbcmds}
+        echo "thread apply all bt" >> ${gdbcmds}
+
+        # exit gdb
         echo "quit" >> ${gdbcmds}
         gdbargs="-batch -q"
     fi

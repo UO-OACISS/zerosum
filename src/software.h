@@ -215,6 +215,8 @@ public:
     Process(uint32_t _id, uint32_t _rank, uint32_t _size,
         std::map<std::string, std::string> _fields,
         std::vector<uint32_t> allowed_hwt) : id(_id), rank(_rank), size(_size) {
+        /* We need a lock because the async thread and OMPT callback can report threads */
+        std::unique_lock<std::mutex> lk(thread_mtx);
         for (auto t : allowed_hwt) {
             hwthreads.insert(t);
         }
@@ -229,6 +231,8 @@ public:
     ~Process() = default;
     void add(uint32_t tid, std::vector<uint32_t> allowed_hwt,
         std::map<std::string, std::string> fields, ThreadType type = Other) {
+        /* We need a lock because the async thread and OMPT callback can report threads */
+        std::unique_lock<std::mutex> lk(thread_mtx);
         if (threads.count(tid) == 0) {
             threads.insert(std::pair(tid, LWP(tid, allowed_hwt, fields, type)));
         } else {
@@ -237,6 +241,7 @@ public:
     }
     // disabled copy constructor
     //Process(const Process&) = default;
+    static std::mutex thread_mtx;
     uint32_t id; // The process ID
     uint32_t rank; // The MPI rank
     uint32_t size; // The MPI size
