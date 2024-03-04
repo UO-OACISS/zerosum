@@ -31,7 +31,6 @@
 #include "zerosum.h"
 #include <sycl/sycl.hpp>
 
-
 namespace zerosum {
 
 int ZeroSum::getgpu(void) {
@@ -110,6 +109,40 @@ int ZeroSum::getgpu(void) {
         }
     }
     ZeroSum::getInstance().computeNode.addGpu(allfields);
+/*
+    // initialize level 0
+    const ze_device_type_t type = ZE_DEVICE_TYPE_GPU;
+    ZE_ERROR_CHECK(zeInit(0));
+    // get the driver count
+    uint32_t driverCount = 0;
+    ze_driver_handle_t pDriver = nullptr;
+    ze_device_handle_t pDevice = nullptr;
+    ZE_ERROR_CHECK(zeDriverGet(&driverCount, nullptr));
+    // get the drivers
+    std::vector<ze_driver_handle_t> drivers( driverCount );
+    ZE_ERROR_CHECK(zeDriverGet( &driverCount, drivers.data() ));
+    for( uint32_t driver = 0; driver < driverCount; ++driver )
+    {
+        pDriver = drivers[driver];
+        pDevice = findDevice( pDriver, type );
+        if( pDevice ) {
+            break;
+        }
+    }
+    uint32_t pCount{0};
+    zes_engine_handle_t tmp;
+    // get the number of engine groups
+    ZE_ERROR_CHECK(zesDeviceEnumEngineGroups(pDevice, &pCount, &tmp));
+    std::vector<zes_engine_handle_t> engineHandles(pCount);
+    ZE_ERROR_CHECK(zesDeviceEnumEngineGroups(pDevice, &pCount, engineHandles.data()));
+    for ( auto e : engineHandles ) {
+        zes_engine_properties_t pProperties;
+        ZE_ERROR_CHECK(zesEngineGetProperties(e, &pProperties));
+        std::cout << "engine type: " << pProperties.type << std::endl;
+        std::cout << "on subdevice: " << pProperties.onSubdevice << std::endl;
+        std::cout << "subdevice ID: " << pProperties.subdeviceId << std::endl;
+    }
+    */
     return 0;
 }
 

@@ -30,6 +30,18 @@
 #include "sycl/ext/oneapi/backend/level_zero.hpp"
 #include <string.h>
 
+#include "level0_utils.h"
+
+#define ZE_ERROR_CHECK(call)                                                                  \
+do{                                                                                          \
+    ze_result_t gpuErr = call;                                                               \
+    if(ZE_RESULT_SUCCESS != gpuErr){                                                               \
+        printf("GPU Error - %s:%d: '%s'\n", __FILE__, __LINE__, to_string(gpuErr).c_str()); \
+        exit(1);                                                                             \
+    }                                                                                        \
+}while(0)
+
+
 namespace zerosum {
 
     std::vector<sycl::device> initialize_sycl(void) {
@@ -107,6 +119,9 @@ namespace zerosum {
             fields.insert(std::pair(std::string("L0 FreeMem (bytes)"),
                         std::to_string(free)));
 #else
+
+            /* See https://spec.oneapi.io/level-zero/0.95/sysman/PROG.html */
+
             // Get level-zero device handle
             try {
                 ze_result_t status = ZE_RESULT_SUCCESS;
@@ -135,6 +150,67 @@ namespace zerosum {
                 static bool once{true};
                 if (once) {
                     std::cerr << "Error reading memory on device " << index << std::endl;
+                    once = false;
+                }
+            }
+
+            try {
+                auto ze_dev = ::sycl::get_native<::sycl::backend::ext_oneapi_level_zero>(d);
+                uint32_t pCount{0};
+                zes_engine_handle_t tmp;
+                // get the number of engine groups
+                ZE_ERROR_CHECK(zesDeviceEnumEngineGroups(ze_dev, &pCount, &tmp));
+                std::vector<zes_engine_handle_t> engineHandles(pCount);
+                ZE_ERROR_CHECK(zesDeviceEnumEngineGroups(ze_dev, &pCount, engineHandles.data()));
+                std::stringstream ss;
+                for ( auto e : engineHandles ) {
+                    zes_engine_properties_t pProperties;
+                    ZE_ERROR_CHECK(zesEngineGetProperties(e, &pProperties));
+                    ss << to_string(pProperties.type);
+                    if (pProperties.onSubdevice) {
+                        ss << ": " << pProperties.subdeviceId;
+                    }
+                    ss << ":";
+                    zes_engine_stats_t pStats;
+                    ZE_ERROR_CHECK(zesEngineGetActivity(e, &pStats));
+                    static std::unordered_map<std::string,zes_engine_stats_t> activityMap;
+                    /*
+                    Engine activity counters.
+                    Percent utilization is calculated by taking two snapshots
+                    (s1, s2) and using the equation:
+                        util = (s2.activeTime - s1.activeTime) / (s2.timestamp - s1.timestamp)
+
+                    Public Members
+
+                    uint64_t activeTime
+                        [out] Monotonic counter for time in microseconds that this resource
+                        is actively running workloads.
+
+                    uint64_t timestamp
+                    [out] Monotonic timestamp counter in microseconds when activeTime
+                    counter was sampled. No assumption should be made about the absolute
+                    value of the timestamp. It should only be used to calculate delta time
+                    between two snapshots of the same structure. Never take the delta of
+                    this timestamp with the timestamp from a different structure.
+                    */
+                    std::string tmp{ss.str()};
+                    if (activityMap.count(tmp) == 0) {
+                        activityMap.insert(std::pair(tmp, pStats));
+                        fields.insert(std::pair(ss.str() + std::string(" Active Time"),
+                                        std::to_string(0.0)));
+                    } else {
+                        auto last = activityMap.find(tmp);
+                        double ratio = (pStats.activeTime - last->second.activeTime) /
+                                       (pStats.timestamp - last->second.timestamp);
+                        fields.insert(std::pair(ss.str() + std::string(" Active Time"),
+                                        std::to_string(ratio)));
+                    }
+                }
+                allfields.push_back(fields);
+            } catch (...) {
+                static bool once{true};
+                if (once) {
+                    std::cerr << "Error reading activity on device " << index << std::endl;
                     once = false;
                 }
             }
