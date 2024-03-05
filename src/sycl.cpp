@@ -145,7 +145,7 @@ namespace zerosum {
                         }
                     }
                 }
-                allfields.push_back(fields);
+                //allfields.push_back(fields);
             } catch (...) {
                 static bool once{true};
                 if (once) {
@@ -160,17 +160,26 @@ namespace zerosum {
                 zes_engine_handle_t tmp;
                 // get the number of engine groups
                 ZE_ERROR_CHECK(zesDeviceEnumEngineGroups(ze_dev, &pCount, &tmp));
+                if (pCount == 0) {
+                    std::cerr << "Error reading engines on device " << index << std::endl;
+                }
                 std::vector<zes_engine_handle_t> engineHandles(pCount);
                 ZE_ERROR_CHECK(zesDeviceEnumEngineGroups(ze_dev, &pCount, engineHandles.data()));
-                std::stringstream ss;
                 for ( auto e : engineHandles ) {
+                    std::stringstream ss;
                     zes_engine_properties_t pProperties;
                     ZE_ERROR_CHECK(zesEngineGetProperties(e, &pProperties));
+                    // only handle known types
+                    if (pProperties.type != ZES_ENGINE_GROUP_ALL &&
+                        pProperties.type != ZES_ENGINE_GROUP_COMPUTE_ALL &&
+                        pProperties.type != ZES_ENGINE_GROUP_COPY_ALL) {
+                        continue;
+                    }
                     ss << to_string(pProperties.type);
                     if (pProperties.onSubdevice) {
-                        ss << ": " << pProperties.subdeviceId;
+                        ss << ", subdevice " << pProperties.subdeviceId;
                     }
-                    ss << ":";
+                    ss << ",";
                     zes_engine_stats_t pStats;
                     ZE_ERROR_CHECK(zesEngineGetActivity(e, &pStats));
                     static std::unordered_map<std::string,zes_engine_stats_t> activityMap;
@@ -206,7 +215,6 @@ namespace zerosum {
                                         std::to_string(ratio)));
                     }
                 }
-                allfields.push_back(fields);
             } catch (...) {
                 static bool once{true};
                 if (once) {
@@ -215,6 +223,7 @@ namespace zerosum {
                 }
             }
 #endif
+            allfields.push_back(fields);
             index++;
         }
         computeNode.updateGPU(allfields);

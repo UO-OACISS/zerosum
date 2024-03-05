@@ -1000,16 +1000,15 @@ std::string to_string(const ze_native_kernel_uuid_t uuid) {
 std::string to_string(const zes_engine_group_t group) {
   std::string result;
   if (group == ZES_ENGINE_GROUP_ALL) {
-        result.append("ZES_ENGINE_GROUP_ALL");
-  } else
-  if (group == ZES_ENGINE_GROUP_COMPUTE_ALL) {
-        result.append("ZES_ENGINE_GROUP_COMPUTE_ALL");
-  } else
-  if (group == ZES_ENGINE_GROUP_MEDIA_ALL) {
-        result.append("ZES_ENGINE_GROUP_MEDIA_ALL");
-  } else
-  if (group == ZES_ENGINE_GROUP_COPY_ALL) {
-        result.append("ZES_ENGINE_GROUP_COPY_ALL");
+        result.append("L0 All Engines");
+  } else if (group == ZES_ENGINE_GROUP_COMPUTE_ALL) {
+        result.append("L0 Compute Engine");
+  } else if (group == ZES_ENGINE_GROUP_MEDIA_ALL) {
+        result.append("L0 Media Engine");
+  } else if (group == ZES_ENGINE_GROUP_COPY_ALL) {
+        result.append("L0 Copy Engine");
+  } else {
+        result.append(std::to_string(group));
   }
   return result;
 }

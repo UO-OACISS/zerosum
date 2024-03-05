@@ -83,7 +83,7 @@ period=1.0
 prog=""
 PARAMS=""
 debug=no
-debugger=`which gdb`
+debugger=gdb
 
 if [ $# -eq 0 ] ; then
     usage
