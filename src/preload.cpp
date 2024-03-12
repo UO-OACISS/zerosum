@@ -67,7 +67,7 @@ int zerosum_preload_main(int argc, char** argv, char** envp) {
 
     int ret{0};
     zerosum::ZeroSum::getInstance().parseEnv(envp);
-    fputs(argv[0], stderr);
+    //fputs(argv[0], stderr);
     ret = main_real(argc, argv, envp);
     zerosum::ZeroSum::getInstance().shutdown();
     return ret;
