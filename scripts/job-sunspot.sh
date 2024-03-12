@@ -71,6 +71,10 @@ done
 
 echo ${mylist}
 
+# For debugging
+#export ZET_ENABLE_PROGRAM_DEBUGGING=1
+#export INTELGT_AUTO_ATTACH_DISABLE=1
+
 set -x
 mpiexec --np ${NRANKS} -ppn ${RANKS_PER_NODE} \
 --cpu-bind verbose,list${mylist} \
