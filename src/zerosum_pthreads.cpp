@@ -76,7 +76,7 @@ int ZeroSum::getpthreads() {
             if (verbose) {
                 ZeroSum::getInstance().getLogfile() << real_running << " threads running" << std::endl;
             }
-            if (real_running == 0) {
+            if (real_running < 1) {
                 static int period{parseInt("ZS_PERIOD", 1)};
                 deadlock_detected_seconds++;
                 if (verbose) {
