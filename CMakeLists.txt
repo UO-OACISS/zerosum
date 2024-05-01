@@ -155,6 +155,7 @@ if (ZeroSum_WITH_MPI)
     INSTALL(FILES
         ${PROJECT_BINARY_DIR}/bin/zerosum
         ${PROJECT_BINARY_DIR}/bin/zerosum-mpi
+        ${PROJECT_BINARY_DIR}/bin/zs-stacks.py
         DESTINATION bin
         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
         GROUP_EXECUTE GROUP_READ
@@ -168,6 +169,7 @@ else (ZeroSum_WITH_MPI)
         INCLUDES DESTINATION include)
     INSTALL(FILES
         ${PROJECT_BINARY_DIR}/bin/zerosum
+        ${PROJECT_BINARY_DIR}/bin/zs-stacks.py
         DESTINATION bin
         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
         GROUP_EXECUTE GROUP_READ

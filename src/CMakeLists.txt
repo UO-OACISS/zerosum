@@ -24,8 +24,6 @@ set(ZS_LIBNAME "libzerosum")
 set(ZS_USE_MPI "no")
 CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/src/zerosum
     ${PROJECT_BINARY_DIR}/bin/zerosum @ONLY)
-CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/src/zs-stacks.py
-    ${PROJECT_BINARY_DIR}/bin/zs-stacks.py @ONLY)
 
 if (ZeroSum_WITH_MPI)
     set(ZS_LIBNAME "libzerosum-mpi")

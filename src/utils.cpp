@@ -34,6 +34,7 @@
 #include <sys/syscall.h>
 #include <iostream>
 #include <string.h>
+#include "zerosum.h"
 
 namespace zerosum {
 
@@ -166,6 +167,7 @@ std::map<std::string, std::string> getThreadStat(const char * filename) {
 */
 bool isRunning(std::map<std::string, std::string>& fields) {
     static bool deadlock{parseBool("ZS_DETECT_DEADLOCK",false)};
+    static bool verbose{getVerbose()};
     if (!deadlock) {return true;}
     const std::string state{"state"};
     const std::string minflt{"minflt"};
@@ -179,6 +181,15 @@ bool isRunning(std::map<std::string, std::string>& fields) {
      * GPU processing on AMD machines. 
      */
     if (fields.count(state) > 0) {
+        if (verbose) {
+            std::stringstream ss;
+            ss << "Thread:\n" ;
+            for (auto f : fields) {
+                ss << f.first << " : " << f.second << "\n";
+            }
+            ss << std::endl;
+            ZeroSum::getInstance().getLogfile() << ss.rdbuf();
+        }
         if ((running.compare(fields[state]) == 0) &&
             (zeroFaults.compare(fields[minflt]) != 0)) { return true; }
         if (tracingStop.compare(fields[state]) == 0) { return true; }
@@ -268,7 +279,7 @@ std::vector<std::map<std::string,std::string>> parseProcStat(void) {
         perror ("Error opening file");
         return fields;
     }
-        while ( fgets( line, 128, pFile)) {
+        while ( fgets( line, 127, pFile)) {
             // skip the total line
             if ( strncmp (line, "cpu ", 4) == 0 ) {
                 continue;
@@ -385,7 +396,7 @@ bool parseBool(const char * env, bool default_value = false) {
     }
     static char strbuf[128];
     char *ptr = strbuf;
-    strncpy(strbuf, str, 128);
+    strncpy(strbuf, str, 127);
     while (*ptr) {
         *ptr = tolower(*ptr);
         ptr++;

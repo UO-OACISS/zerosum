@@ -65,6 +65,8 @@ where ZS options are zero or more of:
                             (string, default: '')
     --zs:monitor-log-timeout <value>   Stale logfile support after <value> seconds (experimental, may not work on shared filesystems)
                             (integer seconds, default: 300)
+    --zs:expiration <value> specify time limit in seconds
+                            (integer seconds, default: one year, i.e. 31M seconds)
     --zs:debug              Run in debugger 'gdb'
                             (boolean, default: false)
     --zs:debugger <name>    Run in debugger <name>
@@ -79,7 +81,6 @@ where ZS options are zero or more of:
     exit 1
 }
 
-period=1.0
 prog=""
 PARAMS=""
 debug=no
@@ -95,6 +96,15 @@ while (( "$#" )); do
     --zs:period)
       if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
         export ZS_PERIOD=$2
+        shift 2
+      else
+        echo "Error: Argument for $1 is missing" >&2
+        usage
+      fi
+      ;;
+    --zs:expiration)
+      if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+        export ZS_TIMELIMIT=$2
         shift 2
       else
         echo "Error: Argument for $1 is missing" >&2

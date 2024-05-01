@@ -35,7 +35,7 @@ int ZeroSum::getpthreads() {
     DIR *dp;
     struct dirent *ep;
     dp = opendir ("/proc/self/task");
-    static bool verbose{parseBool("ZS_VERBOSE",false)};
+    static bool verbose{getVerbose()};
     static bool deadlock{parseBool("ZS_DETECT_DEADLOCK",false)};
     static int deadlock_duration{parseInt("ZS_DEADLOCK_DURATION",5)};
     static int deadlock_detected_seconds = -1;
@@ -74,21 +74,21 @@ int ZeroSum::getpthreads() {
         if (deadlock) {
             int real_running = running-1;
             if (verbose) {
-                std::cout << real_running << " threads running" << std::endl;
+                ZeroSum::getInstance().getLogfile() << real_running << " threads running" << std::endl;
             }
             if (real_running == 0) {
                 static int period{parseInt("ZS_PERIOD", 1)};
                 deadlock_detected_seconds++;
                 if (verbose) {
-                    std::cerr << "All threads sleeping for " <<
+                    ZeroSum::getInstance().getLogfile() << "All threads sleeping for " <<
                         deadlock_detected_seconds*period << " seconds...?" << std::endl;
                 }
             } else {
                 deadlock_detected_seconds = -1;
             }
             if (deadlock_detected_seconds >= deadlock_duration) {
-                std::cerr << "Deadlock detected! Aborting!" << std::endl;
-                std::cerr << "Thread " << gettid() << " signalling " << this->process.id << std::endl;
+                ZeroSum::getInstance().getLogfile() << "Deadlock detected! Aborting!" << std::endl;
+                ZeroSum::getInstance().getLogfile() << "Thread " << gettid() << " signalling " << this->process.id << std::endl;
                 finalizeLog();
                 pthread_kill(this->process.id, SIGQUIT);
             }

@@ -90,6 +90,9 @@ void ZeroSum::threadedFunction(void) {
     // this measurement.
     auto prev = std::chrono::steady_clock::now();
     std::chrono::seconds period{parseInt("ZS_PERIOD", 1)};
+    constexpr uint32_t oneYear = 60 * 60 * 24 * 365; // one year in seconds
+    std::chrono::seconds timeLimit{parseInt("ZS_TIMELIMIT", oneYear)};
+    auto expiration = prev + timeLimit;
     block_signal();
     while (working) {
         auto then = prev + period;
@@ -107,6 +110,11 @@ void ZeroSum::threadedFunction(void) {
         if(cv.wait_for(lk, stop, [&]{return !working;}))
             return;
         prev = then;
+        // check for expiration date
+        if (std::chrono::steady_clock::now() > expiration) {
+            finalizeLog();
+            pthread_kill(this->process.id, SIGQUIT);
+        }
     }
 }
 
