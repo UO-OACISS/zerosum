@@ -70,7 +70,9 @@ def ranges(i):
 
 # We have a list of start/end tuples, so convert to strings
 def printlist(inlist):
-    delim = "["
+    delim = ""
+    if len(inlist) > 1:
+        delim = "["
     tmpstr = ""
     for t in inlist:
         tmpstr += delim
@@ -79,7 +81,8 @@ def printlist(inlist):
         else:
             tmpstr += "[" + str(t[0]) + "-" + str(t[1]) + "]"
         delim = ','
-    tmpstr += "]"
+    if len(inlist) > 1:
+        tmpstr += "]"
     if len(tmpstr) > 20:
         return tmpstr[:20] + '...'
     return tmpstr
