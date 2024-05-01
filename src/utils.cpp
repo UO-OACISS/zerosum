@@ -33,6 +33,7 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <iostream>
+#include <unordered_map>
 #include <string.h>
 #include "zerosum.h"
 
@@ -165,7 +166,12 @@ std::map<std::string, std::string> getThreadStat(const char * filename) {
          P      Parked (Linux 3.9 to 3.13 only)
          I      Idle (Linux 4.14 onward)
 */
-bool isRunning(std::map<std::string, std::string>& fields) {
+bool isRunning(std::map<std::string, std::string>& fields,
+    const char * tid) {
+    /* We need a static variable to keep track of the last minor fault value,
+       because it's a monotonically increasing value on some systems.
+       so we want to see if it has increased in the last time quantum. */
+    static std::unordered_map<const char *, uint64_t> priorMinflt;
     static bool deadlock{parseBool("ZS_DETECT_DEADLOCK",false)};
     static bool verbose{getVerbose()};
     if (!deadlock) {return true;}
@@ -190,8 +196,17 @@ bool isRunning(std::map<std::string, std::string>& fields) {
             ss << std::endl;
             ZeroSum::getInstance().getLogfile() << ss.rdbuf();
         }
-        if ((running.compare(fields[state]) == 0) &&
-            (zeroFaults.compare(fields[minflt]) != 0)) { return true; }
+        if (running.compare(fields[state]) == 0) {
+            uint64_t newMinflt = atol(fields[minflt].c_str());
+            if (priorMinflt.find(tid) == priorMinflt.end()) {
+                priorMinflt.insert(std::pair<const char *, uint64_t>(tid,newMinflt));
+                return true;
+            }
+            if (priorMinflt[tid] < newMinflt) {
+                priorMinflt[tid] = newMinflt;
+                return true;
+            }
+        }
         if (tracingStop.compare(fields[state]) == 0) { return true; }
     }
     return false;

@@ -35,7 +35,8 @@
 #include <mpi.h>
 #define MPI_INIT  {int provided ; MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);}
 #define MPI_FINI  MPI_Finalize();
-#define MPI_BARRIER MPI_Barrier(MPI_COMM_WORLD);
+// this barrier is intentionally broken, it will cause live-lock
+#define MPI_BARRIER if (rank > 0) MPI_Barrier(MPI_COMM_WORLD);
 #define MPI_COMM_RANK MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 #define UNUSED(expr)
 #else

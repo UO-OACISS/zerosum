@@ -56,7 +56,7 @@ int ZeroSum::getpthreads() {
             filename += ep->d_name;
             filename += "/stat";
             auto fields = getThreadStat(filename.c_str());
-            if (isRunning(fields)) { running++; }
+            if (isRunning(fields, ep->d_name)) { running++; }
             filename += "us";
             std::string allowed_string = getCpusAllowed(filename.c_str());
             std::vector<uint32_t> allowed_list = parseDiscreteValues(allowed_string);
