@@ -182,9 +182,9 @@ bool isRunning(std::map<std::string, std::string>& fields,
     const std::string zeroFaults{"0"};
     /* If the thread state is Running (R), and the minflt value is non-zero, then we are running.
      * Why the minflt? Because MPI will busy wait, which looks like running. But running with
-     * no minor faults is highly unlikely. 
-     * We also check for the tracing stop state (t), because that seems to be related to 
-     * GPU processing on AMD machines. 
+     * no minor faults is highly unlikely.
+     * We also check for the tracing stop state (t), because that seems to be related to
+     * GPU processing on AMD machines.
      */
     if (fields.count(state) > 0) {
         if (verbose) {
@@ -202,10 +202,13 @@ bool isRunning(std::map<std::string, std::string>& fields,
                 priorMinflt.insert(std::pair<const char *, uint64_t>(tid,newMinflt));
                 return true;
             }
-            if (priorMinflt[tid] < newMinflt) {
+            // minflt will be 0 for non-monotonically increasing machines,
+            // it will be equal to the previous for monotonically increasing
+            if (newMinflt == 0 || priorMinflt[tid] == newMinflt) {
                 priorMinflt[tid] = newMinflt;
                 return true;
             }
+            priorMinflt[tid] = newMinflt;
         }
         if (tracingStop.compare(fields[state]) == 0) { return true; }
     }
