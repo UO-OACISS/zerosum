@@ -187,6 +187,7 @@ bool isRunning(std::map<std::string, std::string>& fields,
      * GPU processing on AMD machines.
      */
     if (fields.count(state) > 0) {
+        /*
         if (verbose) {
             std::stringstream ss;
             ss << "Thread:\n" ;
@@ -196,6 +197,7 @@ bool isRunning(std::map<std::string, std::string>& fields,
             ss << std::endl;
             ZeroSum::getInstance().getLogfile() << ss.rdbuf();
         }
+        */
         if (running.compare(fields[state]) == 0) {
             uint64_t newMinflt = atol(fields[minflt].c_str());
             if (priorMinflt.find(tid) == priorMinflt.end()) {

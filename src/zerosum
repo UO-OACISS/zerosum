@@ -57,7 +57,7 @@ where ZS options are zero or more of:
                             (boolean, default: false)
     --zs:deadlock           Enable deadlock detection support
                             (boolean, default: false)
-    --zs:lock-duration <value>   Deadlock detection support after <value> seconds
+    --zs:lock-duration <value>   Deadlock detection support after <value> _sample_periods_
                             (integer seconds, default: 5)
     --zs:monitor-log        Enable logfile monitoring support (experimental, may not work on shared filesystems)
                             (boolean, default: false)
