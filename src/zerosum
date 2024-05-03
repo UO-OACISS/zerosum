@@ -270,6 +270,9 @@ mpi=@ZS_USE_MPI@
 export OMP_TOOL=enabled
 export OMP_TOOL_LIBRARIES=${PRELOAD}
 
+# Some versions of GDB will pin us to core 0 - like on Perlmutter
+cpulist=`cat /proc/self/status | grep Cpus_allowed_list | sed -e 's/^\w*:\ *//' | xargs`
+
 if [ $debug = yes ] ; then
     echo "set env LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" >> ${gdbcmds}
     echo "set env LD_PRELOAD=${PRELOAD}" >> ${gdbcmds}
@@ -281,6 +284,8 @@ if [ $debug = yes ] ; then
         echo "set logging redirect on" >> ${gdbcmds}
         echo "set logging file zsgdb.${myrank_padded}.log" >> ${gdbcmds}
         echo "set logging enabled on" >> ${gdbcmds}
+        # In case GDB has changed our taskset...
+        echo "set exec-wrapper taskset -c ${cpulist}" >> ${gdbcmds}
 
         # Run the executable
         echo "run" >> ${gdbcmds}
