@@ -79,7 +79,8 @@ def printlist(inlist):
         if t[0] == t[1]:
             tmpstr += str(t[0])
         else:
-            tmpstr += "[" + str(t[0]) + "-" + str(t[1]) + "]"
+            #tmpstr += "[" + str(t[0]) + "-" + str(t[1]) + "]"
+            tmpstr += str(t[0]) + "-" + str(t[1])
         delim = ','
     if len(inlist) > 1:
         tmpstr += "]"
@@ -91,7 +92,7 @@ def writenode(node,f,total):
     f.write(str(node.index))
     f.write(" ")
     f.write(" [shape=box; style=filled; label=\"")
-    f.write(node.value[:80])
+    f.write(node.value)
     f.write("\"; fillcolor=\"0.000 1.000 1.000 ")
     f.write(str(node.count / total))
     f.write("\"];\n")
@@ -135,12 +136,22 @@ def parseFile(f):
                 line = line[3:].strip()
                 if line.startswith('0x'):
                     line = line[21:].strip()
+                # get the source location, if possible
+                location = ''
+                at = line.rfind(' at ')
+                if (at > 0):
+                    location = '\n' + line[at+4:]
+                else:
+                    from_ = line.rfind(' from ')
+                    if (from_ > 0):
+                        location = '\n' + line[from_+6:]
                 end = line.rfind(' (')
                 line = line[:end]
                 if line.find('<') > 0 :
                     end = line.find('<')
                     line = line[:end]
-                stack.append(line.strip())
+                line = line.strip() + location
+                stack.append(line)
             else:
                 active = False
         if "Thread 1 (Thread 0x" in line:
