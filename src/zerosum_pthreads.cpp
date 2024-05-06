@@ -38,7 +38,7 @@ int ZeroSum::getpthreads() {
     static bool verbose{getVerbose()};
     static bool deadlock{parseBool("ZS_DETECT_DEADLOCK",false)};
     static int deadlock_duration{parseInt("ZS_DEADLOCK_DURATION",5)};
-    static int deadlock_detected_seconds = -1;
+    static int deadlock_detected_seconds = 0;
     if (dp != NULL)
     {
         size_t running = 0;
@@ -72,19 +72,16 @@ int ZeroSum::getpthreads() {
         (void) closedir (dp);
         // if there is only one running thread (this one, belonging to ZS), be concerned...
         if (deadlock) {
-            int real_running = running-1;
             if (verbose) {
-                ZeroSum::getInstance().getLogfile() << real_running << " threads running" << std::endl;
+                ZeroSum::getInstance().getLogfile() << running << " threads running" << std::endl;
             }
-            if (real_running < 1) {
+            if (running <= 1) {
                 static int period{parseInt("ZS_PERIOD", 1)};
                 deadlock_detected_seconds++;
-                if (verbose) {
-                    ZeroSum::getInstance().getLogfile() << "All threads sleeping for " <<
-                        deadlock_detected_seconds*period << " seconds...?" << std::endl;
-                }
+                ZeroSum::getInstance().getLogfile() << "All threads sleeping for " <<
+                    deadlock_detected_seconds*period << " seconds...?" << std::endl;
             } else {
-                deadlock_detected_seconds = -1;
+                deadlock_detected_seconds = 0;
             }
             if (deadlock_detected_seconds >= deadlock_duration) {
                 ZeroSum::getInstance().getLogfile() << "Deadlock detected! Aborting!" << std::endl;

@@ -74,9 +74,10 @@ int main(int argc, char *argv[]){
     ss << "Hello, I am the main thread " << gettid() << " from rank " << rank;
     std::cout << ss.rdbuf() << std::endl;
     if (rank > 0) sleep(5);
-    MPI_BARRIER
     t1.join();
     t2.join();
+    std::cout << "Entering deadlocked barrier..." << std::endl;
+    MPI_BARRIER
 
     /* Finalize MPI */
     MPI_FINI

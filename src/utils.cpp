@@ -171,15 +171,15 @@ bool isRunning(std::map<std::string, std::string>& fields,
     /* We need a static variable to keep track of the last minor fault value,
        because it's a monotonically increasing value on some systems.
        so we want to see if it has increased in the last time quantum. */
-    static std::unordered_map<const char *, uint64_t> priorMinflt;
+    static std::unordered_map<std::string, uint64_t> priorMinflt;
     static bool deadlock{parseBool("ZS_DETECT_DEADLOCK",false)};
-    static bool verbose{getVerbose()};
     if (!deadlock) {return true;}
     const std::string state{"state"};
     const std::string minflt{"minflt"};
     const std::string running{"R"};
     const std::string tracingStop{"t"};
     const std::string zeroFaults{"0"};
+    std::string tmptid(tid);
     /* If the thread state is Running (R), and the minflt value is non-zero, then we are running.
      * Why the minflt? Because MPI will busy wait, which looks like running. But running with
      * no minor faults is highly unlikely.
@@ -187,33 +187,29 @@ bool isRunning(std::map<std::string, std::string>& fields,
      * GPU processing on AMD machines.
      */
     if (fields.count(state) > 0) {
-        /*
-        if (verbose) {
-            std::stringstream ss;
-            ss << "Thread:\n" ;
-            for (auto f : fields) {
-                ss << f.first << " : " << f.second << "\n";
-            }
-            ss << std::endl;
-            ZeroSum::getInstance().getLogfile() << ss.rdbuf();
-        }
-        */
+        // ok, the thread claims to be running (state == R)
         if (running.compare(fields[state]) == 0) {
             uint64_t newMinflt = atol(fields[minflt].c_str());
-            if (priorMinflt.find(tid) == priorMinflt.end()) {
-                priorMinflt.insert(std::pair<const char *, uint64_t>(tid,newMinflt));
+            // have we seen this thread's minflt state before? if not, save it.
+            if (priorMinflt.find(tmptid) == priorMinflt.end()) {
+                priorMinflt[tmptid] = newMinflt;
                 return true;
             }
+            // a "stuck" thread:
             // minflt will be 0 for non-monotonically increasing machines,
             // it will be equal to the previous for monotonically increasing
-            if (newMinflt == 0 || priorMinflt[tid] == newMinflt) {
-                priorMinflt[tid] = newMinflt;
-                return true;
-            }
-            priorMinflt[tid] = newMinflt;
+            if (newMinflt == 0 || priorMinflt[tmptid] == newMinflt) {
+                priorMinflt[tmptid] = newMinflt;
+                return false;
+            } 
+            // assume it's running for reals
+            priorMinflt[tmptid] = newMinflt;
+            return true;
         }
+        // this is also a "running" state - it's tracing
         if (tracingStop.compare(fields[state]) == 0) { return true; }
     }
+    // neither running nor tracing? not running.
     return false;
 }
 
