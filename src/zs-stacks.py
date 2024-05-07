@@ -169,7 +169,7 @@ def parseFile(f):
 
 def iterateFiles():
     stacks = []
-    files = glob.glob('zsgdb.*.log')
+    files = sorted(glob.glob('zsgdb.*.log'))
     numfiles = len(files)
     index = 0
     for f in files:
