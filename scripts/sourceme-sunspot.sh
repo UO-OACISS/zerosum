@@ -1,5 +1,6 @@
 module reset
-module load spack
+#module swap oneapi oneapi/eng-compiler/2023.12.15.002
+#module load spack-pe-gcc
 module load cmake
 module load python
 #module swap oneapi/eng-compiler/2022.12.30.003 oneapi/eng-compiler/2022.12.30.005
