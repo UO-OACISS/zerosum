@@ -366,6 +366,9 @@ void ZeroSum::parseEnv(char** envp) {
         else if (strncmp(envp[i], "OMPI_", 5) == 0) {
             process.environment.insert(split(envp[i]));
         }
+        else if (strncmp(envp[i], "MPICH_", 6) == 0) {
+            process.environment.insert(split(envp[i]));
+        }
         else if (strncmp(envp[i], "SLURM_", 6) == 0) {
             process.environment.insert(split(envp[i]));
         }
