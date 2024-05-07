@@ -351,22 +351,25 @@ void ZeroSum::parseEnv(char** envp) {
         if (strncmp(envp[i], "OMP_", 4) == 0) {
             process.environment.insert(split(envp[i]));
         }
-        if (strncmp(envp[i], "HIP_", 4) == 0) {
+        else if (strncmp(envp[i], "HIP_", 4) == 0) {
             process.environment.insert(split(envp[i]));
         }
-        if (strncmp(envp[i], "ROC", 3) == 0) {
+        else if (strncmp(envp[i], "ROC", 3) == 0) {
             process.environment.insert(split(envp[i]));
         }
-        if (strstr(envp[i], "VISIBLE_DEVICES") != NULL) {
+        else if (strstr(envp[i], "VISIBLE_DEVICES") != NULL) {
             process.environment.insert(split(envp[i]));
         }
-        if (strncmp(envp[i], "CUDA_", 5) == 0) {
+        else if (strncmp(envp[i], "CUDA_", 5) == 0) {
             process.environment.insert(split(envp[i]));
         }
         else if (strncmp(envp[i], "OMPI_", 5) == 0) {
             process.environment.insert(split(envp[i]));
         }
         else if (strncmp(envp[i], "MPICH_", 6) == 0) {
+            process.environment.insert(split(envp[i]));
+        }
+        else if (strncmp(envp[i], "MPIR_", 5) == 0) {
             process.environment.insert(split(envp[i]));
         }
         else if (strncmp(envp[i], "SLURM_", 6) == 0) {
