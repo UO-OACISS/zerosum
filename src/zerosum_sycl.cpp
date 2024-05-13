@@ -33,6 +33,21 @@
 
 namespace zerosum {
 
+#define trycatch_string(_name, _thing) try { \
+        fields.insert(std::pair(std::string(_name), d.get_info<_thing>())); \
+    } catch (...) { \
+        std::cerr << "Error reading SYCL device " << _name \
+        << " for device " << index-1 << std::endl; \
+    }
+
+#define trycatch_size(_name, _thing) try { \
+        fields.insert(std::pair(std::string(_name), \
+            std::to_string(d.get_info<_thing>()))); \
+    } catch (...) { \
+        std::cerr << "Error reading SYCL device " << _name \
+        << " for device " << index-1 << std::endl; \
+    }
+
 int ZeroSum::getgpu(void) {
     std::vector<std::map<std::string, std::string>> allfields;
     auto const& gpu_devices = sycl::device::get_devices(sycl::info::device_type::gpu);
@@ -42,71 +57,49 @@ int ZeroSum::getgpu(void) {
     size_t index{0};
     for (const auto& d : gpu_devices) {
         std::map<std::string, std::string> fields;
-        try {
-        fields.insert(std::pair(std::string("Name"), d.get_info<sycl::info::device::name>()));
-        fields.insert(std::pair(std::string("Vendor"), d.get_info<sycl::info::device::vendor>()));
-        fields.insert(std::pair(std::string("Driver Version"), d.get_info<sycl::info::device::driver_version>()));
-        fields.insert(std::pair(std::string("Version"), d.get_info<sycl::info::device::version>()));
+        fields.insert(std::pair(std::string("RT_GPU_ID"), std::to_string(index++)));
+        trycatch_string("Name", sycl::info::device::name);
+        trycatch_string("Vendor", sycl::info::device::vendor);
+        trycatch_string("Driver Version", sycl::info::device::driver_version);
+        trycatch_string("Version", sycl::info::device::version);
 	/* Crashes on sunspot */
         //fields.insert(std::pair(std::string("Backend Version"), d.get_info<sycl::info::device::backend_version>()));
-        fields.insert(std::pair(std::string("RT_GPU_ID"), std::to_string(index++)));
+	/*
         size_t totalMemory = d.get_info<sycl::info::device::global_mem_size>();
         fields.insert(std::pair(std::string("TotalMem (bytes)"),
             std::to_string(totalMemory)));
-        size_t freeMemory = d.get_info<sycl::ext::intel::info::device::free_memory>();
-        fields.insert(std::pair(std::string("FreeMem (bytes)"),
-            std::to_string(freeMemory)));
-        fields.insert(std::pair(std::string("Max Compute Units"),
-            std::to_string(d.get_info<sycl::info::device::max_compute_units>())));
-        fields.insert(std::pair(std::string("Max Work Item Dimensions"),
-            std::to_string(d.get_info<sycl::info::device::max_work_item_dimensions>())));
-        fields.insert(std::pair(std::string("Max Work Group Size"),
-            std::to_string(d.get_info<sycl::info::device::max_work_group_size>())));
-        fields.insert(std::pair(std::string("Max Clock Frequency (MHz)"),
-            std::to_string(d.get_info<sycl::info::device::max_clock_frequency>())));
-        fields.insert(std::pair(std::string("Max Memory Allocation Size (B)"),
-            std::to_string(d.get_info<sycl::info::device::max_mem_alloc_size>())));
-        fields.insert(std::pair(std::string("Global Memory Cache Line Size (B)"),
-            std::to_string(d.get_info<sycl::info::device::global_mem_cache_line_size>())));
-        fields.insert(std::pair(std::string("Global Memory Cache Size (B)"),
-            std::to_string(d.get_info<sycl::info::device::global_mem_cache_size>())));
-        fields.insert(std::pair(std::string("Global Memory Size (B)"),
-            std::to_string(d.get_info<sycl::info::device::global_mem_size>())));
-        fields.insert(std::pair(std::string("Local Memory Size (B)"),
-            std::to_string(d.get_info<sycl::info::device::local_mem_size>())));
+	*/
+        trycatch_size("TotalMem (bytes)", sycl::info::device::global_mem_size);
+        trycatch_size("FreeMem (bytes)", sycl::ext::intel::info::device::free_memory);
+        trycatch_size("Max Compute Units", sycl::info::device::max_compute_units);
+        trycatch_size("Max Work Item Dimensions", sycl::info::device::max_work_item_dimensions);
+        trycatch_size("Max Work Group Size", sycl::info::device::max_work_group_size);
+        trycatch_size("Max Clock Frequency (MHz)", sycl::info::device::max_clock_frequency);
+        trycatch_size("Max Memory Allocation Size (B)", sycl::info::device::max_mem_alloc_size);
+        trycatch_size("Global Memory Cache Line Size (B)", sycl::info::device::global_mem_cache_line_size);
+        trycatch_size("Global Memory Cache Size (B)", sycl::info::device::global_mem_cache_size);
+        trycatch_size("Global Memory Size (B)", sycl::info::device::global_mem_size);
+        trycatch_size("Local Memory Size (B)", sycl::info::device::local_mem_size);
         /* Get some intel-specific features */
-        fields.insert(std::pair(std::string("Device ID"),
-            std::to_string(d.get_info<sycl::ext::intel::info::device::device_id>())));
+        trycatch_size("Device ID", sycl::ext::intel::info::device::device_id);
 	/* Crashes on sunspot? */
-        fields.insert(std::pair(std::string("PCI Address"), d.get_info<sycl::ext::intel::info::device::pci_address>()));
-        fields.insert(std::pair(std::string("EU Count"),
-            std::to_string(d.get_info<sycl::ext::intel::info::device::gpu_eu_count>())));
-        fields.insert(std::pair(std::string("EU SIMD Width"),
-            std::to_string(d.get_info<sycl::ext::intel::info::device::gpu_eu_simd_width>())));
-        fields.insert(std::pair(std::string("Slices"),
-            std::to_string(d.get_info<sycl::ext::intel::info::device::gpu_slices>())));
-        fields.insert(std::pair(std::string("Subslices per Slice"),
-            std::to_string(d.get_info<sycl::ext::intel::info::device::gpu_subslices_per_slice>())));
-        fields.insert(std::pair(std::string("EU Count per Subslice"),
-            std::to_string(d.get_info<sycl::ext::intel::info::device::gpu_eu_count_per_subslice>())));
-        fields.insert(std::pair(std::string("HW Threads per EU"),
-            std::to_string(d.get_info<sycl::ext::intel::info::device::gpu_hw_threads_per_eu>())));
+        trycatch_string("PCI Address", sycl::ext::intel::info::device::pci_address);
+        trycatch_size("EU Count", sycl::ext::intel::info::device::gpu_eu_count);
+        trycatch_size("EU SIMD Width", sycl::ext::intel::info::device::gpu_eu_simd_width);
+        trycatch_size("Slices", sycl::ext::intel::info::device::gpu_slices);
+        trycatch_size("Subslices per Slice", sycl::ext::intel::info::device::gpu_subslices_per_slice);
+        trycatch_size("EU Count per Subslice", sycl::ext::intel::info::device::gpu_eu_count_per_subslice);
+        trycatch_size("HW Threads per EU", sycl::ext::intel::info::device::gpu_hw_threads_per_eu);
 	/* Crashes on sunspot? */
         //fields.insert(std::pair(std::string("Max Memory Bandwidth"),
             //std::to_string(d.get_info<sycl::ext::intel::info::device::max_mem_bandwidth>())));
 	/* don't know how to convert uuid type */
         //fields.insert(std::pair(std::string("UUID"),
             //std::to_string(d.get_info<sycl::ext::intel::info::device::uuid>())));
-        fields.insert(std::pair(std::string("Memory Clock Rate"),
-            std::to_string(d.get_info<sycl::ext::intel::info::device::memory_clock_rate>())));
-        fields.insert(std::pair(std::string("Memory Bus Width"),
-            std::to_string(d.get_info<sycl::ext::intel::info::device::memory_bus_width>())));
-        fields.insert(std::pair(std::string("Max Compute Queue Indices"),
-            std::to_string(d.get_info<sycl::ext::intel::info::device::max_compute_queue_indices>())));
+        trycatch_size("Memory Clock Rate", sycl::ext::intel::info::device::memory_clock_rate);
+        trycatch_size("Memory Bus Width", sycl::ext::intel::info::device::memory_bus_width);
+        trycatch_size("Max Compute Queue Indices", sycl::ext::intel::info::device::max_compute_queue_indices);
         allfields.push_back(fields);
-        } catch (...) {
-            std::cerr << "Error reading SYCL device info for device " << index-1 << std::endl;
-        }
     }
     ZeroSum::getInstance().computeNode.addGpu(allfields);
 /*

@@ -3,6 +3,7 @@
 #include "level_zero/zes_api.h"
 #include "sycl/ext/oneapi/backend/level_zero.hpp"
 
+constexpr auto billion=1024*1024*1024;
 
 int main() {
     auto const& gpu_devices = sycl::device::get_devices(sycl::info::device_type::gpu);
@@ -18,8 +19,8 @@ int main() {
         } catch (...) {
             std::cerr << "Error reading intel device free memory." << std::endl;
         }
-        std::cout << "SYCL TotalMem (GB): " << totalMemory / std::pow(1024, 3)
-            << ", FreeMem (GB): " << freeMemory / std::pow(1024, 3) << std::endl;
+        std::cout << "SYCL TotalMem (GB): " << totalMemory / billion
+            << ", FreeMem (GB): " << freeMemory / billion << std::endl;
 
         /* go through level0 */
         ze_result_t status = ZE_RESULT_SUCCESS;
@@ -38,9 +39,9 @@ int main() {
                         std::string prefix{"Level0 Module "};
                         prefix += std::to_string(i);
                         std::cout << prefix << " TotalMem (GB): "
-                            << state_list[i].size / std::pow(1024, 3)
+                            << state_list[i].size / billion
                             << ", FreeMem (GB): "
-                            << state_list[i].free / std::pow(1024, 3) << std::endl;
+                            << state_list[i].free / billion << std::endl;
                     }
                 }
             }
