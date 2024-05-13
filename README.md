@@ -26,8 +26,7 @@ does use the PerfStubs git submodule to allow collected data to be passsed on to
 performance tools like [TAU](https://github.com/UO-OACISS/tau2/) or
 [APEX](https://github.com/UO-OACISS/apex/). For that reason, a working internet connection
 is needed at configuration time. PerfStubs can be disabled with the `-DZeroSum_WITH_PerfStubs=FALSE`
-CMake flag at configuration time. MPI and OpenMP are required currently, but not
-inherently necessary - they could be disabled as a possible future 'todo'.
+CMake flag at configuration time. MPI and OpenMP support are also optional.
 
 ## Sample Output
 
@@ -115,5 +114,10 @@ In this example, the `stime` values are time spent in system calls, the `utime` 
    This could be useful to determine library source of thread, if needed.
  * On SYCL machines, you have to set `ZES_ENABLE_SYSMAN=1` or else device queries
    will fail.
-
+ * Other SYCL note: you can theoretically use SYCL on NVIDIA machines (i.e. Polaris),
+   and ZeroSum has been tested to work in such situations. It requres supplying the
+   path to the compiler directory that has the sycl support included (i.e. LLVM).
+   For more details, see the [sourceme-polaris-sycl.sh](scripts/sourceme-polaris-sycl.sh),
+   [build-polaris-sycl.sh](scripts/build-polaris-sycl.sh) and
+   [job-polaris-sycl.sh](scripts/job-polaris-sycl.sh) scripts.
 
