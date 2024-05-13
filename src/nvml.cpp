@@ -179,7 +179,7 @@ namespace zerosum {
                 std::to_string(convertValue(values6[4]))));
             fields.insert(std::pair(std::string("NvLink Throughput Raw RX"),
                 std::to_string(convertValue(values6[5]))));
-
+            fields.insert(std::pair("step",std::to_string(step)));
 
             allfields.push_back(fields);
         }

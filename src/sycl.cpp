@@ -223,6 +223,7 @@ namespace zerosum {
                 }
             }
 #endif
+            fields.insert(std::pair("step",std::to_string(step)));
             allfields.push_back(fields);
             index++;
         }
