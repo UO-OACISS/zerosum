@@ -167,7 +167,7 @@ std::map<std::string, std::string> getThreadStat(const char * filename) {
          I      Idle (Linux 4.14 onward)
 */
 bool isRunning(std::map<std::string, std::string>& fields,
-    const char * tid) {
+    const char * tid, bool isMain) {
     /* We need a static variable to keep track of the last minor fault value,
        because it's a monotonically increasing value on some systems.
        so we want to see if it has increased in the last time quantum. */
@@ -176,6 +176,7 @@ bool isRunning(std::map<std::string, std::string>& fields,
     if (!deadlock) {return true;}
     const std::string state{"state"};
     const std::string minflt{"minflt"};
+    const std::string utime{"utime"};
     const std::string running{"R"};
     const std::string tracingStop{"t"};
     const std::string zeroFaults{"0"};
@@ -189,6 +190,8 @@ bool isRunning(std::map<std::string, std::string>& fields,
     if (fields.count(state) > 0) {
         // ok, the thread claims to be running (state == R)
         if (running.compare(fields[state]) == 0) {
+            // if not the main thread, and it says it's running, it's running.
+            if (!isMain) { return true; }
             uint64_t newMinflt = atol(fields[minflt].c_str());
             // have we seen this thread's minflt state before? if not, save it.
             if (priorMinflt.find(tmptid) == priorMinflt.end()) {
@@ -208,6 +211,8 @@ bool isRunning(std::map<std::string, std::string>& fields,
         }
         // this is also a "running" state - it's tracing
         if (tracingStop.compare(fields[state]) == 0) { return true; }
+        // if it occupied the CPU some time in the last period, it's running.
+        if (!isMain && atol(fields[utime].c_str()) > 0) { return true; }
     }
     // neither running nor tracing? not running.
     return false;

@@ -194,6 +194,7 @@ while (( "$#" )); do
       if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
         export debugger=$2
         debug=yes
+        export ZS_DEBUGGING=1
         shift 2
       else
         echo "Error: Argument for $1 is missing" >&2
@@ -202,6 +203,7 @@ while (( "$#" )); do
       ;;
     --zs:debug)
       debug=yes
+      export ZS_DEBUGGING=1
       shift
       ;;
     --zs:help)

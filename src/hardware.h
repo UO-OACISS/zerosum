@@ -58,8 +58,7 @@ public:
             }
             stat_fields[f.first].push_back(f.second);
         }
-        //stat_fields["step"].push_back(std::to_string(step));
-        UNUSED(step);
+        stat_fields["step"].push_back(std::to_string(step));
     }
     std::string strSub(std::string lhs, std::string rhs, double& total) {
         unsigned a = atol(lhs.c_str());

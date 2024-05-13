@@ -56,13 +56,14 @@ int ZeroSum::getpthreads() {
             filename += ep->d_name;
             filename += "/stat";
             auto fields = getThreadStat(filename.c_str());
-            if (isRunning(fields, ep->d_name)) { running++; }
+            bool isMain{atol(ep->d_name) == process.id};
+            if (isRunning(fields, ep->d_name, isMain)) { running++; }
             filename += "us";
             std::string allowed_string = getCpusAllowed(filename.c_str());
             std::vector<uint32_t> allowed_list = parseDiscreteValues(allowed_string);
             getThreadStatus(filename.c_str(), fields);
             //std::cout << filename << " : " << allowed_string << std::endl;
-            //fields.insert(std::pair("step",std::to_string(step)));
+            fields.insert(std::pair("step",std::to_string(step)));
             if (lwp == async_tid) {
                 this->process.add(lwp, allowed_list, fields, software::ThreadType::ZeroSum);
             } else {

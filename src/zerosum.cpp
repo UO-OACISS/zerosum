@@ -186,6 +186,11 @@ bool ZeroSum::doOnce(void) {
     int ready;
     MPI_CALL(MPI_Initialized(&ready));
     if (!ready) return done;
+    // disable error handling, if we are using the debugger!
+    static bool debugging{parseBool("ZS_DEBUGGING", false)};
+    if (debugging) {
+        MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
+    }
 #endif
 
     getMPIinfo();
@@ -260,7 +265,7 @@ void ZeroSum::getProcStatus() {
     auto fields = getThreadStat(filename.c_str());
     filename = "/proc/self/status";
     getThreadStatus(filename.c_str(), fields);
-    //fields.insert(std::pair("step",std::to_string(step)));
+    fields.insert(std::pair("step",std::to_string(step)));
     process = software::Process(getpid(), 0, 1, fields, allowed_list);
     process.hwthreads_raw = allowed_string;
     process.computeNode = &computeNode;
@@ -271,7 +276,8 @@ void ZeroSum::getProcStatus() {
 }
 
 /* The main singleton constructor for the ZeroSum class */
-ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()), doShutdown(true) {
+ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()),
+    doShutdown(true) {
     working = true;
     if (parseBool("ZS_SIGNAL_HANDLER", false)) {
         register_signal_handler();
