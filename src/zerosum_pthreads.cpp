@@ -27,6 +27,75 @@
 #include <signal.h>
 #include "zerosum.h"
 #include "utils.h"
+#include <dlfcn.h>
+#include <unordered_map>
+
+typedef int (*pthread_mutex_lock_p)(pthread_mutex_t *mutex);
+typedef int (*pthread_mutex_trylock_p)(pthread_mutex_t *mutex);
+typedef int (*pthread_cond_wait_p)(pthread_cond_t *cond, pthread_mutex_t *mutex);
+typedef int (*pthread_cond_timedwait_p)(pthread_cond_t *cond,
+    pthread_mutex_t *mutex, const struct timespec *abstime);
+
+#define RESET_DLERROR() dlerror()
+#define CHECK_DLERROR() { \
+  char const * err = dlerror(); \
+  if (err) { \
+    printf("Error getting %s handle: %s\n", name, err); \
+    fflush(stdout); \
+    exit(1); \
+  } \
+}
+
+static void * get_system_function_handle(char const * name, void * caller) {
+    void * handle;
+    // Reset error pointer
+    RESET_DLERROR();
+    // Attempt to get the function handle
+    handle = dlsym(RTLD_NEXT, name);
+    // Detect errors
+    CHECK_DLERROR();
+    // Prevent recursion if more than one wrapping approach has been loaded.
+    // This happens because we support wrapping pthreads three ways at once:
+    // #defines in Profiler.h, -Wl,-wrap on the link line, and LD_PRELOAD.
+    if (handle == caller) {
+        RESET_DLERROR();
+        void * syms = dlopen(NULL, RTLD_NOW);
+        CHECK_DLERROR();
+        do {
+            RESET_DLERROR();
+            handle = dlsym(syms, name);
+            CHECK_DLERROR();
+        } while (handle == caller);
+    }
+    return handle;
+}
+
+typedef struct thread_counters {
+    std::atomic<size_t> locks;
+    std::atomic<size_t> trylocks;
+    std::atomic<size_t> waits;
+    std::atomic<size_t> timedwaits;
+} thread_counters_t;
+
+std::mutex& mapMutex() {
+    static std::mutex mtx;
+    return mtx;
+}
+
+std::unordered_map<uint32_t,thread_counters_t*>& getCounterMap() {
+    static std::unordered_map<uint32_t,thread_counters_t*> _theMap;
+    return _theMap;
+}
+
+thread_counters_t* getMyCounters(uint32_t tid) {
+    // lock the map
+    std::lock_guard l{mapMutex()};
+    auto tmp = getCounterMap().find(tid);
+    if (tmp == getCounterMap().end()) {
+        getCounterMap()[tid] = new thread_counters_t;
+    }
+    return getCounterMap()[tid];
+}
 
 namespace zerosum {
 
@@ -63,6 +132,11 @@ int ZeroSum::getpthreads() {
             std::vector<uint32_t> allowed_list = parseDiscreteValues(allowed_string);
             getThreadStatus(filename.c_str(), fields);
             //std::cout << filename << " : " << allowed_string << std::endl;
+            auto counters = getMyCounters(lwp);
+            fields.insert(std::pair("pthread lock calls",std::to_string(counters->locks)));
+            fields.insert(std::pair("pthread trylock calls",std::to_string(counters->trylocks)));
+            fields.insert(std::pair("pthread wait calls",std::to_string(counters->waits)));
+            fields.insert(std::pair("pthread timedwait calls",std::to_string(counters->timedwaits)));
             fields.insert(std::pair("step",std::to_string(step)));
             if (lwp == async_tid) {
                 this->process.add(lwp, allowed_list, fields, software::ThreadType::ZeroSum);
@@ -96,3 +170,80 @@ int ZeroSum::getpthreads() {
 }
 
 } // namespace zerosum
+
+extern "C" {
+
+int pthread_mutex_lock(pthread_mutex_t *mutex) {
+    static pthread_mutex_lock_p _pthread_mutex_lock =
+        (pthread_mutex_lock_p)get_system_function_handle(
+        "pthread_mutex_lock", (void*)pthread_mutex_lock);
+    // prevent recursion
+    static thread_local bool inWrapper{false};
+    if (inWrapper) {
+        return _pthread_mutex_lock(mutex);
+    }
+    // do the work to increment the counter
+    inWrapper = true;
+    static thread_local thread_counters_t* counters = getMyCounters(gettid());
+    counters->locks++;
+    int ret = _pthread_mutex_lock(mutex);
+    inWrapper = false;
+    return ret;
+}
+
+int pthread_mutex_trylock(pthread_mutex_t *mutex) {
+    static pthread_mutex_trylock_p _pthread_mutex_trylock =
+        (pthread_mutex_trylock_p)get_system_function_handle(
+        "pthread_mutex_trylock", (void*)pthread_mutex_trylock);
+    // prevent recursion
+    static thread_local bool inWrapper{false};
+    if (inWrapper) {
+        return _pthread_mutex_trylock(mutex);
+    }
+    // do the work to increment the counter
+    inWrapper = true;
+    static thread_local thread_counters_t* counters = getMyCounters(gettid());
+    counters->trylocks++;
+    int ret = _pthread_mutex_trylock(mutex);
+    inWrapper = false;
+    return ret;
+}
+
+int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex) {
+    static pthread_cond_wait_p _pthread_cond_wait =
+        (pthread_cond_wait_p)get_system_function_handle(
+        "pthread_cond_wait", (void*)pthread_cond_wait);
+    // prevent recursion
+    static thread_local bool inWrapper{false};
+    if (inWrapper) {
+        return _pthread_cond_wait(cond, mutex);
+    }
+    // do the work to increment the counter
+    inWrapper = true;
+    static thread_local thread_counters_t* counters = getMyCounters(gettid());
+    counters->waits++;
+    int ret = _pthread_cond_wait(cond, mutex);
+    inWrapper = false;
+    return ret;
+}
+
+int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
+    const struct timespec *abstime) {
+    static pthread_cond_timedwait_p _pthread_cond_timedwait =
+        (pthread_cond_timedwait_p)get_system_function_handle(
+        "pthread_cond_timedwait", (void*)pthread_cond_timedwait);
+    // prevent recursion
+    static thread_local bool inWrapper{false};
+    if (inWrapper) {
+        return _pthread_cond_timedwait(cond, mutex, abstime);
+    }
+    // do the work to increment the counter
+    inWrapper = true;
+    static thread_local thread_counters_t* counters = getMyCounters(gettid());
+    counters->timedwaits++;
+    int ret = _pthread_cond_timedwait(cond, mutex, abstime);
+    inWrapper = false;
+    return ret;
+}
+
+} // extern "C"
