@@ -30,6 +30,8 @@
 #include <dlfcn.h>
 #include <unordered_map>
 
+typedef void * (*start_routine_p)(void *);
+typedef int (*pthread_create_p)(pthread_t *, const pthread_attr_t *, start_routine_p, void *arg);
 typedef int (*pthread_mutex_lock_p)(pthread_mutex_t *mutex);
 typedef int (*pthread_mutex_trylock_p)(pthread_mutex_t *mutex);
 typedef int (*pthread_cond_wait_p)(pthread_cond_t *cond, pthread_mutex_t *mutex);
@@ -87,7 +89,7 @@ std::unordered_map<uint32_t,thread_counters_t*>& getCounterMap() {
     return _theMap;
 }
 
-thread_counters_t* getMyCounters(uint32_t tid) {
+thread_counters_t* getCounters(uint32_t tid) {
     // lock the map
     std::lock_guard l{mapMutex()};
     auto tmp = getCounterMap().find(tid);
@@ -95,6 +97,11 @@ thread_counters_t* getMyCounters(uint32_t tid) {
         getCounterMap()[tid] = new thread_counters_t;
     }
     return getCounterMap()[tid];
+}
+
+thread_counters_t* getMyCounters() {
+    static thread_local thread_counters_t* counters = getCounters(gettid());
+    return counters;
 }
 
 namespace zerosum {
@@ -132,11 +139,11 @@ int ZeroSum::getpthreads() {
             std::vector<uint32_t> allowed_list = parseDiscreteValues(allowed_string);
             getThreadStatus(filename.c_str(), fields);
             //std::cout << filename << " : " << allowed_string << std::endl;
-            auto counters = getMyCounters(lwp);
+            auto counters = getCounters(lwp);
             fields.insert(std::pair("pthread lock calls",std::to_string(counters->locks)));
             fields.insert(std::pair("pthread trylock calls",std::to_string(counters->trylocks)));
-            fields.insert(std::pair("pthread wait calls",std::to_string(counters->waits)));
-            fields.insert(std::pair("pthread timedwait calls",std::to_string(counters->timedwaits)));
+            //fields.insert(std::pair("pthread wait calls",std::to_string(counters->waits)));
+            //fields.insert(std::pair("pthread timedwait calls",std::to_string(counters->timedwaits)));
             fields.insert(std::pair("step",std::to_string(step)));
             if (lwp == async_tid) {
                 this->process.add(lwp, allowed_list, fields, software::ThreadType::ZeroSum);
@@ -173,58 +180,65 @@ int ZeroSum::getpthreads() {
 
 extern "C" {
 
+#if 0
+int pthread_create(pthread_t* thread, const pthread_attr_t* attr,
+    start_routine_p start_routine, void* arg)
+{
+    static pthread_create_p _pthread_create =
+        (pthread_create_p)get_system_function_handle(
+        "pthread_create", (void*)pthread_create);
+    // set up the counters now!
+    thread_counters_t* counters = getMyCounters();
+    UNUSED(counters);
+    return _pthread_create(thread, attr, start_routine, arg);
+}
+#endif
+
 int pthread_mutex_lock(pthread_mutex_t *mutex) {
     static pthread_mutex_lock_p _pthread_mutex_lock =
         (pthread_mutex_lock_p)get_system_function_handle(
         "pthread_mutex_lock", (void*)pthread_mutex_lock);
-    // prevent recursion
-    static thread_local bool inWrapper{false};
-    if (inWrapper) {
-        return _pthread_mutex_lock(mutex);
+    // prevent re-entry, so we don't crash or lock
+    zerosum::in_zs prevent_deadlocks;
+    if (prevent_deadlocks.get() == 1) {
+        // do the work to increment the counter
+        thread_counters_t* counters = getMyCounters();
+        counters->locks++;
     }
-    // do the work to increment the counter
-    inWrapper = true;
-    static thread_local thread_counters_t* counters = getMyCounters(gettid());
-    counters->locks++;
-    int ret = _pthread_mutex_lock(mutex);
-    inWrapper = false;
-    return ret;
+    return _pthread_mutex_lock(mutex);
 }
 
 int pthread_mutex_trylock(pthread_mutex_t *mutex) {
     static pthread_mutex_trylock_p _pthread_mutex_trylock =
         (pthread_mutex_trylock_p)get_system_function_handle(
         "pthread_mutex_trylock", (void*)pthread_mutex_trylock);
-    // prevent recursion
-    static thread_local bool inWrapper{false};
-    if (inWrapper) {
-        return _pthread_mutex_trylock(mutex);
+    // prevent re-entry
+    zerosum::in_zs prevent_deadlocks;
+    if (prevent_deadlocks.get() == 1) {
+        // do the work to increment the counter
+        thread_counters_t* counters = getMyCounters();
+        counters->trylocks++;
     }
-    // do the work to increment the counter
-    inWrapper = true;
-    static thread_local thread_counters_t* counters = getMyCounters(gettid());
-    counters->trylocks++;
-    int ret = _pthread_mutex_trylock(mutex);
-    inWrapper = false;
-    return ret;
+    return _pthread_mutex_trylock(mutex);
 }
 
+/* There are deadlock issues with the pthread_cond_wait wrapper,
+ * so disabled for now.
+ */
+
+#if 0
 int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex) {
     static pthread_cond_wait_p _pthread_cond_wait =
         (pthread_cond_wait_p)get_system_function_handle(
         "pthread_cond_wait", (void*)pthread_cond_wait);
-    // prevent recursion
-    static thread_local bool inWrapper{false};
-    if (inWrapper) {
-        return _pthread_cond_wait(cond, mutex);
+    // prevent re-entry
+    zerosum::in_zs prevent_deadlocks;
+    if (prevent_deadlocks.get() == 1) {
+        // do the work to increment the counter
+        thread_counters_t* counters = getMyCounters();
+        counters->waits++;
     }
-    // do the work to increment the counter
-    inWrapper = true;
-    static thread_local thread_counters_t* counters = getMyCounters(gettid());
-    counters->waits++;
-    int ret = _pthread_cond_wait(cond, mutex);
-    inWrapper = false;
-    return ret;
+    return _pthread_cond_wait(cond, mutex);
 }
 
 int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
@@ -232,18 +246,15 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
     static pthread_cond_timedwait_p _pthread_cond_timedwait =
         (pthread_cond_timedwait_p)get_system_function_handle(
         "pthread_cond_timedwait", (void*)pthread_cond_timedwait);
-    // prevent recursion
-    static thread_local bool inWrapper{false};
-    if (inWrapper) {
-        return _pthread_cond_timedwait(cond, mutex, abstime);
+    // prevent re-entry
+    zerosum::in_zs prevent_deadlocks;
+    if (prevent_deadlocks.get() == 1) {
+        // do the work to increment the counter
+        thread_counters_t* counters = getMyCounters();
+        counters->timedwaits++;
     }
-    // do the work to increment the counter
-    inWrapper = true;
-    static thread_local thread_counters_t* counters = getMyCounters(gettid());
-    counters->timedwaits++;
-    int ret = _pthread_cond_timedwait(cond, mutex, abstime);
-    inWrapper = false;
-    return ret;
+    return _pthread_cond_timedwait(cond, mutex, abstime);
 }
+#endif
 
 } // extern "C"

@@ -82,6 +82,11 @@ namespace zerosum {
 
 extern "C" {
 
+    int MPI_Init(int *argc, char ***argv) {
+        int provided{MPI_THREAD_MULTIPLE};
+        return PMPI_Init_thread(argc, argv, MPI_THREAD_MULTIPLE, &provided);
+    }
+
     int MPI_Send(const void *buf, int count, MPI_Datatype datatype, int dest,
         int tag, MPI_Comm comm){
         /* Get the byte count */

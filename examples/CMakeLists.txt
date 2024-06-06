@@ -27,9 +27,12 @@ math(EXPR ZeroSum_LAST_CORE ${ZeroSum_NPROC}-1)
 add_executable(deadlock deadlock.cpp)
 target_link_libraries (deadlock pthread)
 
+add_executable(pthread.exe pthread.cpp)
+target_link_libraries (pthread.exe pthread)
+
 if (ZeroSum_STANDALONE)
     add_executable(crasher crasher.c)
-    target_link_libraries (crasher zerosum pthread)
+    target_link_libraries (crasher pthread)
     add_dependencies (zerosum.tests crasher)
 
 #    add_test (NAME test_crasher COMMAND taskset --cpu-list 0-${ZeroSum_LAST_CORE}
@@ -38,7 +41,7 @@ if (ZeroSum_STANDALONE)
 endif()
 
 add_executable(lu-decomp main.cpp)
-target_link_libraries (lu-decomp zerosum pthread)
+target_link_libraries (lu-decomp pthread)
 if (ZeroSum_WITH_OPENMP)
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "NVHPC")
         # Use the tool-enabled OpenMP runtime

@@ -175,6 +175,13 @@ inline void ZeroSum::openLog(void) {
     filename += ".log";
     //std::cout << "Opening log file: " << filename << std::endl;
     logfile.open(filename);
+#ifdef USE_ADIOS2
+#ifdef ZEROSUM_USE_MPI
+    //adiosFile = adios2::fstream("zerosum.bp", adios2::fstream::out, MPI_COMM_WORLD);
+#else
+    //adiosFile = adios2::fstream("zerosum.bp", adios2::fstream::out);
+#endif
+#endif // USE_ADIOS2
 }
 
 bool ZeroSum::doOnce(void) {
@@ -339,6 +346,9 @@ void ZeroSum::finalizeLog() {
         logfile << process.toString() << std::flush;
         logfile.close();
     }
+#ifdef USE_ADIOS2
+    //adiosFile.close();
+#endif // USE_ADIOS2
 }
 
 std::pair<std::string,std::string> split (const std::string &s) {

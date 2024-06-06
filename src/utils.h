@@ -55,4 +55,14 @@ bool getVerbose(void);
 bool getHeartBeat(void);
 size_t parseMaxPid(void);
 
+class in_zs {
+    public:
+        static size_t& get() {
+            thread_local static size_t _in{0};
+            return _in;
+        }
+        in_zs(){ get()++; };
+        ~in_zs(){ get()--; };
+};
+
 }

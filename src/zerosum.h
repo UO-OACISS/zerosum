@@ -30,6 +30,9 @@
 #include <atomic>
 #include <condition_variable>
 #include "topology.h"
+#ifdef USE_ADIOS2
+#include <adios2.h>
+#endif //USE_ADIOS2
 
 namespace zerosum {
 
@@ -51,6 +54,9 @@ public:
     software::Process& getProcess(void) { return process; }
     hardware::ComputeNode getComputeNode(void) { return computeNode; }
     std::ofstream& getLogfile(void) { return logfile; }
+#ifdef USE_ADIOS2
+    adios2::fstream& getAdiosFile(void) { return adiosFile; }
+#endif //USE_ADIOS2
 
 private:
     /* Standard singleton definition follows */
@@ -73,6 +79,9 @@ private:
     std::thread worker; // the asynchronous thread
     bool working;
     std::ofstream logfile;
+#ifdef USE_ADIOS2
+    adios2::fstream adiosFile;
+#endif //USE_ADIOS2
     software::Process process;
     std::vector<software::Process> otherProcesses;
     hardware::ComputeNode computeNode;
