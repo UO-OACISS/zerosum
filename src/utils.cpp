@@ -314,8 +314,12 @@ std::vector<std::map<std::string,std::string>> parseProcStat(void) {
                 }
                 std::map<std::string,std::string> f;
                 f.insert(std::pair("user",v[1]));
+                f.insert(std::pair("nice",v[2]));
                 f.insert(std::pair("system",v[3]));
                 f.insert(std::pair("idle",v[4]));
+                f.insert(std::pair("iowait",v[5]));
+                f.insert(std::pair("irq",v[6]));
+                f.insert(std::pair("softirq",v[7]));
                 fields.push_back(f);
             } else {
                 // we're done at this point

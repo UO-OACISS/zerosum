@@ -51,11 +51,11 @@ int zerosum_preload_main(int argc, char** argv, char** envp) {
         return main_real(argc, argv, envp);
     }
     // NEXT! check to see if this is a [t]csh script. if so, DO NOTHING
-    if (len > 3 && (strncmp(argv[0] + (len - 4), "csh", 4)) == 0) {
+    if (len > 3 && (strncmp(argv[0] + (len - 3), "csh", 4)) == 0) {
         return main_real(argc, argv, envp);
     }
     // THEN! check to see if this is gdb. if so, DO NOTHING (should get caught by the apex_exec script though)
-    if (len > 3 && (strncmp(argv[0] + (len - 4), "gdb", 4)) == 0) {
+    if (len > 3 && (strncmp(argv[0] + (len - 3), "gdb", 4)) == 0) {
         return main_real(argc, argv, envp);
     }
     // prevent re-entry
