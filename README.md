@@ -30,7 +30,7 @@ does use the PerfStubs git submodule to allow collected data to be passsed on to
 performance tools like [TAU](https://github.com/UO-OACISS/tau2/) or
 [APEX](https://github.com/UO-OACISS/apex/). For that reason, a working internet connection
 is needed at configuration time. PerfStubs can be disabled with the `-DZeroSum_WITH_PerfStubs=FALSE`
-CMake flag at configuration time. MPI and OpenMP support are also optional.
+CMake flag at configuration time. HWLOC, MPI, and OpenMP support are also optional but recommended.
 
 ## Sample Output
 
