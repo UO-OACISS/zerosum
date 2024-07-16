@@ -6,6 +6,10 @@ Current CI status on develop branch : [![CircleCI](https://circleci.com/gh/UO-OA
 Inspired by Tom Pappatheodore's Hello jsrun code for testing layout of Summit resources.
 see: https://code.ornl.gov/t4p/Hello_jsrun
 
+[Publication](https://dl.acm.org/doi/abs/10.1145/3624062.3624145) - HUST Workshop, SC23, 2023
+
+[Presentation](http://www.nic.uoregon.edu/~khuck/zerosum/2023-HUST-ZeroSum.pdf) - HUST Workshop, SC23, 2023
+
 ## Overview
 
 ZeroSum will monitor OS threads, OpenMP threads, MPI processes, and the hardware assigned
