@@ -113,9 +113,9 @@ In this example, the `stime` values are time spent in system calls, the `utime` 
    "running", because it is running when all the threads are queried. However,
    it is almost always sleeping. It gets pinned to the last
    core in the resource set, that could be configurable (future todo).
- * Future todo: To get backtrace of each thread:
+ * ~~Future todo: To get backtrace of each thread:
    https://github.com/albertz/openlierox/blob/0.59/src/common/Debug_GetCallstack.cpp
-   This could be useful to determine library source of thread, if needed.
+   This could be useful to determine library source of thread, if needed.~~ done!
  * On SYCL machines, you have to set `ZES_ENABLE_SYSMAN=1` or else device queries
    will fail.
  * Other SYCL note: you can theoretically use SYCL on NVIDIA machines (i.e. Polaris),
