@@ -23,7 +23,26 @@ to all Linux systems.
 Configure and build with cmake. See the examples in the various build-\*.sh scripts.
 Some systems have their own scripts (like [build-frontier.sh](scripts/build-frontier.sh)).
 
-## Build Dependencies
+For a basic installation with CPU thread support, you would do:
+
+```
+cmake -B ${builddir} \
+-DCMAKE_CXX_COMPILER=`which g++` \
+-DCMAKE_C_COMPILER=`which gcc` \
+-DCMAKE_BUILD_TYPE=Release \
+-DCMAKE_INSTALL_PREFIX=${instdir}
+cmake --build ${builddir}
+```
+
+For additional support options, add (for example):
+* CUDA: `-DZeroSum_WITH_CUDA=TRUE` and possibly `-DCUDAToolkit_ROOT=<path to cuda>`
+* HIP: `-DZeroSum_WITH_HIP=TRUE` and possibly `-DROCM_PATH=/opt/rocm-${ROCM_COMPILER_VERSION}`
+* SYCL: `-DZeroSum_WITH_SYCL=TRUE`
+* MPI: `-DZeroSum_WITH_MPI=TRUE`.
+* OpenMP: `-DZeroSum_WITH_OPENMP=TRUE` and with compilers that support it (NVIDIA, AMD, Clang, Intel) `-DZeroSum_WITH_OMPT=TRUE`.
+* HWLOC: set `export PKG_CONFIG_PATH=<path to hwloc>/lib/pkgconfig` and use `-DZeroSum_WITH_HWLOC=TRUE`.
+
+## Other Build Dependencies
 
 Support for specific GPUs is assumed to be installed on the machine already. ZeroSum
 does use the PerfStubs git submodule to allow collected data to be passsed on to other
