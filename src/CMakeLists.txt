@@ -114,9 +114,9 @@ if (ZeroSum_WITH_OPENMP)
     endif(OMPT_FOUND)
 endif (ZeroSum_WITH_OPENMP)
 add_dependencies (zerosum.tests zerosum)
-if (ZeroSum_WITH_LM_SENSORS AND LM_SENSORS_FOUND)
+if (ZeroSum_WITH_LM_SENSORS AND NOT LM_SENSORS_FOUND)
     add_dependencies (zerosum lmsensors)
-endif (ZeroSum_WITH_LM_SENSORS AND LM_SENSORS_FOUND)
+endif (ZeroSum_WITH_LM_SENSORS AND NOT LM_SENSORS_FOUND)
 
 # MPI library
 
@@ -138,8 +138,8 @@ if (ZeroSum_WITH_MPI)
         endif(OMPT_FOUND)
     endif (ZeroSum_WITH_OPENMP)
     add_dependencies (zerosum.tests zerosum-mpi)
-    if (ZeroSum_WITH_LM_SENSORS AND LM_SENSORS_FOUND)
+    if (ZeroSum_WITH_LM_SENSORS AND NOT LM_SENSORS_FOUND)
         add_dependencies (zerosum lmsensors)
-    endif (ZeroSum_WITH_LM_SENSORS AND LM_SENSORS_FOUND)
+    endif (ZeroSum_WITH_LM_SENSORS AND NOT LM_SENSORS_FOUND)
 endif (ZeroSum_WITH_MPI)
 
