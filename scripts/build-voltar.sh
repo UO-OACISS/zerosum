@@ -1,6 +1,6 @@
 builddir=`pwd`/build.voltar
 instdir=`pwd`/install.voltar
-rm -rf ${builddir}
+rm -rf ${builddir} ${instdir}
 
 export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/home/users/khuck/src/hwloc-2.4.0/install_voltar_gcc/lib/pkgconfig
 cmake -B ${builddir} \
@@ -10,9 +10,11 @@ cmake -B ${builddir} \
 -DCMAKE_INSTALL_PREFIX=${instdir} \
 -DZeroSum_WITH_CUDA=TRUE \
 -DZeroSum_WITH_HWLOC=TRUE \
--DZeroSum_USE_STATIC_GLOBAL_CONSTRUCTOR=FALSE
+-DLM_SENSORS_ROOT=${HOME}/src/lm-sensors/install \
 
-cmake --build ${builddir} -j
+#-DZeroSum_USE_STATIC_GLOBAL_CONSTRUCTOR=FALSE
+
+cmake --build ${builddir} --parallel
 cmake --install ${builddir}
 ctest --test-dir ${builddir}
 
