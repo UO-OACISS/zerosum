@@ -10,6 +10,7 @@ cmake -B ${builddir} \
 -DCMAKE_INSTALL_PREFIX=${instdir} \
 -DZeroSum_WITH_CUDA=TRUE \
 -DZeroSum_WITH_HWLOC=TRUE \
+-DZeroSum_WITH_LM_SENSORS=TRUE \
 -DLM_SENSORS_ROOT=${HOME}/src/lm-sensors/install \
 
 #-DZeroSum_USE_STATIC_GLOBAL_CONSTRUCTOR=FALSE
