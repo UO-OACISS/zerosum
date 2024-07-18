@@ -3,18 +3,17 @@ Utility for monitoring process, thread, OS and HW resources, including GPU utili
 
 Current CI status on develop branch : [![CircleCI](https://circleci.com/gh/UO-OACISS/zerosum.svg?style=svg)](https://circleci.com/gh/UO-OACISS/zerosum)
 
-Inspired by Tom Pappatheodore's Hello jsrun code for testing layout of Summit resources.
-see: https://code.ornl.gov/t4p/Hello_jsrun
+Inspired by [Tom Pappatheodore's Hello jsrun code for testing layout of Summit resources](https://code.ornl.gov/t4p/Hello_jsrun), and further inspired by Dagstuhl seminar 23171: ["Driving HPC Operations With Holistic Monitoring and Operational Data Analytics"](https://www.dagstuhl.de/en/seminars/seminar-calendar/seminar-details/23171)
 
-[Publication](https://dl.acm.org/doi/abs/10.1145/3624062.3624145) - HUST Workshop, SC23, 2023
+[HUST 2023 Publication](https://dl.acm.org/doi/abs/10.1145/3624062.3624145) - 11th International Workshop on HPC User Support Tools @SC23, 2023
 
-[Presentation](http://www.nic.uoregon.edu/~khuck/zerosum/2023-HUST-ZeroSum.pdf) - HUST Workshop, SC23, 2023
+[HUST 2023 Presentation](http://www.nic.uoregon.edu/~khuck/zerosum/2023-HUST-ZeroSum.pdf) - 11th International Workshop on HPC User Support Tools @SC23, 2023
 
 ## Overview
 
 ZeroSum will monitor OS threads, OpenMP threads, MPI processes, and the hardware assigned
 to them including CPUs, memory usage and GPU utilization. Supported systems include all
-Linux operating systems and NVIDIA (CUDA/NVML), AMD (HIP/ROCm-SMI) and Intel (Intel SYCL) GPUs.
+Linux operating systems, as well as NVIDIA (CUDA/NVML), AMD (HIP/ROCm-SMI) and Intel (Intel SYCL) GPUs.
 Host side monitoring happens through the virtual `/proc` filesystem, so should be portable
 to all Linux systems.
 
@@ -23,7 +22,7 @@ to all Linux systems.
 Configure and build with cmake. See the examples in the various build-\*.sh scripts.
 Some systems have their own scripts (like [build-frontier.sh](scripts/build-frontier.sh)).
 
-For a basic installation with CPU thread support, you would do:
+For a basic installation with CPU-only support, you would do (for example):
 
 ```
 cmake -B ${builddir} \
@@ -34,7 +33,7 @@ cmake -B ${builddir} \
 cmake --build ${builddir}
 ```
 
-For additional support options, add (for example):
+For additional support options, add:
 * NVIDIA CUDA (NVML): `-DZeroSum_WITH_CUDA=TRUE` and possibly `-DCUDAToolkit_ROOT=<path to cuda>`
 * AMD HIP (ROCm-SMI): `-DZeroSum_WITH_HIP=TRUE` and possibly `-DROCM_PATH=/opt/rocm-${ROCM_COMPILER_VERSION}`
 * Intel SYCL: `-DZeroSum_WITH_SYCL=TRUE`
@@ -44,12 +43,12 @@ For additional support options, add (for example):
 
 ## Other Build Dependencies
 
-Support for specific GPUs is assumed to be installed on the machine already. ZeroSum
+Support for specific GPU monitoring libaries is assumed to be installed on the machine already. ZeroSum
 does use the PerfStubs git submodule to allow collected data to be passsed on to other
 performance tools like [TAU](https://github.com/UO-OACISS/tau2/) or
 [APEX](https://github.com/UO-OACISS/apex/). For that reason, a working internet connection
 is needed at configuration time. PerfStubs can be disabled with the `-DZeroSum_WITH_PerfStubs=FALSE`
-CMake flag at configuration time. HWLOC, MPI, and OpenMP support are also optional but recommended.
+CMake flag at configuration time (FALSE by default). GPU, HWLOC, MPI, and OpenMP support are also optional but recommended.
 
 ## Sample Output
 
