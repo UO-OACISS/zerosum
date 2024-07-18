@@ -1,6 +1,3 @@
 [submodule "perfstubs"]
 	path = perfstubs
 	url = https://github.com/UO-OACISS/perfstubs.git
-[submodule "lm-sensors"]
-	path = lm-sensors
-	url = https://github.com/lm-sensors/lm-sensors.git
