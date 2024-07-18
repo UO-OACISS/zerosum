@@ -239,9 +239,11 @@ public:
             threads[tid].update(allowed_hwt, fields, type);
         }
         /* In case we have added to our set of HWT, add them */
+        /*
         for (auto t : allowed_hwt) {
             hwthreads.insert(t);
         }
+        */
     }
     // disabled copy constructor
     //Process(const Process&) = default;

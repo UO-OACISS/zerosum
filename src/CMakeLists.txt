@@ -76,6 +76,11 @@ if (ZeroSum_WITH_HWLOC)
     set(HWLOC_LIB PkgConfig::HWLOC)
 endif (ZeroSum_WITH_HWLOC)
 
+if (ZeroSum_WITH_LM_SENSORS)
+    set(LM_SENSORS_SOURCE lm_sensor_data.cpp)
+    include_directories(${LM_SENSORS_INCLUDE_DIRS})
+endif (ZeroSum_WITH_LM_SENSORS)
+
 if (ZeroSum_WITH_OPENMP)
     set(OPENMP_SOURCE zerosum_openmp.cpp)
 endif (ZeroSum_WITH_OPENMP)
@@ -88,12 +93,13 @@ set(SOURCES
     utils.cpp
     ${GPU_SOURCE}
     ${HWLOC_SOURCE}
+    ${LM_SENSORS_SOURCE}
     ${ERROR_HANDLING})
 
 # Single process library
 
 add_library(zerosum SHARED ${SOURCES})
-target_link_libraries (zerosum ${PERFSTUBS_LIB} ${GPU_LIB} ${HWLOC_LIB} pthread)
+target_link_libraries (zerosum PUBLIC ${LM_SENSORS_LIBRARIES} ${PERFSTUBS_LIB} ${GPU_LIB} ${HWLOC_LIB} ${LM_SENSORS_LIB} pthread)
 if (ZeroSum_WITH_OPENMP)
     target_compile_definitions(zerosum PUBLIC -DZEROSUM_USE_OPENMP=1)
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "NVHPC")
@@ -101,20 +107,23 @@ if (ZeroSum_WITH_OPENMP)
         target_compile_options(zerosum PRIVATE "-mp=ompt")
         target_link_options(zerosum PRIVATE "-mp=ompt")
     else()
-        target_link_libraries (zerosum OpenMP::OpenMP_CXX)
+        target_link_libraries (zerosum PUBLIC OpenMP::OpenMP_CXX)
     endif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "NVHPC")
     if(OMPT_FOUND)
         target_compile_definitions(zerosum PUBLIC -DZEROSUM_USE_OMPT=1)
     endif(OMPT_FOUND)
 endif (ZeroSum_WITH_OPENMP)
 add_dependencies (zerosum.tests zerosum)
+if (ZeroSum_WITH_LM_SENSORS AND NOT LM_SENSORS_FOUND)
+    add_dependencies (zerosum lmsensors)
+endif (ZeroSum_WITH_LM_SENSORS AND NOT LM_SENSORS_FOUND)
 
 # MPI library
 
 if (ZeroSum_WITH_MPI)
     add_library(zerosum-mpi SHARED ${SOURCES} zerosum_mpi.cpp)
     target_compile_definitions(zerosum-mpi PUBLIC -DZEROSUM_USE_MPI=1)
-    target_link_libraries (zerosum-mpi ${PERFSTUBS_LIB} ${GPU_LIB} ${HWLOC_LIB} MPI::MPI_CXX pthread)
+    target_link_libraries (zerosum-mpi PUBLIC ${LM_SENSORS_LIBRARIES} ${PERFSTUBS_LIB} ${GPU_LIB} ${HWLOC_LIB} MPI::MPI_CXX pthread)
     if (ZeroSum_WITH_OPENMP)
         target_compile_definitions(zerosum-mpi PUBLIC -DZEROSUM_USE_OPENMP=1)
         if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "NVHPC")
@@ -122,12 +131,15 @@ if (ZeroSum_WITH_MPI)
             target_compile_options(zerosum-mpi PRIVATE "-mp=ompt")
             target_link_options(zerosum-mpi PRIVATE "-mp=ompt")
         else()
-            target_link_libraries (zerosum-mpi OpenMP::OpenMP_CXX)
+            target_link_libraries (zerosum-mpi PUBLIC OpenMP::OpenMP_CXX)
         endif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "NVHPC")
         if(OMPT_FOUND)
             target_compile_definitions(zerosum-mpi PUBLIC -DZEROSUM_USE_OMPT=1)
         endif(OMPT_FOUND)
     endif (ZeroSum_WITH_OPENMP)
     add_dependencies (zerosum.tests zerosum-mpi)
+    if (ZeroSum_WITH_LM_SENSORS AND NOT LM_SENSORS_FOUND)
+        add_dependencies (zerosum lmsensors)
+    endif (ZeroSum_WITH_LM_SENSORS AND NOT LM_SENSORS_FOUND)
 endif (ZeroSum_WITH_MPI)
 

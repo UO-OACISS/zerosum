@@ -30,6 +30,7 @@
 #include <atomic>
 #include <condition_variable>
 #include "topology.h"
+#include "lm_sensor_data.h"
 
 namespace zerosum {
 
@@ -83,6 +84,9 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> start;
     bool doShutdown;
     bool doDetails;
+#ifdef ZEROSUM_USE_LM_SENSORS
+    sensor_data sensors;
+#endif // ZEROSUM_USE_LM_SENSORS
 
     // Other private member variables and functions...
     void getMPIinfo(void);

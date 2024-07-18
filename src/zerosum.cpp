@@ -248,6 +248,9 @@ void ZeroSum::doPeriodic(void) {
     getpthreads();
     computeNode.updateFields(parseProcStat(),step);
     computeNode.updateFields(parseNodeInfo());
+#ifdef ZEROSUM_USE_LM_SENSORS
+    computeNode.updateFields(sensors.read_sensors());
+#endif // ZEROSUM_USE_LM_SENSORS
     getgpustatus();
     std::string tmpstr{computeNode.reportMemory()};
     logfile << tmpstr << std::flush;

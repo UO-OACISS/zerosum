@@ -334,8 +334,40 @@ public:
             hwThreads[index].updateFields(fields[index], step);
         }
     }
+    std::string getFields() {
+        std::string tmpstr;
+        for (auto sf : stat_fields) {
+            tmpstr += "\t";
+            tmpstr += sf.first;
+            tmpstr += ": ";
+            bool comma = false;
+            double total = 0;
+            if (sf.first.compare("step") != 0) {
+                for (auto v : sf.second) {
+                    if (comma) { tmpstr += ","; }
+                    tmpstr += v;
+                    total += atof(v.c_str());
+                    comma = true;
+                }
+                tmpstr += " average: ";
+                double average = total/(double)(std::max(size_t(1),sf.second.size()-1));
+                tmpstr += std::to_string(average);
+            } else {
+                for (auto v : sf.second) {
+                    if (comma) { tmpstr += ","; }
+                    tmpstr += v;
+                    comma = true;
+                }
+            }
+            tmpstr += "\n";
+        }
+        tmpstr += "\n";
+        return tmpstr;
+    }
+
     std::string toString(std::set<uint32_t> hwthreads) {
         std::string outstr{"\nHardware Summary:\n\n"};
+        outstr += getFields();
         uint32_t index{0};
         for (auto hwt : hwThreads) {
             if (hwthreads.count(index++) > 0) {

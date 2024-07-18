@@ -31,6 +31,7 @@ option (ZeroSum_WITH_HIP "Enable HIP support" FALSE)
 option (ZeroSum_WITH_CUDA "Enable CUDA support" FALSE)
 option (ZeroSum_STANDALONE "Enable standalone support" TRUE)
 option (ZeroSum_WITH_HWLOC "Enable HWLOC support" FALSE)
+option (ZeroSum_WITH_LM_SENSORS "Enable lm-sensors support" FALSE)
 option (ZeroSum_WITH_MPI "Enable MPI support" TRUE)
 option (ZeroSum_WITH_OPENMP "Enable OpenMP support" TRUE)
 option (ZeroSum_WITH_OMPT "Enable OpenMP Tools support" TRUE)
@@ -94,6 +95,7 @@ if (ZeroSum_WITH_OPENMP)
     endif (ZeroSum_WITH_OMPT)
 endif (ZeroSum_WITH_OPENMP)
 
+include(GNUInstallDirs)
 include(cmake/AddGitSubmodule.cmake)
 
 enable_testing()
@@ -101,6 +103,32 @@ enable_testing()
 if (ZeroSum_WITH_PerfStubs)
     add_git_submodule(perfstubs)
 endif (ZeroSum_WITH_PerfStubs)
+
+#####  LM Sensors #####
+
+if(ZeroSum_WITH_LM_SENSORS)
+    if(DEFINED LM_SENSORS_ROOT)
+        find_package(LM_SENSORS REQUIRED)
+    else(DEFINED LM_SENSORS_ROOT)
+        include(ExternalProject)
+        find_program(MAKE_EXECUTABLE NAMES gmake make REQUIRED)
+
+        ExternalProject_Add(lmsensors
+        GIT_REPOSITORY https://github.com/lm-sensors/lm-sensors.git
+        CONFIGURE_COMMAND ""
+        BUILD_COMMAND ${MAKE_EXECUTABLE} -j -C <SOURCE_DIR>
+        BUILD_BYPRODUCTS ${LM_SENSORS_LIBRARY}
+        STEP_TARGETS build
+        INSTALL_COMMAND ${MAKE_EXECUTABLE} -C <SOURCE_DIR> user_install PREFIX=${CMAKE_INSTALL_PREFIX} ETCDIR=${CMAKE_INSTALL_PREFIX}/etc CFLAGS=-fPIC CPPFLAGS=-fPIC
+        )
+        set(LM_SENSORS_LIBRARIES ${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}sensors${CMAKE_SHARED_LIBRARY_SUFFIX})
+        set(LM_SENSORS_INCLUDE_DIRS ${CMAKE_INSTALL_PREFIX}/include)
+    endif(DEFINED LM_SENSORS_ROOT)
+    add_definitions(-DZEROSUM_USE_LM_SENSORS)
+endif(ZeroSum_WITH_LM_SENSORS)
+
+
+#####  LM Sensors #####
 
 add_custom_target(zerosum.tests)
 add_custom_command(TARGET zerosum.tests POST_BUILD COMMAND ctest -R test --output-on-failure --timeout 100)
@@ -155,8 +183,8 @@ if (ZeroSum_WITH_MPI)
     INSTALL(TARGETS zerosum zerosum-mpi
         EXPORT ZeroSumTargets
         RUNTIME DESTINATION bin
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
     INSTALL(FILES
         ${PROJECT_BINARY_DIR}/bin/zerosum
@@ -170,8 +198,8 @@ else (ZeroSum_WITH_MPI)
     INSTALL(TARGETS zerosum
         EXPORT ZeroSumTargets
         RUNTIME DESTINATION bin
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
     INSTALL(FILES
         ${PROJECT_BINARY_DIR}/bin/zerosum
@@ -185,7 +213,7 @@ endif (ZeroSum_WITH_MPI)
 INSTALL(EXPORT ZeroSumTargets
         FILE ZeroSumTargets.cmake
         NAMESPACE ZeroSum::
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ZeroSum)
+        DESTINATION lib/cmake/ZeroSum)
 
 message(STATUS "----------------------------------------------------------------------")
 message(STATUS "ZeroSum Variable Report:")

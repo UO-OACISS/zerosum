@@ -29,9 +29,6 @@ SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 BASEDIR="$(dirname $SCRIPTPATH)"
 #BASEDIR=@CMAKE_INSTALL_PREFIX@
 LIBDIR=lib
-if [ ! -d ${BASEDIR}/${LIBDIR} ] ; then
-    LIBDIR=lib64
-fi
 
 usage() {
     message="
@@ -85,6 +82,7 @@ prog=""
 PARAMS=""
 debug=no
 debugger=gdb
+verbose=no
 
 if [ $# -eq 0 ] ; then
     usage
@@ -122,6 +120,7 @@ while (( "$#" )); do
     --zs:verbose)
       export ZS_VERBOSE=1
       export OMP_TOOL_VERBOSE_INIT=stdout
+      verbose=yes
       shift
       ;;
     --zs:heartbeat)
@@ -262,9 +261,9 @@ rm -f ${gdbcmds}
 # NOTE: we add the ":" to each library name, becuase stupid APPLE isn't smart enough
 # to handle an empty library name and tries to load a library named '' :(
 if [ "x${LD_LIBRARY_PATH}" = "x" ] ; then
-  LD_LIBRARY_PATH=${BASEDIR}/${LIBDIR}
+  LD_LIBRARY_PATH=${BASEDIR}/${LIBDIR}:${BASEDIR}/@CMAKE_INSTALL_LIBDIR@
 else
-  LD_LIBRARY_PATH=${BASEDIR}/${LIBDIR}:${LD_LIBRARY_PATH}
+  LD_LIBRARY_PATH=${BASEDIR}/${LIBDIR}:${BASEDIR}/@CMAKE_INSTALL_LIBDIR@:${LD_LIBRARY_PATH}
 fi
 
 PRELOAD=${BASEDIR}/${LIBDIR}/@ZS_LIBNAME@.so
@@ -314,8 +313,14 @@ if [ $debug = yes ] ; then
     ${debugger} -x ${gdbcmds} ${gdbargs} --args ${PARAMS}
     rm -f ${gdbcmds}
 else
+    if [ ${verbose} == yes ] ; then
+        set -x
+    fi
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}
     export LD_PRELOAD=${PRELOAD}
     ${PARAMS}
     unset LD_PRELOAD
+    if [ ${verbose} == yes ] ; then
+        set +x
+    fi
 fi
