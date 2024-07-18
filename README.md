@@ -35,9 +35,9 @@ cmake --build ${builddir}
 ```
 
 For additional support options, add (for example):
-* CUDA: `-DZeroSum_WITH_CUDA=TRUE` and possibly `-DCUDAToolkit_ROOT=<path to cuda>`
-* HIP: `-DZeroSum_WITH_HIP=TRUE` and possibly `-DROCM_PATH=/opt/rocm-${ROCM_COMPILER_VERSION}`
-* SYCL: `-DZeroSum_WITH_SYCL=TRUE`
+* NVIDIA CUDA (NVML): `-DZeroSum_WITH_CUDA=TRUE` and possibly `-DCUDAToolkit_ROOT=<path to cuda>`
+* AMD HIP (ROCm-SMI): `-DZeroSum_WITH_HIP=TRUE` and possibly `-DROCM_PATH=/opt/rocm-${ROCM_COMPILER_VERSION}`
+* Intel SYCL: `-DZeroSum_WITH_SYCL=TRUE`
 * MPI: `-DZeroSum_WITH_MPI=TRUE`.
 * OpenMP: `-DZeroSum_WITH_OPENMP=TRUE` and with compilers that support it (NVIDIA, AMD, Clang, Intel) `-DZeroSum_WITH_OMPT=TRUE`.
 * HWLOC: set `export PKG_CONFIG_PATH=<path to hwloc>/lib/pkgconfig` and use `-DZeroSum_WITH_HWLOC=TRUE`.
