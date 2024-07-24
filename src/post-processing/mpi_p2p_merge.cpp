@@ -31,14 +31,14 @@ done
 
 void write_vector(
     const std::vector<std::vector<size_t>>& data,
-    const std::string filename, int nranks) {
+    const std::string filename, uint32_t nranks) {
     std::ofstream output(filename);
     if (!output) {
         std::cerr << "Error opening file: " << filename << std::endl;
         return;
     }
-    for (size_t i = 0 ; i < nranks ; i++) {
-        for (size_t j = 0 ; j < nranks ; j++) {
+    for (uint32_t i = 0 ; i < nranks ; i++) {
+        for (uint32_t j = 0 ; j < nranks ; j++) {
             output << data[i][j];
             if (j < nranks-1) { output << ','; }
         }
@@ -56,11 +56,11 @@ int main(int argc, char * argv[]) {
     if (argc < 2) {
         std::cout << "Usage: " << argv[0] << " <nranks>" << std::endl;
     }
-    int nranks = atoi(argv[1]);
+    uint32_t nranks = atoi(argv[1]);
 
-    for (int i = 0; i < nranks; i++) {
+    for (uint32_t i = 0; i < nranks; i++) {
         std::vector<size_t> tmp;
-        for (int j = 0; j < nranks; j++) {
+        for (uint32_t j = 0; j < nranks; j++) {
             tmp.push_back(0);
         }
         sent_count.push_back(tmp);
@@ -70,7 +70,7 @@ int main(int argc, char * argv[]) {
     }
 
     size_t n = 3;
-    for (int i = 0; i < nranks; i++) {
+    for (uint32_t i = 0; i < nranks; i++) {
         std::string instr = std::to_string(i);
         int precision = n - std::min(n,instr.size());
         std::string padded = std::string(precision, '0').append(instr);
