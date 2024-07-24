@@ -98,6 +98,7 @@ set(SOURCES
 
 # Single process library
 
+add_executable(zs_mpi_p2p_merge mpi_p2p_merge.cpp)
 add_library(zerosum SHARED ${SOURCES})
 target_link_libraries (zerosum PUBLIC ${LM_SENSORS_LIBRARIES} ${PERFSTUBS_LIB} ${GPU_LIB} ${HWLOC_LIB} ${LM_SENSORS_LIB} pthread)
 if (ZeroSum_WITH_OPENMP)
