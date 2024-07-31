@@ -104,7 +104,8 @@ namespace zerosum {
             uint64_t timestamp;
             RSMI_CALL(rsmi_dev_energy_count_get(d, &value, &counter_resolution, &timestamp));
             fields.insert(std::pair(std::string("Energy Average (J)"),
-                std::to_string((double(value))*MICROWATTS)));
+                std::to_string((double(value)*counter_resolution)*MICROWATTS)));
+            //printf("%f counter_resolution, %lu value\n", counter_resolution, value);
             int64_t temperature;
             RSMI_CALL(rsmi_dev_temp_metric_get(d, sensor_index, RSMI_TEMP_CURRENT, &temperature));
             fields.insert(std::pair(std::string("Temperature (C)"),

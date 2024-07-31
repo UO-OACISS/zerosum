@@ -8,7 +8,8 @@ cmake -B ${builddir} \
 -DCMAKE_C_COMPILER=`which amdclang` \
 -DCMAKE_BUILD_TYPE=Debug \
 -DCMAKE_INSTALL_PREFIX=${instdir} \
--DZeroSum_WITH_CUDA=TRUE \
+-DZeroSum_WITH_CUDA=FALSE \
+-DZeroSum_WITH_HIP=TRUE \
 -DZeroSum_WITH_HWLOC=TRUE \
 -DZeroSum_USE_STATIC_GLOBAL_CONSTRUCTOR=FALSE
 
