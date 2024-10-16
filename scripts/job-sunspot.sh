@@ -13,7 +13,7 @@ echo Workdir: $PBS_O_WORKDIR
 echo Jobid: $PBS_JOBID
 echo Running on host `hostname`
 echo Running on nodes `cat $PBS_NODEFILE`
-source scripts/sourceme-sunspot.sh
+#source scripts/sourceme-sunspot.sh
 source scripts/sourceme-common.sh
 
 # set the number of threads based on --cpus-per-task
@@ -76,12 +76,13 @@ echo ${mylist}
 #export INTELGT_AUTO_ATTACH_DISABLE=1
 
 set -x
-mpiexec --np ${NRANKS} -ppn ${RANKS_PER_NODE} \
+INTELGT_AUTO_ATTACH_DISABLE=1 mpiexec --np ${NRANKS} -ppn ${RANKS_PER_NODE} \
 --cpu-bind verbose,list${mylist} \
 -envall \
 /soft/tools/mpi_wrapper_utils/${SCRIPT_NAME} \
-./build/bin/zerosum-mpi \
-./build/bin/lu-decomp-mpi
+./install/bin/zerosum-mpi \
+--zs:deadlock --zs:debugger gdb-oneapi \
+./build/bin/deadlock-mpi
 set +x
 
 #--cpu-bind verbose,list:1-8:9-16:17-24:25-32:33-40:41-48:53-60:61-68:69-76:77-84:85-92:93-100 \

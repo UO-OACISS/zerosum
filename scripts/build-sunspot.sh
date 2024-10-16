@@ -1,4 +1,4 @@
-set -e 
+set -e
 
 PATH=$PATH:$HOME/src/apex/install/bin
 
@@ -9,7 +9,7 @@ cmake -B build \
 -DCMAKE_CXX_COMPILER=`which icpx` \
 -DCMAKE_C_COMPILER=`which icx` \
 -DCMAKE_INSTALL_PREFIX=`pwd`/install \
--DZeroSum_WITH_SYCL=TRUE \
+-DZeroSum_WITH_SYCL=FALSE \
 -DZeroSum_STANDALONE=TRUE \
 -DZeroSum_WITH_HWLOC=TRUE \
 

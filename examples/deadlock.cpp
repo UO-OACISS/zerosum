@@ -33,10 +33,10 @@
 #define gettid() syscall(SYS_gettid)
 #ifdef USE_MPI
 #include <mpi.h>
-#define MPI_INIT  {int provided ; MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);}
+#define MPI_INIT  {int provided ; MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided); }
 #define MPI_FINI  MPI_Finalize();
 // this barrier is intentionally broken, it will cause live-lock
-#define MPI_BARRIER if (rank > 0) MPI_Barrier(MPI_COMM_WORLD);
+#define MPI_BARRIER if (rank > 0) { MPI_Barrier(MPI_COMM_WORLD); }
 #define MPI_COMM_RANK MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 #define UNUSED(expr)
 #else
@@ -68,14 +68,18 @@ int main(int argc, char *argv[]){
     UNUSED(argv);
 
     /* do deadlock */
+#ifndef USE_MPI
     std::thread t1(worker_function, rank);
     std::thread t2(worker_function, rank);
+#endif
     std::stringstream ss;
     ss << "Hello, I am the main thread " << gettid() << " from rank " << rank;
     std::cout << ss.rdbuf() << std::endl;
+#ifndef USE_MPI
     if (rank > 0) sleep(5);
     t1.join();
     t2.join();
+#endif
     std::cout << "Entering deadlocked barrier..." << std::endl;
     MPI_BARRIER
 

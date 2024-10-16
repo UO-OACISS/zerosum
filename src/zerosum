@@ -251,6 +251,9 @@ fi
 if [ ! -z ${SLURM_PROCID+x} ] ; then
     myrank=${SLURM_PROCID}
 fi
+if [ ! -z ${PMIX_RANK+x} ] ; then
+    myrank=${PMIX_RANK}
+fi
 
 printf -v myrank_padded "%04g" $myrank
 

@@ -373,7 +373,13 @@ void ZeroSum::parseEnv(char** envp) {
             process.environment.insert(split(envp[i]));
         } else if (strncmp(envp[i], "MPIEXEC_", 8) == 0) {
             process.environment.insert(split(envp[i]));
+        } else if (strncmp(envp[i], "MPI_", 4) == 0) {
+            process.environment.insert(split(envp[i]));
         } else if (strncmp(envp[i], "PMI_", 4) == 0) {
+            process.environment.insert(split(envp[i]));
+        } else if (strncmp(envp[i], "PALS_", 5) == 0) {
+            process.environment.insert(split(envp[i]));
+        } else if (strncmp(envp[i], "PMIX_", 5) == 0) {
             process.environment.insert(split(envp[i]));
         } else if (strncmp(envp[i], "MPIR_", 5) == 0) {
             process.environment.insert(split(envp[i]));
