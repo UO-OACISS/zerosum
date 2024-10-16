@@ -209,10 +209,16 @@ namespace zerosum {
                                         std::to_string(0.0)));
                     } else {
                         auto last = activityMap.find(tmp);
-                        double ratio = (pStats.activeTime - last->second.activeTime) /
-                                       (pStats.timestamp - last->second.timestamp);
-                        fields.insert(std::pair(ss.str() + std::string(" Active Time"),
-                                        std::to_string(ratio)));
+                        double denominator = pStats.timestamp - last->second.timestamp;
+                        if (denominator != 0) {
+                            double ratio = (pStats.activeTime - last->second.activeTime) /
+                                        (denominator);
+                            fields.insert(std::pair(ss.str() + std::string(" Active Time"),
+                                          std::to_string(ratio)));
+                        } else {
+                            fields.insert(std::pair(ss.str() + std::string(" Active Time"),
+                                          std::to_string(0.0)));
+                        }
                     }
                 }
             } catch (...) {

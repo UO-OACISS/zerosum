@@ -82,7 +82,7 @@ INTELGT_AUTO_ATTACH_DISABLE=1 mpiexec --np ${NRANKS} -ppn ${RANKS_PER_NODE} \
 /soft/tools/mpi_wrapper_utils/${SCRIPT_NAME} \
 ./install/bin/zerosum-mpi \
 --zs:deadlock --zs:debugger gdb-oneapi \
-./build/bin/deadlock-mpi
+./build/bin/lu-decomp-mpi
 set +x
 
 #--cpu-bind verbose,list:1-8:9-16:17-24:25-32:33-40:41-48:53-60:61-68:69-76:77-84:85-92:93-100 \

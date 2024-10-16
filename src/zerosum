@@ -145,6 +145,8 @@ while (( "$#" )); do
       ;;
     --zs:deadlock)
       export ZS_DETECT_DEADLOCK=1
+      debug=yes
+      export ZS_DEBUGGING=1
       shift
       ;;
     --zs:monitor-log)
@@ -273,6 +275,8 @@ PRELOAD=${BASEDIR}/${LIBDIR}/@ZS_LIBNAME@.so
 mpi=@ZS_USE_MPI@
 export OMP_TOOL=enabled
 export OMP_TOOL_LIBRARIES=${PRELOAD}
+export INTELGT_AUTO_ATTACH_DISABLE=1
+export ZES_ENABLE_SYSMAN=1
 
 # Some versions of GDB will pin us to core 0 - like on Perlmutter
 cpulist=`cat /proc/self/status | grep Cpus_allowed_list | sed -e 's/^\w*:\ *//' | xargs`
