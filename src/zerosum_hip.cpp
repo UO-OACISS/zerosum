@@ -117,7 +117,7 @@ int ZeroSum::getgpu(void) {
             fields.insert(std::pair("Max Shared Memory per Multi Processor", std::to_string(prop.maxSharedMemoryPerMultiProcessor)));
             fields.insert(std::pair("Is Multi GPU Board", std::string(prop.isMultiGpuBoard > 0 ? "yes" : "no")));
             fields.insert(std::pair("Can Map Host Memory", std::string(prop.canMapHostMemory > 0 ? "yes" : "no")));
-            fields.insert(std::pair("AMD GCN Arch", std::to_string(prop.gcnArch)));
+            //fields.insert(std::pair("AMD GCN Arch", std::to_string(prop.gcnArch)));
 
 			// Concatenate per-MPIrank GPU info into strings for print
             if(i > 0) rt_gpu_id_list.append(",");
