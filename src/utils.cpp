@@ -339,7 +339,7 @@ std::map<std::string,std::string> parseNodeInfo(void) {
         perror ("Error opening file");
         return fields;
     }
-    while ( fgets( line, 4096, pFile)) {
+    while ( fgets( line, 128, pFile)) {
         std::string tmp(line);
         const std::regex separator(":");
         std::sregex_token_iterator token(tmp.begin(), tmp.end(),
@@ -366,7 +366,7 @@ size_t parseMaxPid(void) {
         perror ("Error opening file");
         return maxpid;
     }
-    while ( fgets( line, 4096, pFile)) {
+    while ( fgets( line, 128, pFile)) {
         maxpid = atol(line);
     }
     fclose(pFile);
