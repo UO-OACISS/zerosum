@@ -28,6 +28,7 @@ done
 #include <regex>
 #include <algorithm>
 #include <vector>
+#include <cstdint>
 
 void write_vector(
     const std::vector<std::vector<size_t>>& data,
