@@ -54,6 +54,7 @@ std::string parseString(const char * env, std::string default_value);
 bool getVerbose(void);
 bool getHeartBeat(void);
 size_t parseMaxPid(void);
+std::string getUniqueFilename(void);
 
 class in_zs {
     public:

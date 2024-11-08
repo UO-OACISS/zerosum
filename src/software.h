@@ -30,6 +30,7 @@
 #include <sstream>
 #include <algorithm>
 #include <array>
+#include <mutex>
 #include "utils.h"
 #ifdef USE_HWLOC
 #include "hwloc_zs.h"
@@ -239,11 +240,9 @@ public:
             threads[tid].update(allowed_hwt, fields, type);
         }
         /* In case we have added to our set of HWT, add them */
-        /*
         for (auto t : allowed_hwt) {
             hwthreads.insert(t);
         }
-        */
     }
     // disabled copy constructor
     //Process(const Process&) = default;
@@ -271,6 +270,51 @@ public:
         return (threads.count(hwt) > 0);
     }
 
+    std::string toCSV(void) {
+        char buffer[1025];
+        snprintf(buffer, 1024,
+            "MPI %03d - SEC %d - Node %s - PID %d\n",
+            rank, 0, computeNode->name.c_str(), id);
+        std::string tmpstr(buffer);
+
+        std::stringstream ss;
+        bool comma = false;
+        for (auto t : hwthreads) {
+            if (comma) ss << ",";
+            ss << t;
+            comma = true;
+        }
+        std::string discrete{ss.str()};
+        snprintf(buffer, 1024,
+            "MPI %03d - SEC %d - Node %s - CPUs allowed: [%s]\n",
+            rank, 1, computeNode->name.c_str(), discrete.c_str());
+        tmpstr += buffer;
+        //PERFSTUBS_METADATA("CPUs allowed", discrete.c_str());
+        for (auto env : environment) {
+            tmpstr += env.first + " = " + env.second + "\n";
+        }
+#ifdef ZEROSUM_USE_MPI
+        tmpstr += "\nP2P Communication Summary:\n";
+        for (auto b : sentBytes) {
+            auto dest = b.first;
+            size_t count = b.second.first;
+            size_t bytes = b.second.second;
+            tmpstr += "Sent " + std::to_string(bytes)
+                    + " bytes to rank " + std::to_string(dest)
+                    + " in " + std::to_string(count) + " calls\n";
+        }
+        for (auto b : recvBytes) {
+            auto source = b.first;
+            size_t count = b.second.first;
+            size_t bytes = b.second.second;
+            tmpstr += "Received " + std::to_string(bytes)
+                    + " bytes from rank " + std::to_string(source)
+                    + " in " + std::to_string(count) + " calls\n";
+        }
+        tmpstr += "\n";
+#endif
+        return tmpstr;
+    }
     std::string toString(void) {
         char buffer[1025];
         snprintf(buffer, 1024,
@@ -372,7 +416,7 @@ public:
             static bool doMap{parseBool("ZS_MAP_CORES",false)};
             static bool doMap2{parseBool("ZS_MAP_PUS",false)};
             if (doMap || doMap2) {
-                // before we can print the assigned cores, map them 
+                // before we can print the assigned cores, map them
                 // from the OS indexes to the HW indexes.
                 std::set<uint32_t> hwthreads_mapped;
                 auto& theMap = ::zerosum::ScopedHWLOC::getHWTMap();

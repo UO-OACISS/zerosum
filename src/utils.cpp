@@ -204,7 +204,7 @@ bool isRunning(std::map<std::string, std::string>& fields,
             if (newMinflt == 0 || priorMinflt[tmptid] == newMinflt) {
                 priorMinflt[tmptid] = newMinflt;
                 return false;
-            } 
+            }
             // assume it's running for reals
             priorMinflt[tmptid] = newMinflt;
             return true;
@@ -444,6 +444,29 @@ bool getVerbose(void) {
 bool getHeartBeat(void) {
     static bool verbose{parseBool("ZS_HEART_BEAT",false)};
     return verbose;
+}
+
+std::string getUniqueFilename(void) {
+    std::string filename;
+    std::string tmp;
+    static bool use_pid{parseBool("ZS_USE_PID",false)};
+    size_t len{1};
+    int precision{5};
+    if (use_pid) {
+        len = std::to_string(parseMaxPid()).size();
+        printf("Got len: %lu\n", len);
+        tmp = std::to_string(ZeroSum::getInstance().getPid());
+        precision = len - std::min(len,tmp.size());
+        filename += ZeroSum::getInstance().getHostname();
+        filename += ".";
+    } else {
+        len = std::to_string(ZeroSum::getInstance().getSize()-1).size();
+        tmp = std::to_string(ZeroSum::getInstance().getRank());
+        precision = len - std::min(len,tmp.size());
+    }
+    tmp.insert(0, precision, '0');
+    filename += tmp;
+    return filename;
 }
 
 }
