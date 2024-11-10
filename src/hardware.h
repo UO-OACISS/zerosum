@@ -66,37 +66,32 @@ public:
         }
         steps.push_back(step);
     }
-    std::string strSub(std::string lhs, std::string rhs, double& total) {
+    std::string strPercentage(std::string lhs, std::string rhs, std::string total_lhs, std::string total_rhs) {
         unsigned a = atol(lhs.c_str());
         unsigned b = atol(rhs.c_str());
-        //double ticks = sysconf(_SC_CLK_TCK);
-        //std::string tmpstr{std::to_string((a-b)/ticks)};
         unsigned result = a>b ? a-b : 0;
-        total += result;
-        std::string tmpstr{std::to_string(result)};
+        unsigned c = atol(total_lhs.c_str());
+        unsigned d = atol(total_rhs.c_str());
+        unsigned total = c>d ? c-d : 0;
+        unsigned percent = total>0 ? (result * 100)/total : 0;
+        std::string tmpstr{std::to_string(percent)};
         return tmpstr;
     }
     std::string fieldsToCSV(std::string hostname, uint32_t rank) {
         std::string tmpstr;
-        std::map<std::string, std::string> previous;
-        // for each field...
-        for (auto sf : stat_fields) {
-            std::string value;
-            try {
-                value = sf.second.at(0);
-            } catch (...) {
-                value = std::to_string(0);
-            }
-            previous.insert(std::pair(sf.first,value));
-        }
         // iterate over steps
-        for (size_t i = 0 ; i < steps.size() ; i++) {
-            double dummy{0};
+        for (size_t i = 1 ; i < steps.size() ; i++) {
             for (auto sf : stat_fields) {
                 // did this field have a value for this step?
                 std::string value;
+                std::string prev_value;
+                std::string total;
+                std::string prev_total;
                 try {
                     value = sf.second.at(i);
+                    total = stat_fields["total_time"].at(i);
+                    prev_value = sf.second.at(i-1);
+                    prev_total = stat_fields["total_time"].at(i-1);
                 } catch (...) {
                     continue;
                 }
@@ -106,11 +101,21 @@ public:
                 tmpstr += "\"HWT\",\"Metric\",";
                 tmpstr += "\"" + std::to_string(id) + "\",";
                 tmpstr += "\"" + sf.first + "\",";
-                tmpstr += "\"" + strSub(value, previous[sf.first], dummy) + "\"\n";
-                // save the new previous value
-                previous[sf.first] = value;
+                std::string percent = strPercentage(value, prev_value, total, prev_total);
+                //std::cout << sf.first << " " << value << " " << prev_value << " " << total << " " << prev_total << " " << " " << percent << std::endl;
+                tmpstr += "\"" + percent + "\"\n";
             }
         }
+        return tmpstr;
+    }
+    std::string strSub(std::string lhs, std::string rhs, double& total) {
+        unsigned a = atol(lhs.c_str());
+        unsigned b = atol(rhs.c_str());
+        //double ticks = sysconf(_SC_CLK_TCK);
+        //std::string tmpstr{std::to_string((a-b)/ticks)};
+        unsigned result = a>b ? a-b : 0;
+        total += result;
+        std::string tmpstr{std::to_string(result)};
         return tmpstr;
     }
     std::string getFields() {
@@ -232,7 +237,7 @@ public:
                 tmpstr += "\"" + hostname + "\",";
                 tmpstr += std::to_string(rank) + ",";
                 tmpstr += std::to_string(steps.at(i)) + ",";
-                tmpstr += "\"GPU\",\"Metric\",";
+                tmpstr += "\"GPU\",\" Metric\",";
                 tmpstr += "\"" + std::to_string(id) + "\",";
                 tmpstr += "\"" + sf.first + "\",";
                 tmpstr += "\"" + value + "\"\n";

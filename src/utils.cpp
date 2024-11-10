@@ -305,21 +305,36 @@ std::vector<std::map<std::string,std::string>> parseProcStat(void) {
             if ( strncmp (line, "cpu ", 4) == 0 ) {
                 continue;
             } else if ( strncmp (line, "cpu", 3) == 0 ) {
-                std::vector<std::string> v;
+                std::vector<unsigned int> v;
                 std::string tmp;
                 std::stringstream ss(line);
                 while (getline(ss, tmp, ' ')) {
                     // store token string in the vector
-                    v.push_back(tmp);
+                    v.push_back(atol(tmp.c_str()));
                 }
+                // These "corrections" are what htop does...
+                // see https://github.com/htop-dev/htop/blob/4102862d12695cdf003e2d51ef6ce5984b7136d7/linux/LinuxMachine.c#L455
+                v[1] -= v[9]; // user -= guest
+                v[2] -= v[10]; // nice -= guest_nice
+                double idle_all_time = v[4] + v[5]; //idletime + ioWait;
+                double system_all_time = v[3] + v[6] + v[7]; //systemtime + irq + softIrq;
+                double virt_all_time = v[9] + v[10]; //guest + guestnice;
+                double total_time = v[1] + v[2] + system_all_time + idle_all_time + v[8] + virt_all_time; //usertime + nicetime + system_all_time + idle_all_time + steal + virt_all_time;
                 std::map<std::string,std::string> f;
-                f.insert(std::pair("user",v[1]));
-                f.insert(std::pair("nice",v[2]));
-                f.insert(std::pair("system",v[3]));
-                f.insert(std::pair("idle",v[4]));
-                f.insert(std::pair("iowait",v[5]));
-                f.insert(std::pair("irq",v[6]));
-                f.insert(std::pair("softirq",v[7]));
+                f.insert(std::pair("user",std::to_string(v[1])));
+                f.insert(std::pair("nice",std::to_string(v[2])));
+                f.insert(std::pair("system",std::to_string(v[3])));
+                f.insert(std::pair("system_all",std::to_string(system_all_time)));
+                f.insert(std::pair("idle",std::to_string(v[4])));
+                f.insert(std::pair("idle_all",std::to_string(idle_all_time)));
+                f.insert(std::pair("iowait",std::to_string(v[5])));
+                f.insert(std::pair("irq",std::to_string(v[6])));
+                f.insert(std::pair("softirq",std::to_string(v[7])));
+                f.insert(std::pair("steal",std::to_string(v[8])));
+                f.insert(std::pair("guest",std::to_string(v[9])));
+                f.insert(std::pair("virt_all_time",std::to_string(virt_all_time)));
+                f.insert(std::pair("guest_nice",std::to_string(v[10])));
+                f.insert(std::pair("total_time",std::to_string(total_time)));
                 fields.push_back(f);
             } else {
                 // we're done at this point
