@@ -164,7 +164,7 @@ bool ZeroSum::doOnce(void) {
     if (done) return done;
     PERFSTUBS_SCOPED_TIMER_FUNC();
 
-    int shmrank{0};
+    int shmrank{(int)process.rank};
 #ifdef ZEROSUM_USE_MPI
     int ready;
     MPI_CALL(MPI_Initialized(&ready));
