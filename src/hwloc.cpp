@@ -112,7 +112,7 @@ std::string getDetailName(hwloc_obj_t obj) {
             }
             break;
         case HWLOC_OBJ_PCI_DEVICE:
-            snprintf(tmpstr, 1024, ", bus id = %04x:%02x:%02x.%01x",
+            snprintf(tmpstr, 1024, "bus id = %04x:%02x:%02x.%01x",
                     obj->attr->pcidev.domain, obj->attr->pcidev.bus, obj->attr->pcidev.dev, obj->attr->pcidev.func);
             buffer += tmpstr;
             snprintf(tmpstr, 1024, ", class = %04x",
@@ -189,7 +189,6 @@ std::pair<std::string, uint32_t> ScopedHWLOC::buildJSON(hwloc_obj_t obj, int32_t
     std::string typestr{hwloc_obj_type_string (obj->type)};
     std::string name = typestr;
     // first! if this is a cache and it isn't shared, skip it.
-    /*
     if (obj->arity == 1 && obj->memory_arity == 0 &&
         obj->io_arity == 0 && obj->misc_arity == 0) {
         switch (obj->type) {
@@ -206,7 +205,6 @@ std::pair<std::string, uint32_t> ScopedHWLOC::buildJSON(hwloc_obj_t obj, int32_t
                 break;
         }
     }
-    */
     depth += 1;
     auto detailName = getDetailName(obj);
     if (obj->subtype != nullptr) { name += " " + std::string(obj->subtype); }
