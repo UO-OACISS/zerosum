@@ -43,7 +43,7 @@ def traverseTree(tree, df):
         osindex = int(osindex[2:])
         if osindex in df['index'].values:
             utilization = df.loc[df['index'] == osindex, 'value'].iloc[0]
-            shmrank = df.loc[df['index'] == osindex, 'shmrank'].iloc[0]
+            shmrank = int(df.loc[df['index'] == osindex, 'shmrank'].iloc[0])
             #print(osindex, utilization)
     else:
         if 'children' in tree.keys():
@@ -51,7 +51,7 @@ def traverseTree(tree, df):
             for c in tree['children']:
                 newChild = traverseTree(c, df)
                 utilization += newChild['utilization']
-                shmrank = min(shmrank,newChild['shmrank'])
+                shmrank = max(shmrank,newChild['shmrank'])
                 newChildren.append(newChild)
             tree['children'] = newChildren
             utilization = utilization / len(tree['children'])

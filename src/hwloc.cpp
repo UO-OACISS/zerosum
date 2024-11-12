@@ -37,7 +37,13 @@ void ScopedHWLOC::traverse(hwloc_obj_t obj, size_t indent) {
 std::string getDetailName(hwloc_obj_t obj) {
     std::string buffer{""};
     char tmpstr[1024] = {0};
+    constexpr double gb = 1.0 / (1024.0 * 1024.0 * 1024.0);
+    //constexpr double mb = 1.0 / (1024.0 * 1024.0);
+    constexpr double kb = 1.0 / (1024.0);
     switch (obj->type) {
+        case HWLOC_OBJ_NUMANODE:
+            buffer += "size: " + std::to_string(obj->attr->numanode.local_memory * gb) + "GB";
+            break;
         case HWLOC_OBJ_L1CACHE:
         case HWLOC_OBJ_L2CACHE:
         case HWLOC_OBJ_L3CACHE:
@@ -59,7 +65,7 @@ std::string getDetailName(hwloc_obj_t obj) {
                     buffer += ", type: Instruction";
                     break;
             }
-            buffer += ", size: " + std::to_string(obj->attr->cache.size);
+            buffer += ", size: " + std::to_string(obj->attr->cache.size * kb) + "kB";
             buffer += ", line size: " + std::to_string(obj->attr->cache.linesize);
             if (obj->attr->cache.associativity == -1)
                 buffer += ", Fully-associative";
@@ -164,6 +170,11 @@ std::string getDetailName(hwloc_obj_t obj) {
         case HWLOC_OBJ_MACHINE:
             buffer += ZeroSum::getInstance().getHostname();
             break;
+        case HWLOC_OBJ_CORE:
+        case HWLOC_OBJ_PU:
+            buffer += "Logical index: " + std::to_string(obj->logical_index);
+            buffer += ", OS index: " + std::to_string(obj->os_index);
+            break;
         default:
             /* nothing to show */
             break;
@@ -178,6 +189,7 @@ std::pair<std::string, uint32_t> ScopedHWLOC::buildJSON(hwloc_obj_t obj, int32_t
     std::string typestr{hwloc_obj_type_string (obj->type)};
     std::string name = typestr;
     // first! if this is a cache and it isn't shared, skip it.
+    /*
     if (obj->arity == 1 && obj->memory_arity == 0 &&
         obj->io_arity == 0 && obj->misc_arity == 0) {
         switch (obj->type) {
@@ -194,6 +206,7 @@ std::pair<std::string, uint32_t> ScopedHWLOC::buildJSON(hwloc_obj_t obj, int32_t
                 break;
         }
     }
+    */
     depth += 1;
     auto detailName = getDetailName(obj);
     if (obj->subtype != nullptr) { name += " " + std::string(obj->subtype); }
