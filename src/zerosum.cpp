@@ -179,6 +179,7 @@ bool ZeroSum::doOnce(void) {
     MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0,
                         MPI_INFO_NULL, &shmcomm);
     MPI_Comm_rank(shmcomm, &shmrank);
+    process.shmrank = shmrank;
 #endif
 
     getMPIinfo();
@@ -338,7 +339,7 @@ void ZeroSum::finalizeLog() {
     // prefix the rank with as many zeros as needed to sort correctly.
     filename += getUniqueFilename() + ".csv";
     std::ofstream out(filename);
-    out << computeNode.toCSV(process.hwthreads, process.rank);
+    out << computeNode.toCSV(process.hwthreads, process.rank, process.shmrank);
     out.close();
 #endif
 }

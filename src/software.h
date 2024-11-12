@@ -215,7 +215,7 @@ class Process {
 public:
     Process(uint32_t _id, uint32_t _rank, uint32_t _size,
         std::map<std::string, std::string> _fields,
-        std::vector<uint32_t> allowed_hwt) : id(_id), rank(_rank), size(_size) {
+        std::vector<uint32_t> allowed_hwt) : id(_id), rank(_rank), size(_size), shmrank(_rank) {
         /* We need a lock because the async thread and OMPT callback can report threads */
         std::unique_lock<std::mutex> lk(thread_mtx);
         for (auto t : allowed_hwt) {
@@ -240,9 +240,9 @@ public:
             threads[tid].update(allowed_hwt, fields, type);
         }
         /* In case we have added to our set of HWT, add them */
-        for (auto t : allowed_hwt) {
-            hwthreads.insert(t);
-        }
+        //for (auto t : allowed_hwt) {
+            //hwthreads.insert(t);
+        //}
     }
     // disabled copy constructor
     //Process(const Process&) = default;
@@ -250,6 +250,7 @@ public:
     uint32_t id; // The process ID
     uint32_t rank; // The MPI rank
     uint32_t size; // The MPI size
+    uint32_t shmrank; // The MPI size
     std::set<uint32_t> hwthreads; // The cores this process can run on
     std::string hwthreads_raw;
     std::map<uint32_t, LWP> threads; // The set of lightweight OS threads of this process

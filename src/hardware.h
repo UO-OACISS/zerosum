@@ -77,7 +77,7 @@ public:
         std::string tmpstr{std::to_string(percent)};
         return tmpstr;
     }
-    std::string fieldsToCSV(std::string hostname, uint32_t rank) {
+    std::string fieldsToCSV(std::string hostname, uint32_t rank, uint32_t shmrank) {
         std::string tmpstr;
         // iterate over steps
         for (size_t i = 1 ; i < steps.size() ; i++) {
@@ -97,6 +97,7 @@ public:
                 }
                 tmpstr += "\"" + hostname + "\",";
                 tmpstr += std::to_string(rank) + ",";
+                tmpstr += std::to_string(shmrank) + ",";
                 tmpstr += std::to_string(steps.at(i)) + ",";
                 tmpstr += "\"HWT\",\"Metric\",";
                 tmpstr += "\"" + std::to_string(id) + "\",";
@@ -211,12 +212,13 @@ public:
         std::string tmpstr{std::to_string(result)};
         return tmpstr;
     }
-    std::string fieldsToCSV(std::string hostname, uint32_t rank) {
+    std::string fieldsToCSV(std::string hostname, uint32_t rank, uint32_t shmrank ) {
         std::string tmpstr;
         // get static properties
         for (auto sf : properties) {
             tmpstr += "\"" + hostname + "\",";
             tmpstr += std::to_string(rank) + ",";
+            tmpstr += std::to_string(shmrank) + ",";
             tmpstr += std::to_string(0) + ",";
             tmpstr += "\"GPU\",\"Property\",";
             tmpstr += "\"" + std::to_string(id) + "\",";
@@ -236,6 +238,7 @@ public:
                 }
                 tmpstr += "\"" + hostname + "\",";
                 tmpstr += std::to_string(rank) + ",";
+                tmpstr += std::to_string(shmrank) + ",";
                 tmpstr += std::to_string(steps.at(i)) + ",";
                 tmpstr += "\"GPU\",\" Metric\",";
                 tmpstr += "\"" + std::to_string(id) + "\",";
@@ -451,7 +454,7 @@ public:
         return tmpstr;
     }
 
-    std::string fieldsToCSV(uint32_t rank) {
+    std::string fieldsToCSV(uint32_t rank, uint32_t shmrank) {
         std::string tmpstr;
         // iterate over steps
         for (size_t i = 0 ; i < steps.size() ; i++) {
@@ -466,6 +469,7 @@ public:
                 }
                 tmpstr += "\"" + name + "\",";
                 tmpstr += std::to_string(rank) + ",";
+                tmpstr += std::to_string(shmrank) + ",";
                 tmpstr += std::to_string(steps.at(i)) + ",";
                 tmpstr += "\"Node\",\"Property\",";
                 tmpstr += "\"0\",";
@@ -476,17 +480,17 @@ public:
         return tmpstr;
     }
 
-    std::string toCSV(std::set<uint32_t> hwthreads, uint32_t rank) {
-        std::string outstr{"\"hostname\",\"rank\",\"step\",\"resource\",\"type\",\"index\",\"name\",\"value\"\n"};
-        outstr += fieldsToCSV(rank);
+    std::string toCSV(std::set<uint32_t> hwthreads, uint32_t rank, uint32_t shmrank) {
+        std::string outstr{"\"hostname\",\"rank\",\"shmrank\",\"step\",\"resource\",\"type\",\"index\",\"name\",\"value\"\n"};
+        outstr += fieldsToCSV(rank, shmrank);
         uint32_t index{0};
         for (auto hwt : hwThreads) {
             if (hwthreads.count(index++) > 0) {
-                outstr += hwt.fieldsToCSV(name, rank);
+                outstr += hwt.fieldsToCSV(name, rank, shmrank);
             }
         }
         for (auto gpu : gpus) {
-            outstr += gpu.fieldsToCSV(name, rank);
+            outstr += gpu.fieldsToCSV(name, rank, shmrank);
         }
         return outstr;
     }

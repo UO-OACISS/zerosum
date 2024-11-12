@@ -16,8 +16,8 @@ def parseData():
     hwt['value'] = pd.to_numeric(hwt['value'])
     # drop the step column
     hwt = hwt.drop('step', axis=1)
-    # Get rid of "idle"
-    hwt = hwt[hwt.name != 'idle']
+    # select only user time
+    hwt = hwt[hwt.name == 'user']
     # Group by everything except value to get the mean value
     mean_cols = ['value']
     hwt_mean = hwt.groupby([c for c in hwt.columns if c not in mean_cols]).mean()
@@ -35,6 +35,7 @@ def parseData():
 
 def traverseTree(tree, df):
     utilization = int(tree['utilization'])
+    shmrank = int(tree['shmrank'])
     if tree['name'].startswith("PU L#"):
         name = tree['name']
         tokens = name.split()
@@ -42,16 +43,20 @@ def traverseTree(tree, df):
         osindex = int(osindex[2:])
         if osindex in df['index'].values:
             utilization = df.loc[df['index'] == osindex, 'value'].iloc[0]
+            shmrank = df.loc[df['index'] == osindex, 'shmrank'].iloc[0]
+            #print(osindex, utilization)
     else:
         if 'children' in tree.keys():
             newChildren = []
             for c in tree['children']:
                 newChild = traverseTree(c, df)
                 utilization += newChild['utilization']
+                shmrank = min(shmrank,newChild['shmrank'])
                 newChildren.append(newChild)
             tree['children'] = newChildren
             utilization = utilization / len(tree['children'])
     tree['utilization'] = utilization;
+    tree['shmrank'] = shmrank;
     return tree
 
 def updateTree(df):

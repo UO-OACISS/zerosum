@@ -52,6 +52,11 @@ public:
     static void validate_hwloc(int shmrank);
     ScopedHWLOC(void) {
         hwloc_topology_init(&topo);
+        unsigned long flags = hwloc_topology_get_flags(topo);
+        //std::cout << "Flags before: " << flags << std::endl;
+        flags = flags | HWLOC_TOPOLOGY_FLAG_INCLUDE_DISALLOWED;
+        //std::cout << "Flags after: " << flags << std::endl;
+        hwloc_topology_set_flags(topo, flags);
         //hwloc_topology_set_all_types_filter(topo, HWLOC_TYPE_FILTER_KEEP_ALL);
         hwloc_topology_set_io_types_filter(topo, HWLOC_TYPE_FILTER_KEEP_IMPORTANT);
 	    hwloc_topology_load(topo);
