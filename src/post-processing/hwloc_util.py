@@ -60,11 +60,20 @@ def traverseTree(tree, df):
     return tree
 
 def updateTree(df):
-    fp = open('zs.topology.saturn.json', 'r')
-    tree = json.load(fp)
-    fp.close()
-    tree = traverseTree(tree, df)
-    fp = open('saturn.json', 'w')
+    all_files = glob.glob(os.path.join('.', "zs.topology.*.json"))
+    job = {}
+    job['name'] = 'job'
+    job['detail_name'] = '(jobid)'
+    job['utilization'] = 0
+    job['shmrank'] = 0;
+    job['children'] = []
+    for f in all_files:
+        fp = open(f, 'r')
+        tree = json.load(fp)
+        job['children'].append(tree)
+        fp.close()
+    tree = traverseTree(job, df)
+    fp = open('zs.topology.json', 'w')
     json.dump(tree, fp)
     fp.close()
 

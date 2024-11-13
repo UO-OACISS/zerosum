@@ -294,7 +294,6 @@ std::pair<std::string, uint32_t> ScopedHWLOC::buildJSON(hwloc_obj_t obj, int32_t
 void ScopedHWLOC::validate_hwloc(int shmrank) {
     static ScopedHWLOC myloc;
     myloc.traverse();
-    printf("shmrank: %d\n", shmrank);
     if (shmrank == 0) {
         myloc.buildJSON();
     }
