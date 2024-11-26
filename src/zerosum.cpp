@@ -104,7 +104,9 @@ void ZeroSum::threadedFunction(void) {
         // once initialized, we can do our periodic checks.
         if (initialized) {
             doPeriodic();
-            logfile << process.logThreads() << std::flush;
+            if (logfile.is_open()) {
+                logfile << process.logThreads() << std::flush;
+            }
         }
         std::unique_lock<std::mutex> lk(cv_m);
         if(cv.wait_for(lk, stop, [&]{return !working;}))
@@ -183,8 +185,11 @@ bool ZeroSum::doOnce(void) {
 #endif
 
     getMPIinfo();
-    openLog();
-    logfile << process.toString() << std::flush;
+    static bool logging{parseBool("ZS_ENABLE_LOG", false)};
+    if (logging) {
+        openLog();
+        logfile << process.toString() << std::flush;
+    }
     getgpu();
     computeNode.updateNodeFields(parseNodeInfo(),step);
 #ifdef USE_HWLOC
@@ -242,7 +247,9 @@ void ZeroSum::doPeriodic(void) {
 #endif // ZEROSUM_USE_LM_SENSORS
     getgpustatus();
     std::string tmpstr{computeNode.reportMemory()};
-    logfile << tmpstr << std::flush;
+    if (logfile.is_open()) {
+        logfile << tmpstr << std::flush;
+    }
     if (process.rank == 0 && getHeartBeat()) {
         std::cout << tmpstr << std::flush;
     }
