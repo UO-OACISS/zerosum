@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<!-- example from http://bl.ocks.org/metmajer/5480307 -->
+
+<meta charset="utf-8">
+<style>
+
+path {
+  stroke: #fff;
+  fill-rule: evenodd;
+}
+
+text {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+}
+
+div.tooltip-donut {
+     position: absolute;
+     text-align: center;
+     padding: .5rem;
+     background: #FFFFFF;
+     color: #313639;
+     border: 1px solid #313639;
+     border-radius: 8px;
+     pointer-events: none;
+     font-size: 1.3rem;
+}
+
+</style>
+<body><h1>Utilization</h1>
+<p>
+<button onClick="window.location.reload();">Refresh Page / Reset Zoom</button>
+</p>
+<script src="https://cdn.jsdelivr.net/npm/d3@3"></script>
+<script type="module">
+
+function getWidth() {
+  return Math.max(
+    document.body.scrollWidth,
+    document.documentElement.scrollWidth,
+    document.body.offsetWidth,
+    document.documentElement.offsetWidth,
+    document.documentElement.clientWidth
+  );
+}
+
+function getHeight() {
+  return Math.max(
+    document.body.scrollHeight,
+    document.documentElement.scrollHeight,
+    document.body.offsetHeight,
+    document.documentElement.offsetHeight,
+    document.documentElement.clientHeight
+  );
+}
+
+var width = getWidth(),
+    height = getHeight(),
+    radius = Math.min(width, height) / 2;
+
+var x = d3.scale.linear()
+    .range([0, 2 * Math.PI]);
+//var x = d3.scaleLinear([0, 2 * Math.PI]);
+
+var y = d3.scale.linear()
+    .range([0, radius]);
+//var y = d3.scaleLinear([0, radius]);
+
+function colorChooser(shmrank) {
+    const mycolors = ["red","blue","lightgreen","orange","purple","yellow","brown","olive","cyan","pink"];
+    const maxcolors = 10;
+    var index = (shmrank % maxcolors);
+    return mycolors[index];
+    //return mycolors[0];
+}
+
+// Color Scale
+function colorPerVariable(value,shmrank) {
+    //var myColor = d3.scale.category20c();
+    var myColor = d3.scale.linear()
+        .domain([0, 100])
+        .range(["WhiteSmoke", colorChooser(shmrank)]);
+    return myColor(value);
+}
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+  .append("g")
+    .attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
+
+var partition = d3.layout.partition()
+    .value(function(d) { return d.size; });
+
+var arc = d3.svg.arc()
+    .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
+    .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
+    .innerRadius(function(d) { return Math.max(0, y(d.y)); })
+    .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
+
+var myprofile = '$JSONDATA';
+  var json = JSON.parse(myprofile);
+  var g = svg.selectAll("g")
+      .data(partition.nodes(json))
+    .enter().append("g");
+
+  var div = d3.select("body").append("div")
+     .attr("class", "tooltip-donut")
+     .style("opacity", 0);
+
+  var path = g.append("path")
+    .attr("d", arc)
+    .style("fill", function(d) { return colorPerVariable(d.utilization,d.shmrank); })
+    .on("click", click)
+    .on('mouseover', function (d, i) {
+          d3.select(this).transition()
+               .duration('50')
+               .attr('opacity', '.85');
+          div.transition()
+               .duration(50)
+               .style("opacity", 1);
+          let num = d.name + " (" + d.detail_name + ", utilization: " + d.utilization.toFixed(2) + ")";
+          div.html(num)
+               .style("left", (d3.event.pageX + 10) + "px")
+               .style("top", (d3.event.pageY - 15) + "px");
+     })
+     .on('mouseout', function (d, i) {
+          d3.select(this).transition()
+               .duration('50')
+               .attr('opacity', '1');
+          div.transition()
+               .duration('50')
+               .style("opacity", 0);
+     });
+
+  var text = g.append("text")
+    .attr("transform", function(d) { return "rotate(" + computeTextRotation(d) + ")"; })
+    .attr("x", function(d) { return y(d.y); })
+    .attr("dx", "6") // margin
+    .attr("dy", ".35em") // vertical-align
+    .text(function(d) { return d.name; });
+
+
+  function click(d) {
+    // fade out all text elements
+    text.transition().attr("opacity", 0);
+
+    path.transition()
+      .duration(750)
+      .attrTween("d", arcTween(d))
+      .each("end", function(e, i) {
+          // check if the animated element's data e lies within the visible angle span given in d
+          if (e.x >= d.x && e.x < (d.x + d.dx)) {
+            // get a selection of the associated text element
+            var arcText = d3.select(this.parentNode).select("text");
+            // fade in the text element and recalculate positions
+            arcText.transition().duration(750)
+              .attr("opacity", 1)
+              .attr("transform", function() { return "rotate(" + computeTextRotation(e) + ")" })
+              .attr("x", function(d) { return y(d.y); });
+          }
+      });
+  }
+
+d3.select(self.frameElement).style("height", height + "px");
+
+// Interpolate the scales!
+function arcTween(d) {
+  var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
+      yd = d3.interpolate(y.domain(), [d.y, 1]),
+      yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
+  return function(d, i) {
+    return i
+        ? function(t) { return arc(d); }
+        : function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
+  };
+}
+
+function computeTextRotation(d) {
+  return (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
+}
+
+</script>

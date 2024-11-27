@@ -5,6 +5,18 @@ import pandas as pd
 import glob
 import os
 pd.options.mode.chained_assignment = None  # default='warn'
+template_location = "@CMAKE_INSTALL_PREFIX@/etc/"
+template = template_location + "zs-hwloc-template.html"
+d3_js = template_location + "d3.v3.js"
+standalone_template = template_location + "zs-hwloc-template-standalone.html"
+
+def parseArgs():
+    import argparse
+    parser = argparse.ArgumentParser(description='Post-process ZeroSum HWLOC topology utilization.')
+    parser.add_argument('--standalone', dest='standalone', action='store_true',
+        help='Generate standalone HTML file to be used offline (default: false)', default=False)
+    args = parser.parse_args()
+    return args
 
 def parseData():
     # Read the CSV data
@@ -73,13 +85,28 @@ def updateTree(df):
         job['children'].append(tree)
         fp.close()
     tree = traverseTree(job, df)
-    fp = open('zs.topology.json', 'w')
-    json.dump(tree, fp)
-    fp.close()
+    return tree
 
 def main():
+    args = parseArgs()
     df = parseData()
-    updateTree(df)
+    tree = updateTree(df)
+    if args.standalone:
+        with open(template,'r') as file:
+            populate_me = file.read()
+        with open(d3_js,'r') as file:
+            javascript = file.read()
+        java_as_string = json.dumps(tree)
+        from string import Template
+        s = Template(populate_me)
+        with open('zs-topology.html', 'w') as fp:
+            fp.write(s.substitute(JSONDATA=java_as_string, SCRIPTTEXT=javascript))
+
+    else:
+        with open('zs.topology.json', 'w') as fp:
+            json.dump(tree, fp)
+        import shutil
+        shutil.copyfile(template,os.getcwd()+"/zs-topology.html")
 
 if __name__ == '__main__':
     main()

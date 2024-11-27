@@ -347,6 +347,7 @@ void ZeroSum::finalizeLog() {
     filename += getUniqueFilename() + ".csv";
     std::ofstream out(filename);
     out << computeNode.toCSV(process.hwthreads, process.rank, process.shmrank);
+    out << process.toCSV();
     out.close();
 #endif
 }
