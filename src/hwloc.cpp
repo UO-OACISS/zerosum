@@ -1,5 +1,9 @@
 #include "hwloc_zs.h"
 #include "zerosum.h"
+// This is an hwloc internal function that isn't defined in hwloc.h
+#if !defined(hwloc_pci_class_string)
+extern "C" const char * hwloc_pci_class_string(unsigned short class_id);
+#endif
 
 namespace zerosum {
 
@@ -85,8 +89,8 @@ std::string getDetailName(hwloc_obj_t obj) {
                     snprintf(tmpstr, 1024, ", bus id = %04x:%02x:%02x.%01x",
                             obj->attr->pcidev.domain, obj->attr->pcidev.bus, obj->attr->pcidev.dev, obj->attr->pcidev.func);
                     buffer += tmpstr;
-                    snprintf(tmpstr, 1024, ", class = %04x",
-                            obj->attr->pcidev.class_id);
+                    snprintf(tmpstr, 1024, ", class = %s",
+                            hwloc_pci_class_string(obj->attr->pcidev.class_id));
                     buffer += tmpstr;
                     snprintf(tmpstr, 1024, ", id = %04x:%04x",
                             obj->attr->pcidev.vendor_id, obj->attr->pcidev.device_id);
@@ -115,8 +119,8 @@ std::string getDetailName(hwloc_obj_t obj) {
             snprintf(tmpstr, 1024, "bus id = %04x:%02x:%02x.%01x",
                     obj->attr->pcidev.domain, obj->attr->pcidev.bus, obj->attr->pcidev.dev, obj->attr->pcidev.func);
             buffer += tmpstr;
-            snprintf(tmpstr, 1024, ", class = %04x",
-                    obj->attr->pcidev.class_id);
+            snprintf(tmpstr, 1024, ", class = %s",
+                    hwloc_pci_class_string(obj->attr->pcidev.class_id));
             buffer += tmpstr;
             snprintf(tmpstr, 1024, ", id = %04x:%04x",
                     obj->attr->pcidev.vendor_id, obj->attr->pcidev.device_id);
@@ -185,6 +189,15 @@ std::string getDetailName(hwloc_obj_t obj) {
 std::pair<std::string, uint32_t> ScopedHWLOC::buildJSON(hwloc_obj_t obj, int32_t depth) {
     // depth-first, iterate over the children
     uint32_t childrenSize = 0;
+    // keep track of the nodes we have seen already, starting with this one.
+    static std::set<hwloc_obj_t> processed;
+    /*
+    if (processed.count(obj) > 0) {
+        std::pair<std::string, uint32_t> data(std::string(""), 0);
+        return data;
+    }
+    */
+    processed.insert(obj);
     std::string json;
     std::string typestr{hwloc_obj_type_string (obj->type)};
     std::string name = typestr;
@@ -215,36 +228,40 @@ std::pair<std::string, uint32_t> ScopedHWLOC::buildJSON(hwloc_obj_t obj, int32_t
     }
     json = "\n{\"name\":\"" + name + "\",\"utilization\":0,\"shmrank\":0,\"detail_name\":\"" + detailName + "\",";
     // special handing for numa nodes.
+    /*
     if (obj->type == HWLOC_OBJ_NUMANODE) {
         // NUMA nodes have a special depth ::HWLOC_TYPE_DEPTH_NUMANODE
-        json += "\"depth\":" + std::to_string(depth) + ",";
-        json += "\"children\":[";
+        json += "\"depth\":" + std::to_string(depth);
         hwloc_obj_t child_obj = obj->parent->first_child;
-        while(child_obj != nullptr) {
-            auto child = buildJSON(child_obj, depth);
-            json = json + child.first + ",";
-            childrenSize += child.second;
-            child_obj = child_obj->next_sibling;
+        if (processed.count(child_obj) == 0) {
+            json += ",\"children\":[";
+            while(child_obj != nullptr) {
+                auto child = buildJSON(child_obj, depth);
+                json = json + child.first + ",";
+                childrenSize += child.second;
+                child_obj = child_obj->next_sibling;
+            }
+            hwloc_obj_t io_obj = obj->parent->io_first_child;
+            while(io_obj != nullptr) {
+                auto child = buildJSON(io_obj, depth);
+                json = json + child.first + ",";
+                childrenSize += child.second;
+                io_obj = io_obj->next_sibling;
+            }
+            hwloc_obj_t misc_obj = obj->parent->misc_first_child;
+            while(misc_obj != nullptr) {
+                auto child = buildJSON(misc_obj, depth);
+                json = json + child.first + ",";
+                childrenSize += child.second;
+                misc_obj = misc_obj->next_sibling;
+            }
+            json.back() = ']';
         }
-        hwloc_obj_t io_obj = obj->parent->io_first_child;
-        while(io_obj != nullptr) {
-            auto child = buildJSON(io_obj, depth);
-            json = json + child.first + ",";
-            childrenSize += child.second;
-            io_obj = io_obj->next_sibling;
-        }
-        hwloc_obj_t misc_obj = obj->parent->misc_first_child;
-        while(misc_obj != nullptr) {
-            auto child = buildJSON(misc_obj, depth);
-            json = json + child.first + ",";
-            childrenSize += child.second;
-            misc_obj = misc_obj->next_sibling;
-        }
-        json.back() = ']';
         json += ",\"size\":" + std::to_string(childrenSize) + "}";
         std::pair<std::string, uint32_t> data(json, childrenSize);
         return data;
     }
+    */
     json += "\"depth\":" + std::to_string(depth) + ",";
     // no children?
     if (obj->arity == 0 && obj->memory_arity == 0 &&
@@ -260,7 +277,7 @@ std::pair<std::string, uint32_t> ScopedHWLOC::buildJSON(hwloc_obj_t obj, int32_t
             childrenSize += child.second;
             memory_obj = memory_obj->next_sibling;
         }
-        if (obj->memory_arity == 0) {
+        //if (obj->memory_arity == 0) {
             hwloc_obj_t child_obj = obj->first_child;
             for (unsigned i=0; i < obj->arity; i++) {
                 auto child = buildJSON(child_obj, depth);
@@ -282,7 +299,7 @@ std::pair<std::string, uint32_t> ScopedHWLOC::buildJSON(hwloc_obj_t obj, int32_t
                 childrenSize += child.second;
                 misc_obj = misc_obj->next_sibling;
             }
-        }
+        //}
         json.back() = ']';
         json += ",\"size\":" + std::to_string(childrenSize) + "}";
     }

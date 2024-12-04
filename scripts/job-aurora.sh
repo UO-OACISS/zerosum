@@ -13,16 +13,11 @@ echo Jobid: $PBS_JOBID
 echo Running on host `hostname`
 echo Running on nodes `cat $PBS_NODEFILE`
 source scripts/sourceme-aurora.sh
-source scripts/sourceme-aurora.sh
-
-# set the number of threads based on --cpus-per-task
-export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
-export OMP_PROC_BIND=spread
-# Bind OpenMP threads to cores
-export OMP_PLACES=threads
 
 # For 12 processes per node:
 export OMP_NUM_THREADS=16
+export OMP_PROC_BIND=spread
+export OMP_PLACES=threads
 export RANKS_PER_NODE=12           # Number of MPI ranks per node
 export SCRIPT_NAME=gpu_tile_compact.sh
 
