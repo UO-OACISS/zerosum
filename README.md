@@ -143,3 +143,5 @@ In this example, the `stime` values are time spent in system calls, the `utime` 
    [build-polaris-sycl.sh](scripts/build-polaris-sycl.sh) and
    [job-polaris-sycl.sh](scripts/job-polaris-sycl.sh) scripts.
 
+
+![Example sunburst plot](./sample_data/embedded.svg)
