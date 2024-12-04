@@ -6,8 +6,8 @@ import glob
 import os
 pd.options.mode.chained_assignment = None  # default='warn'
 template_location = "@CMAKE_INSTALL_PREFIX@/etc/"
-template = template_location + "zs-hwloc-template.html"
 d3_js = template_location + "d3.v3.js"
+template = template_location + "zs-hwloc-template.html"
 standalone_template = template_location + "zs-hwloc-template-standalone.html"
 
 def parseArgs():
@@ -92,6 +92,17 @@ def main():
     df = parseData()
     tree = updateTree(df)
     if args.standalone:
+        with open(standalone_template,'r') as file:
+            populate_me = file.read()
+        with open(d3_js,'r') as file:
+            javascript = file.read()
+        java_as_string = json.dumps(tree)
+        from string import Template
+        s = Template(populate_me)
+        with open('zs-topology.html', 'w') as fp:
+            fp.write(s.substitute(JSONDATA=java_as_string, SCRIPT_TEXT=javascript))
+
+    else:
         with open(template,'r') as file:
             populate_me = file.read()
         with open(d3_js,'r') as file:
@@ -100,13 +111,7 @@ def main():
         from string import Template
         s = Template(populate_me)
         with open('zs-topology.html', 'w') as fp:
-            fp.write(s.substitute(JSONDATA=java_as_string, SCRIPTTEXT=javascript))
-
-    else:
-        with open('zs.topology.json', 'w') as fp:
-            json.dump(tree, fp)
-        import shutil
-        shutil.copyfile(template,os.getcwd()+"/zs-topology.html")
+            fp.write(s.substitute(JSONDATA=java_as_string))
 
 if __name__ == '__main__':
     main()

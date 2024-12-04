@@ -84,12 +84,13 @@ echo ${mylist}
 #export ZET_ENABLE_PROGRAM_DEBUGGING=1
 #export INTELGT_AUTO_ATTACH_DISABLE=1
 
-#/soft/tools/mpi_wrapper_utils/${SCRIPT_NAME} \
 set -x
 INTELGT_AUTO_ATTACH_DISABLE=1 mpiexec --np ${NRANKS} -ppn ${RANKS_PER_NODE} \
 --cpu-bind verbose,list${mylist} \
 -envall \
+/soft/tools/mpi_wrapper_utils/${SCRIPT_NAME} \
 ./install/bin/zerosum-mpi \
+--zs:logging \
 ./build/bin/lu-decomp-mpi 10
 set +x
 
