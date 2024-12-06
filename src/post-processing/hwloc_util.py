@@ -4,6 +4,7 @@ import json
 import pandas as pd
 import glob
 import os
+import re
 pd.options.mode.chained_assignment = None  # default='warn'
 template_location = "@CMAKE_INSTALL_PREFIX@/etc/"
 d3_js = template_location + "d3.v3.js"
@@ -56,8 +57,9 @@ def parseGPUData(df):
     #print(gpu.to_string())
     addresses = {}
     for index, row in gpu.iterrows():
-        print(row['rank'], row['value'])
-        addresses[row['rank']] = row['value']
+        #print(row['rank'], row['value'])
+        # our key is a list of two values, the MPI rank and the GPU index
+        addresses[(row['rank'],row['index'])] = row['value']
     # Get the utilization data for each gpu
     gpu = df.loc[(df['resource'] == 'GPU') & (df['name'].str.contains('L0 All Engines, subdevice'))]
     # Convert the value to a number
@@ -67,11 +69,16 @@ def parseGPUData(df):
     gpu_mean = gpu.groupby([c for c in gpu.columns if c not in mean_cols]).mean()
     # Reset indices
     gpu_mean.reset_index(inplace=True)
-    print(gpu_mean.to_string())
-    for index, row in gpu_mean.iterrows():
-        print(row['rank'], row['value'])
-        addresses[row['rank']] = list((addresses[row['rank']], row['value'], row['name']))
-    print(addresses)
+    #print(gpu_mean.to_string())
+    for index, row in gpu_mean.sort_values(by=['rank','name']).iterrows():
+        p = re.compile('L0 All Engines, subdevice (\d+), Active Time')
+        subdevice = p.findall(row['name'])[0]
+        gpu_properties = df.loc[(df['resource'] == 'GPU') & (df['type'] == 'Property') & (df['rank'] == row['rank']) & (df['index'] == row['index'])]
+        properties = {}
+        for index2, row2 in gpu_properties.sort_values(by=['name']).iterrows():
+            properties[row2['name']] = row2['value']
+        addresses[(row['rank'],row['index'])] = list((addresses[(row['rank'],row['index'])], row['value'], subdevice, properties))
+    #print(addresses)
     return addresses
 
 def traverseHWTTree(tree, df):
@@ -102,21 +109,39 @@ def traverseHWTTree(tree, df):
     tree['rank'] = rank;
     return tree
 
-def traverseGPUTree(tree, in_rank, address, in_utilization, name):
+def traverseGPUTree(tree, in_rank, in_index, address, in_utilization, subdevice, properties):
     utilization = int(tree['utilization'])
     rank = int(tree['rank'])
+    duplicate = False
     if tree['name'].startswith("PCIDev"):
         detail_name = tree['detail_name']
         if address in detail_name:
-           utilization = in_utilization
-           rank = in_rank
-           print(rank, utilization)
+            # If we have already assigned this one, we need a duplicate
+            if 'subdevice' in tree and tree['subdevice'] != subdevice:
+                duplicate = True
+                detail_name = detail_name[:detail_name.find('subdevice:')]
+                tree['detail_name'] = detail_name + 'subdevice: ' + subdevice
+            else:
+                for key,value in properties.items():
+                    tree['detail_name'] += ', ' + key + ': ' + value
+                tree['detail_name'] += ', subdevice: ' + subdevice
+            tree['subdevice'] = subdevice
+            utilization = in_utilization
+            rank = in_rank
+            #print(rank, subdevice, utilization)
     else:
         if 'children' in tree.keys():
             newChildren = []
             utilization = 0
             for c in tree['children']:
-                newChild = traverseGPUTree(c, in_rank, address, in_utilization, name)
+                # The child is mutable, so make a copy first
+                oldChild = c.copy()
+                newChild,duplicate = traverseGPUTree(c, in_rank, in_index, address, in_utilization, subdevice, properties)
+                if duplicate:
+                    # Keek the old child
+                    newChildren.append(oldChild)
+                    utilization += oldChild['utilization']
+                    duplicate = False
                 utilization += newChild['utilization']
                 rank = max(rank,newChild['rank'])
                 newChildren.append(newChild)
@@ -124,7 +149,7 @@ def traverseGPUTree(tree, in_rank, address, in_utilization, name):
             utilization = utilization / len(tree['children'])
     tree['utilization'] = utilization;
     tree['rank'] = rank;
-    return tree
+    return tree,duplicate
 
 def updateTree(hwt_df, gpu_addresses):
     all_files = glob.glob(os.path.join('.', "zs.topology.*.json"))
@@ -141,7 +166,7 @@ def updateTree(hwt_df, gpu_addresses):
         fp.close()
     tree = traverseHWTTree(job, hwt_df)
     for key,value in gpu_addresses.items():
-        tree = traverseGPUTree(tree, key, value[0], value[1], value[2])
+        tree,modified = traverseGPUTree(tree, key[0], key[1], value[0], value[1], value[2], value[3])
     return tree
 
 def main():
