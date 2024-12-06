@@ -22,6 +22,9 @@ def parseData():
     # Read the CSV data
     all_files = glob.glob(os.path.join('.', "zs.data.*.csv"))
     df = pd.concat((pd.read_csv(f) for f in all_files), ignore_index=True)
+    return df
+
+def parseHWTData(df):
     # select the hardware threads
     hwt = df.loc[df['resource'] == 'HWT']
     # Convert the value to a number
@@ -45,9 +48,36 @@ def parseData():
     #print(hwt_sum.to_string())
     return hwt_sum
 
-def traverseTree(tree, df):
+def parseGPUData(df):
+    # Find this:
+    # "x1921c0s0b0n0",1,0,0,"GPU","Property","0","PCI Address","0000:18:00.0"
+    # select the GPUs
+    gpu = df.loc[(df['resource'] == 'GPU') & (df['name'] == 'PCI Address')]
+    #print(gpu.to_string())
+    addresses = {}
+    for index, row in gpu.iterrows():
+        print(row['rank'], row['value'])
+        addresses[row['rank']] = row['value']
+    # Get the utilization data for each gpu
+    gpu = df.loc[(df['resource'] == 'GPU') & (df['name'].str.contains('L0 All Engines, subdevice'))]
+    # Convert the value to a number
+    gpu['value'] = pd.to_numeric(gpu['value']) * 100.0
+    # Group by everything except value to get the mean value
+    mean_cols = ['value','step']
+    gpu_mean = gpu.groupby([c for c in gpu.columns if c not in mean_cols]).mean()
+    # Reset indices
+    gpu_mean.reset_index(inplace=True)
+    print(gpu_mean.to_string())
+    for index, row in gpu_mean.iterrows():
+        print(row['rank'], row['value'])
+        addresses[row['rank']] = list((addresses[row['rank']], row['value'], row['name']))
+    print(addresses)
+    return addresses
+
+def traverseHWTTree(tree, df):
     utilization = int(tree['utilization'])
     rank = int(tree['rank'])
+    # Is this a processing unit (HWT)? if so, assign utilization
     if tree['name'].startswith("PU L#"):
         name = tree['name']
         tokens = name.split()
@@ -58,10 +88,11 @@ def traverseTree(tree, df):
             rank = int(df.loc[df['index'] == osindex, 'rank'].iloc[0])
             #print(osindex, utilization)
     else:
+        # otherwise, aggregate the children
         if 'children' in tree.keys():
             newChildren = []
             for c in tree['children']:
-                newChild = traverseTree(c, df)
+                newChild = traverseHWTTree(c, df)
                 utilization += newChild['utilization']
                 rank = max(rank,newChild['rank'])
                 newChildren.append(newChild)
@@ -71,7 +102,31 @@ def traverseTree(tree, df):
     tree['rank'] = rank;
     return tree
 
-def updateTree(df):
+def traverseGPUTree(tree, in_rank, address, in_utilization, name):
+    utilization = int(tree['utilization'])
+    rank = int(tree['rank'])
+    if tree['name'].startswith("PCIDev"):
+        detail_name = tree['detail_name']
+        if address in detail_name:
+           utilization = in_utilization
+           rank = in_rank
+           print(rank, utilization)
+    else:
+        if 'children' in tree.keys():
+            newChildren = []
+            utilization = 0
+            for c in tree['children']:
+                newChild = traverseGPUTree(c, in_rank, address, in_utilization, name)
+                utilization += newChild['utilization']
+                rank = max(rank,newChild['rank'])
+                newChildren.append(newChild)
+            tree['children'] = newChildren
+            utilization = utilization / len(tree['children'])
+    tree['utilization'] = utilization;
+    tree['rank'] = rank;
+    return tree
+
+def updateTree(hwt_df, gpu_addresses):
     all_files = glob.glob(os.path.join('.', "zs.topology.*.json"))
     job = {}
     job['name'] = 'job'
@@ -84,13 +139,17 @@ def updateTree(df):
         tree = json.load(fp)
         job['children'].append(tree)
         fp.close()
-    tree = traverseTree(job, df)
+    tree = traverseHWTTree(job, hwt_df)
+    for key,value in gpu_addresses.items():
+        tree = traverseGPUTree(tree, key, value[0], value[1], value[2])
     return tree
 
 def main():
     args = parseArgs()
     df = parseData()
-    tree = updateTree(df)
+    hwt_df = parseHWTData(df)
+    gpu_addresses = parseGPUData(df)
+    tree = updateTree(hwt_df, gpu_addresses)
     if args.standalone:
         with open(standalone_template,'r') as file:
             populate_me = file.read()

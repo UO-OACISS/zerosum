@@ -38,14 +38,6 @@ void ScopedHWLOC::traverse(hwloc_obj_t obj, size_t indent) {
     }
 }
 
-std::string safe_obj_get_info_by_name(hwloc_obj_t obj, const char * name) {
-    const char * tmpstr = hwloc_obj_get_info_by_name(obj, name);
-    if (tmpstr == NULL) {
-        return std::string("NULL");
-    }
-    return std::string(tmpstr);
-}
-
 std::string safe_obj_get_info(hwloc_obj_t obj) {
     std::string buffer;
     for(unsigned i=0; i<obj->infos_count; i++) {
@@ -94,26 +86,26 @@ std::string getDetailName(hwloc_obj_t obj) {
                 buffer += ", ways: " + std::to_string(obj->attr->cache.associativity);
             break;
         case HWLOC_OBJ_GROUP:
-            buffer += "depth = " + std::to_string(obj->attr->group.depth);
+            buffer += "depth: " + std::to_string(obj->attr->group.depth);
             break;
         case HWLOC_OBJ_BRIDGE:
             switch (obj->attr->bridge.upstream_type) {
                 case HWLOC_OBJ_BRIDGE_HOST:
-                    buffer += "bridge upstream type = Host";
+                    buffer += "bridge upstream type: Host";
                     break;
                 case HWLOC_OBJ_BRIDGE_PCI:
-                    buffer += "bridge upstream type = PCI";
-                    snprintf(tmpstr, 1024, ", bus id = %04x:%02x:%02x.%01x",
+                    buffer += "bridge upstream type: PCI";
+                    snprintf(tmpstr, 1024, ", bus id: %04x:%02x:%02x.%01x",
                             obj->attr->pcidev.domain, obj->attr->pcidev.bus, obj->attr->pcidev.dev, obj->attr->pcidev.func);
                     buffer += tmpstr;
-                    snprintf(tmpstr, 1024, ", class = %s",
+                    snprintf(tmpstr, 1024, ", class: %s",
                             hwloc_pci_class_string(obj->attr->pcidev.class_id));
                     buffer += tmpstr;
-                    snprintf(tmpstr, 1024, ", id = %04x:%04x",
+                    snprintf(tmpstr, 1024, ", id: %04x:%04x",
                             obj->attr->pcidev.vendor_id, obj->attr->pcidev.device_id);
                     buffer += tmpstr;
                     if (obj->attr->pcidev.linkspeed) {
-                        snprintf(tmpstr, 1024, ", linkspeed = %f GB/s", obj->attr->pcidev.linkspeed);
+                        snprintf(tmpstr, 1024, ", linkspeed: %f GB/s", obj->attr->pcidev.linkspeed);
                         buffer += tmpstr;
                     }
                     break;
@@ -122,28 +114,28 @@ std::string getDetailName(hwloc_obj_t obj) {
                 case HWLOC_OBJ_BRIDGE_HOST:
                     assert(0);
                 case HWLOC_OBJ_BRIDGE_PCI:
-                    buffer += ", bridge downstream type = PCI";
-                    snprintf(tmpstr, 1024, ", secondary bus = %02x",
+                    buffer += ", bridge downstream type: PCI";
+                    snprintf(tmpstr, 1024, ", secondary bus: %02x",
                             obj->attr->bridge.downstream.pci.secondary_bus);
                     buffer += tmpstr;
-                    snprintf(tmpstr, 1024, ", subordinate bus = %02x",
+                    snprintf(tmpstr, 1024, ", subordinate bus: %02x",
                             obj->attr->bridge.downstream.pci.subordinate_bus);
                     buffer += tmpstr;
                     break;
             }
             break;
         case HWLOC_OBJ_PCI_DEVICE:
-            snprintf(tmpstr, 1024, "bus id = %04x:%02x:%02x.%01x",
+            snprintf(tmpstr, 1024, "bus id: %04x:%02x:%02x.%01x",
                     obj->attr->pcidev.domain, obj->attr->pcidev.bus, obj->attr->pcidev.dev, obj->attr->pcidev.func);
             buffer += tmpstr;
-            snprintf(tmpstr, 1024, ", class = %s",
+            snprintf(tmpstr, 1024, ", class: %s",
                     hwloc_pci_class_string(obj->attr->pcidev.class_id));
             buffer += tmpstr;
-            snprintf(tmpstr, 1024, ", id = %04x:%04x",
+            snprintf(tmpstr, 1024, ", id: %04x:%04x",
                     obj->attr->pcidev.vendor_id, obj->attr->pcidev.device_id);
             buffer += tmpstr;
             if (obj->attr->pcidev.linkspeed) {
-                snprintf(tmpstr, 1024, ", linkspeed = %f GB/s", obj->attr->pcidev.linkspeed);
+                snprintf(tmpstr, 1024, ", linkspeed: %f GB/s", obj->attr->pcidev.linkspeed);
                 buffer += tmpstr;
             }
             break;
