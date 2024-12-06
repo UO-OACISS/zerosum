@@ -78,10 +78,10 @@ for i in $(seq 1 $first_half) ; do
     let last_core2=${last_core2}+${nthreads}
 done
 
-export OMP_PROC_BIND=spread
-export OMP_NUM_THREADS=16
-unset OMP_PLACES
-mylist=":0-7,104-111:8-15,112-119:16-23,120-127:24-31,128-135:32-39,136-143:40-47,144-151:52-59,156-163:60-67,164-171:68-75,172-179:76-83,180-187:84-91,188-195:92-99,196-203"
+#export OMP_PROC_BIND=spread
+#export OMP_NUM_THREADS=16
+#unset OMP_PLACES
+#mylist=":0-7,104-111:8-15,112-119:16-23,120-127:24-31,128-135:32-39,136-143:40-47,144-151:52-59,156-163:60-67,164-171:68-75,172-179:76-83,180-187:84-91,188-195:92-99,196-203"
 echo ${mylist}
 
 # For debugging

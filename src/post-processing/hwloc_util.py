@@ -100,12 +100,14 @@ def traverseHWTTree(tree, df):
             newChildren = []
             for c in tree['children']:
                 newChild = traverseHWTTree(c, df)
-                utilization += newChild['utilization']
+                if tree['name'].startswith("Core L#"):
+                    utilization += newChild['utilization']
                 rank = max(rank,newChild['rank'])
                 newChildren.append(newChild)
             tree['children'] = newChildren
             utilization = utilization / len(tree['children'])
     tree['utilization'] = utilization;
+    tree['detail_name'] = tree['detail_name'].lstrip(', ');
     tree['rank'] = rank;
     return tree
 
@@ -132,7 +134,7 @@ def traverseGPUTree(tree, in_rank, in_index, address, in_utilization, subdevice,
     else:
         if 'children' in tree.keys():
             newChildren = []
-            utilization = 0
+            #utilization = 0
             for c in tree['children']:
                 # The child is mutable, so make a copy first
                 oldChild = c.copy()
@@ -140,16 +142,26 @@ def traverseGPUTree(tree, in_rank, in_index, address, in_utilization, subdevice,
                 if duplicate:
                     # Keek the old child
                     newChildren.append(oldChild)
-                    utilization += oldChild['utilization']
+                    #utilization += oldChild['utilization']
                     duplicate = False
-                utilization += newChild['utilization']
+                #utilization += newChild['utilization']
                 rank = max(rank,newChild['rank'])
                 newChildren.append(newChild)
             tree['children'] = newChildren
-            utilization = utilization / len(tree['children'])
+            #utilization = utilization / len(tree['children'])
     tree['utilization'] = utilization;
     tree['rank'] = rank;
     return tree,duplicate
+
+def simplifyTree(tree):
+    if 'children' in tree.keys():
+        for c in tree['children']:
+            simplifyTree(c)
+    if tree['name'].startswith("PU L#"):
+        tree['name'] = "PU"
+    if tree['name'].startswith("Core L#"):
+        tree['name'] = "Core"
+    return tree
 
 def updateTree(hwt_df, gpu_addresses):
     all_files = glob.glob(os.path.join('.', "zs.topology.*.json"))
@@ -167,6 +179,7 @@ def updateTree(hwt_df, gpu_addresses):
     tree = traverseHWTTree(job, hwt_df)
     for key,value in gpu_addresses.items():
         tree,modified = traverseGPUTree(tree, key[0], key[1], value[0], value[1], value[2], value[3])
+    tree = simplifyTree(tree)
     return tree
 
 def main():

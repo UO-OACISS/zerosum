@@ -27,10 +27,28 @@ div.tooltip-donut {
 }
 
 </style>
-<body><h1>Utilization</h1>
+<body><h1>ZeroSum Utilization</h1>
 <p>
 <button onClick="window.location.reload();">Refresh Page / Reset Zoom</button>
+<br>To see component details, click once. To zoom, double-click.
+<br>Colors indicate MPI rank assignments % ranks per node:
 </p>
+<table>
+<tr>
+<td bgcolor="red">&nbsp;0&nbsp;</td>
+<td bgcolor="blue" style="color: white;">&nbsp;1&nbsp;</td>
+<td bgcolor="lightgreen">&nbsp;2&nbsp;</td>
+<td bgcolor="orange">&nbsp;3&nbsp;</td>
+<td bgcolor="purple" style="color: white;">&nbsp;4&nbsp;</td>
+<td bgcolor="yellow">&nbsp;5&nbsp;</td>
+<td bgcolor="brown" style="color: white;">&nbsp;6&nbsp;</td>
+<td bgcolor="olive" style="color: white;">&nbsp;7&nbsp;</td>
+<td bgcolor="cyan">&nbsp;8&nbsp;</td>
+<td bgcolor="pink">&nbsp;9&nbsp;</td>
+<td bgcolor="darkgreen" style="color: white;">&nbsp;10&nbsp;</td>
+<td bgcolor="darkgrey">&nbsp;11&nbsp;</td>
+</tr>
+</table>
 <script type="module">
 
 $SCRIPT_TEXT
@@ -112,19 +130,24 @@ var myprofile = '$JSONDATA';
   var path = g.append("path")
     .attr("d", arc)
     .style("fill", function(d) { return colorPerVariable(d.utilization,d.rank); })
-    .on("click", click)
-    .on('mouseover', function (d, i) {
+    .on("dblclick", click)
+    .on('click', function (d, i) {
           d3.select(this).transition()
                .duration('50')
                .attr('opacity', '.85');
           div.transition()
                .duration(50)
                .style("opacity", 1);
-          let num = '<p align="left" style="font-size:50%;"><b>' + d.name + '</b><br>' + d.detail_name.replaceAll(', ', '<br>') + '<br>utilization: ' + d.utilization.toFixed(2) + '</p>';
+          let util = '';
+          if (d.utilization.toFixed(2) > 0.0) {
+            util = '<b>utilization: ' + d.utilization.toFixed(2) + '</b><br>' + '<b>process rank: ' + d.rank + '</b><br>';
+          }
+          let num = '<div align="left" style="font-size:100%;"><b>' + d.name + '</b><br>' + util + d.detail_name.replaceAll(', ', '<br>') + '</div>';
           div.html(num)
-               .style("left", (d3.event.pageX + 10) + "px")
-               .style("top", (d3.event.pageY - 15) + "px");
-     })
+               .style("left", "10px")
+               .style("top", "200px");
+     });
+     /*
      .on('mouseout', function (d, i) {
           d3.select(this).transition()
                .duration('50')
@@ -133,6 +156,7 @@ var myprofile = '$JSONDATA';
                .duration('50')
                .style("opacity", 0);
      });
+     */
 
   var text = g.append("text")
     .attr("transform", function(d) { return "rotate(" + computeTextRotation(d) + ")"; })
