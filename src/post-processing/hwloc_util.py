@@ -47,7 +47,7 @@ def parseData():
 
 def traverseTree(tree, df):
     utilization = int(tree['utilization'])
-    shmrank = int(tree['shmrank'])
+    rank = int(tree['rank'])
     if tree['name'].startswith("PU L#"):
         name = tree['name']
         tokens = name.split()
@@ -55,7 +55,7 @@ def traverseTree(tree, df):
         osindex = int(osindex[2:])
         if osindex in df['index'].values:
             utilization = df.loc[df['index'] == osindex, 'value'].iloc[0]
-            shmrank = int(df.loc[df['index'] == osindex, 'shmrank'].iloc[0])
+            rank = int(df.loc[df['index'] == osindex, 'rank'].iloc[0])
             #print(osindex, utilization)
     else:
         if 'children' in tree.keys():
@@ -63,12 +63,12 @@ def traverseTree(tree, df):
             for c in tree['children']:
                 newChild = traverseTree(c, df)
                 utilization += newChild['utilization']
-                shmrank = max(shmrank,newChild['shmrank'])
+                rank = max(rank,newChild['rank'])
                 newChildren.append(newChild)
             tree['children'] = newChildren
             utilization = utilization / len(tree['children'])
     tree['utilization'] = utilization;
-    tree['shmrank'] = shmrank;
+    tree['rank'] = rank;
     return tree
 
 def updateTree(df):
@@ -77,7 +77,7 @@ def updateTree(df):
     job['name'] = 'job'
     job['detail_name'] = '(jobid)'
     job['utilization'] = 0
-    job['shmrank'] = 0;
+    job['rank'] = 0;
     job['children'] = []
     for f in all_files:
         fp = open(f, 'r')

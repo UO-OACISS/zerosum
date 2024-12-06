@@ -484,4 +484,133 @@ std::string getUniqueFilename(void) {
     return filename;
 }
 
+int test_for_MPI_comm_rank(int commrank) {
+    /* Some configurations might use MPI without telling ZeroSum - they can
+     * call apex::init() with a rank of 0 and size of 1 even though
+     * they are running in an MPI application.  For that reason, we double
+     * check to make sure that we aren't in an MPI execution by checking
+     * for some common environment variables. */
+    // PMI, MPICH, Cray, Intel, MVAPICH2...
+    const char * tmpvar = getenv("PMI_RANK");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        // printf("Changing PMI rank to %lu\n", commrank);
+        return commrank;
+    }
+    // cray ALPS
+    tmpvar = getenv("ALPS_APP_PE");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        // printf("Changing ALPS rank to %lu\n", commrank);
+        return commrank;
+    }
+    // PALS
+    tmpvar = getenv("PALS_LOCAL_RANKID");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        // printf("Changing PALS rank to %lu\n", commrank);
+        return commrank;
+    }
+    // cray PMI
+    tmpvar = getenv("CRAY_PMI_RANK");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        // printf("Changing CRAY_PMI rank to %lu\n", commrank);
+        return commrank;
+    }
+    // OpenMPI, Spectrum
+    tmpvar = getenv("OMPI_COMM_WORLD_RANK");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        // printf("Changing openMPI rank to %lu\n", commrank);
+        return commrank;
+    }
+    // PBS/Torque
+    tmpvar = getenv("PBS_TASKNUM");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        return commrank;
+    }
+    // PBS/Torque on some systems...
+    tmpvar = getenv("PBS_O_TASKNUM");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar) - 1;
+        return commrank;
+    }
+    // Slurm - last resort
+    tmpvar = getenv("SLURM_PROCID");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        return commrank;
+    }
+    return commrank;
+}
+
+int test_for_MPI_comm_size(int commsize) {
+    /* Some configurations might use MPI without telling ZeroSum - they can
+     * call apex::init() with a rank of 0 and size of 1 even though
+     * they are running in an MPI application.  For that reason, we double
+     * check to make sure that we aren't in an MPI execution by checking
+     * for some common environment variables. */
+    // PMI, MPICH, Cray, Intel, MVAPICH2...
+    const char * tmpvar = getenv("PMI_SIZE");
+    if (tmpvar != NULL) {
+        commsize = atol(tmpvar);
+        // printf("Changing MPICH size to %lu\n", commsize);
+        return commsize;
+    }
+    tmpvar = getenv("CRAY_PMI_SIZE");
+    if (tmpvar != NULL) {
+        commsize = atol(tmpvar);
+        // printf("Changing MPICH size to %lu\n", commsize);
+        return commsize;
+    }
+    tmpvar = getenv("PALS_LOCAL_SIZE");
+    if (tmpvar != NULL) {
+        commsize = atol(tmpvar);
+        // printf("Changing PALS size to %lu\n", commsize);
+        return commsize;
+    }
+    // OpenMPI, Spectrum
+    tmpvar = getenv("OMPI_COMM_WORLD_SIZE");
+    if (tmpvar != NULL) {
+        commsize = atol(tmpvar);
+        // printf("Changing openMPI size to %lu\n", commsize);
+        return commsize;
+    }
+    // PBS/Torque - no specific variable specifies number of nodes?
+    tmpvar = getenv("PBS_NP"); // number of processes requested
+    if (tmpvar != NULL) {
+        commsize = atol(tmpvar);
+        return commsize;
+    }
+    // PBS/Torque - no specific variable specifies number of nodes?
+    tmpvar = getenv("PBS_NUM_NODES"); // number of nodes requested
+    const char * tmpvar2 = getenv("PBS_NUM_PPN"); // number of processes per node
+    if (tmpvar != NULL && tmpvar2 != NULL) {
+        commsize = atol(tmpvar) * atol(tmpvar2);
+        return commsize;
+    }
+    // Slurm - last resort
+    tmpvar = getenv("SLURM_NPROCS");
+    if (tmpvar != NULL) {
+        commsize = atol(tmpvar);
+        return commsize;
+    }
+    // Slurm - last resort
+    tmpvar = getenv("SLURM_NTASKS");
+    if (tmpvar != NULL) {
+        commsize = atol(tmpvar);
+        return commsize;
+    }
+    // Slurm - last resort, do some math
+    tmpvar = getenv("SLURM_JOB_NUM_NODES");
+    tmpvar2 = getenv("SLURM_TASKS_PER_NODE");
+    if (tmpvar != NULL && tmpvar2 != NULL) {
+        commsize = atol(tmpvar) * atol(tmpvar2);
+        return commsize;
+    }
+    return commsize;
+}
+
 }

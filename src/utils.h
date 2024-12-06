@@ -55,6 +55,8 @@ bool getVerbose(void);
 bool getHeartBeat(void);
 size_t parseMaxPid(void);
 std::string getUniqueFilename(void);
+int test_for_MPI_comm_rank(int commrank);
+int test_for_MPI_comm_size(int commsize);
 
 class in_zs {
     public:

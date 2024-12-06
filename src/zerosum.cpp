@@ -133,8 +133,8 @@ inline void ZeroSum::getMPIinfo(void) {
     int resultlength;
     MPI_CALL(MPI_Get_processor_name(name, &resultlength));
 #else
-    size = 1;
-    rank = 0;
+    rank = test_for_MPI_comm_rank(0);
+    size = test_for_MPI_comm_size(1);
     char name[HOST_NAME_MAX];
     gethostname(name, HOST_NAME_MAX);
 #endif
@@ -166,6 +166,9 @@ bool ZeroSum::doOnce(void) {
     if (done) return done;
     PERFSTUBS_SCOPED_TIMER_FUNC();
 
+    /* First! Get our rank and the total run size */
+    getMPIinfo();
+    /* Now, see what our rank is on the node */
     int shmrank{(int)process.rank};
 #ifdef ZEROSUM_USE_MPI
     int ready;
@@ -184,7 +187,6 @@ bool ZeroSum::doOnce(void) {
     process.shmrank = shmrank;
 #endif
 
-    getMPIinfo();
     static bool logging{parseBool("ZS_ENABLE_LOG", false)};
     if (logging) {
         openLog();

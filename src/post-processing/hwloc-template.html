@@ -66,20 +66,20 @@ var y = d3.scale.linear()
     .range([0, radius]);
 //var y = d3.scaleLinear([0, radius]);
 
-function colorChooser(shmrank) {
+function colorChooser(rank) {
     const mycolors = ["red","blue","lightgreen","orange","purple","yellow","brown","olive","cyan","pink","darkgreen","darkgrey"];
     const maxcolors = 12;
-    var index = (shmrank % maxcolors);
+    var index = (rank % maxcolors);
     return mycolors[index];
     //return mycolors[0];
 }
 
 // Color Scale
-function colorPerVariable(value,shmrank) {
+function colorPerVariable(value,rank) {
     //var myColor = d3.scale.category20c();
     var myColor = d3.scale.linear()
         .domain([0, 100])
-        .range(["WhiteSmoke", colorChooser(shmrank)]);
+        .range(["WhiteSmoke", colorChooser(rank)]);
     return myColor(value);
 }
 
@@ -110,7 +110,7 @@ var myprofile = '$JSONDATA';
 
   var path = g.append("path")
     .attr("d", arc)
-    .style("fill", function(d) { return colorPerVariable(d.utilization,d.shmrank); })
+    .style("fill", function(d) { return colorPerVariable(d.utilization,d.rank); })
     .on("click", click)
     .on('mouseover', function (d, i) {
           d3.select(this).transition()

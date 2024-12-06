@@ -38,6 +38,23 @@ void ScopedHWLOC::traverse(hwloc_obj_t obj, size_t indent) {
     }
 }
 
+std::string safe_obj_get_info_by_name(hwloc_obj_t obj, const char * name) {
+    const char * tmpstr = hwloc_obj_get_info_by_name(obj, name);
+    if (tmpstr == NULL) {
+        return std::string("NULL");
+    }
+    return std::string(tmpstr);
+}
+
+std::string safe_obj_get_info(hwloc_obj_t obj) {
+    std::string buffer;
+    for(unsigned i=0; i<obj->infos_count; i++) {
+        struct hwloc_info_s *info = &obj->infos[i];
+        buffer += ", " + std::string(info->name) + ": " + std::string(info->value);
+    }
+    return buffer;
+}
+
 std::string getDetailName(hwloc_obj_t obj) {
     std::string buffer{""};
     char tmpstr[1024] = {0};
@@ -171,6 +188,8 @@ std::string getDetailName(hwloc_obj_t obj) {
             }
             buffer += tmpstr;
             break;
+        case HWLOC_OBJ_PACKAGE:
+            break;
         case HWLOC_OBJ_MACHINE:
             buffer += ZeroSum::getInstance().getHostname();
             break;
@@ -183,6 +202,7 @@ std::string getDetailName(hwloc_obj_t obj) {
             /* nothing to show */
             break;
     }
+    buffer += safe_obj_get_info(obj);
     return buffer;
 }
 
@@ -226,7 +246,7 @@ std::pair<std::string, uint32_t> ScopedHWLOC::buildJSON(hwloc_obj_t obj, int32_t
         name += " L#" + std::to_string(obj->logical_index);
         name += " P#" + std::to_string(obj->os_index);
     }
-    json = "\n{\"name\":\"" + name + "\",\"utilization\":0,\"shmrank\":0,\"detail_name\":\"" + detailName + "\",";
+    json = "\n{\"name\":\"" + name + "\",\"utilization\":0,\"rank\":0,\"detail_name\":\"" + detailName + "\",";
     // special handing for numa nodes.
     /*
     if (obj->type == HWLOC_OBJ_NUMANODE) {
