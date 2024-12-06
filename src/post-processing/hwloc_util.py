@@ -54,16 +54,25 @@ def parseGPUData(df):
     # "x1921c0s0b0n0",1,0,0,"GPU","Property","0","PCI Address","0000:18:00.0"
     # select the GPUs
     gpu = df.loc[(df['resource'] == 'GPU') & (df['name'] == 'PCI Address')]
+    if gpu.empty:
+        gpu = df.loc[(df['resource'] == 'GPU') & (df['name'] == 'Bus ID')]
     #print(gpu.to_string())
     addresses = {}
     for index, row in gpu.iterrows():
         #print(row['rank'], row['value'])
         # our key is a list of two values, the MPI rank and the GPU index
-        addresses[(row['rank'],row['index'])] = row['value']
+        addresses[(row['rank'],row['index'])] = row['value'].lower()
     # Get the utilization data for each gpu
     gpu = df.loc[(df['resource'] == 'GPU') & (df['name'].str.contains('L0 All Engines, subdevice'))]
+    tiles = True
+    scale = 100.0
+    if gpu.empty:
+        gpu = df.loc[(df['resource'] == 'GPU') & (df['name'] == 'Utilization %')]
+        tiles = False
+        scale = 1.0
+
     # Convert the value to a number
-    gpu['value'] = pd.to_numeric(gpu['value']) * 100.0
+    gpu['value'] = pd.to_numeric(gpu['value']) * scale
     # Group by everything except value to get the mean value
     mean_cols = ['value','step']
     gpu_mean = gpu.groupby([c for c in gpu.columns if c not in mean_cols]).mean()
@@ -71,8 +80,10 @@ def parseGPUData(df):
     gpu_mean.reset_index(inplace=True)
     #print(gpu_mean.to_string())
     for index, row in gpu_mean.sort_values(by=['rank','name']).iterrows():
-        p = re.compile('L0 All Engines, subdevice (\d+), Active Time')
-        subdevice = p.findall(row['name'])[0]
+        subdevice = '0'
+        if tiles:
+            p = re.compile('L0 All Engines, subdevice (\d+), Active Time')
+            subdevice = p.findall(row['name'])[0]
         gpu_properties = df.loc[(df['resource'] == 'GPU') & (df['type'] == 'Property') & (df['rank'] == row['rank']) & (df['index'] == row['index'])]
         properties = {}
         for index2, row2 in gpu_properties.sort_values(by=['name']).iterrows():
