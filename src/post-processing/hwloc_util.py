@@ -113,7 +113,7 @@ def traverseHWTTree(tree, df):
                 newChild = traverseHWTTree(c, df)
                 if tree['name'].startswith("Core L#"):
                     utilization += newChild['utilization']
-                rank = max(rank,newChild['rank'])
+                    rank = max(rank,newChild['rank'])
                 newChildren.append(newChild)
             tree['children'] = newChildren
             utilization = utilization / len(tree['children'])
@@ -156,7 +156,7 @@ def traverseGPUTree(tree, in_rank, in_index, address, in_utilization, subdevice,
                     #utilization += oldChild['utilization']
                     duplicate = False
                 #utilization += newChild['utilization']
-                rank = max(rank,newChild['rank'])
+                #rank = max(rank,newChild['rank'])
                 newChildren.append(newChild)
             tree['children'] = newChildren
             #utilization = utilization / len(tree['children'])
@@ -180,7 +180,7 @@ def updateTree(hwt_df, gpu_addresses):
     job['name'] = 'job'
     job['detail_name'] = '(jobid)'
     job['utilization'] = 0
-    job['rank'] = 0;
+    job['rank'] = -1;
     job['children'] = []
     for f in all_files:
         fp = open(f, 'r')

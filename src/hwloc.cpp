@@ -238,7 +238,7 @@ std::pair<std::string, uint32_t> ScopedHWLOC::buildJSON(hwloc_obj_t obj, int32_t
         name += " L#" + std::to_string(obj->logical_index);
         name += " P#" + std::to_string(obj->os_index);
     }
-    json = "\n{\"name\":\"" + name + "\",\"utilization\":0,\"rank\":0,\"detail_name\":\"" + detailName + "\",";
+    json = "\n{\"name\":\"" + name + "\",\"utilization\":0,\"rank\":-1,\"detail_name\":\"" + detailName + "\",";
     // special handing for numa nodes.
     /*
     if (obj->type == HWLOC_OBJ_NUMANODE) {
