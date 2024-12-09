@@ -5,6 +5,7 @@ import pandas as pd
 import glob
 import os
 import re
+import sys
 pd.options.mode.chained_assignment = None  # default='warn'
 template_location = "@CMAKE_INSTALL_PREFIX@/etc/"
 d3_js = template_location + "d3.v3.js"
@@ -92,9 +93,13 @@ def parseGPUData(df):
     #print(addresses)
     return addresses
 
-def traverseHWTTree(tree, df, hwt_all):
+def traverseHWTTree(tree, df, hwt_all, spinner):
     utilization = int(tree['utilization'])
     rank = int(tree['rank'])
+    sys.stdout.write(next(spinner))
+    sys.stdout.flush()
+    sys.stdout.write('\b')
+
     # Is this a processing unit (HWT)? if so, assign utilization
     if tree['name'].startswith("PU L#"):
         name = tree['name']
@@ -106,7 +111,7 @@ def traverseHWTTree(tree, df, hwt_all):
             rank = int(df.loc[df['index'] == osindex, 'rank'].iloc[0])
             #print(osindex, utilization)
             # Get all metrics
-            metrics = hwt_all['name'].to_numpy().tolist()
+            metrics = hwt_all['name'].unique().tolist()
             for m in metrics:
                 values = hwt_all.loc[(hwt_all['index'] == osindex) & (hwt_all['name'] == m), 'value'].to_numpy().tolist()
                 tree[m] = values
@@ -115,7 +120,7 @@ def traverseHWTTree(tree, df, hwt_all):
         if 'children' in tree.keys():
             newChildren = []
             for c in tree['children']:
-                newChild = traverseHWTTree(c, df, hwt_all)
+                newChild = traverseHWTTree(c, df, hwt_all, spinner)
                 if tree['name'].startswith("Core L#"):
                     utilization += newChild['utilization']
                     rank = max(rank,newChild['rank'])
@@ -126,6 +131,11 @@ def traverseHWTTree(tree, df, hwt_all):
     tree['detail_name'] = tree['detail_name'].lstrip(', ');
     tree['rank'] = rank;
     return tree
+
+def spinning_cursor():
+    while True:
+        for cursor in '|/-\\':
+            yield cursor
 
 def traverseGPUTree(tree, in_rank, in_index, address, in_utilization, subdevice, properties):
     utilization = int(tree['utilization'])
@@ -192,7 +202,8 @@ def updateTree(hwt_df, hwt_all, gpu_addresses):
         tree = json.load(fp)
         job['children'].append(tree)
         fp.close()
-    tree = traverseHWTTree(job, hwt_df, hwt_all)
+    spinner = spinning_cursor()
+    tree = traverseHWTTree(job, hwt_df, hwt_all, spinner)
     for key,value in gpu_addresses.items():
         tree,modified = traverseGPUTree(tree, key[0], key[1], value[0], value[1], value[2], value[3])
     tree = simplifyTree(tree)
@@ -205,7 +216,7 @@ def main():
     print("Extracting CSV data...")
     hwt_df,hwt_all = parseHWTData(df)
     gpu_addresses = parseGPUData(df)
-    print("Updating JSON tree...")
+    print("Updating JSON tree (may take some time)...")
     tree = updateTree(hwt_df, hwt_all, gpu_addresses)
     print("Writing HTML...")
     if args.standalone:
