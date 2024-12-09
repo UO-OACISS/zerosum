@@ -31,23 +31,23 @@ def parseHWTData(df):
     # Convert the value to a number
     hwt['value'] = pd.to_numeric(hwt['value'])
     # drop the step column
-    hwt = hwt.drop('step', axis=1)
+    #hwt = hwt.drop('step', axis=1)
     # select only user time
-    hwt = hwt[hwt.name == 'user']
+    hwt_user = hwt[hwt.name == 'user']
     # Group by everything except value to get the mean value
-    mean_cols = ['value']
-    hwt_mean = hwt.groupby([c for c in hwt.columns if c not in mean_cols]).mean()
+    mean_cols = ['value','step']
+    hwt_mean = hwt_user.groupby([c for c in hwt_user.columns if c not in mean_cols]).mean()
     # Reset indices
     hwt_mean.reset_index(inplace=True)
     # drop the name column
     hwt_mean.drop('name', axis=1, inplace=True)
     # Group by everything except name to get the mean value
-    sum_cols = ['value']
+    sum_cols = ['value','step']
     hwt_sum = hwt_mean.groupby([c for c in hwt_mean.columns if c not in sum_cols]).sum()
     # Reset indices
     hwt_sum.reset_index(inplace=True)
     #print(hwt_sum.to_string())
-    return hwt_sum
+    return hwt_sum,hwt
 
 def parseGPUData(df):
     # Find this:
@@ -92,7 +92,7 @@ def parseGPUData(df):
     #print(addresses)
     return addresses
 
-def traverseHWTTree(tree, df):
+def traverseHWTTree(tree, df, hwt_all):
     utilization = int(tree['utilization'])
     rank = int(tree['rank'])
     # Is this a processing unit (HWT)? if so, assign utilization
@@ -105,12 +105,17 @@ def traverseHWTTree(tree, df):
             utilization = df.loc[df['index'] == osindex, 'value'].iloc[0]
             rank = int(df.loc[df['index'] == osindex, 'rank'].iloc[0])
             #print(osindex, utilization)
+            # Get all metrics
+            metrics = hwt_all['name'].to_numpy().tolist()
+            for m in metrics:
+                values = hwt_all.loc[(hwt_all['index'] == osindex) & (hwt_all['name'] == m), 'value'].to_numpy().tolist()
+                tree[m] = values
     else:
         # otherwise, aggregate the children
         if 'children' in tree.keys():
             newChildren = []
             for c in tree['children']:
-                newChild = traverseHWTTree(c, df)
+                newChild = traverseHWTTree(c, df, hwt_all)
                 if tree['name'].startswith("Core L#"):
                     utilization += newChild['utilization']
                     rank = max(rank,newChild['rank'])
@@ -174,7 +179,7 @@ def simplifyTree(tree):
         tree['name'] = "Core"
     return tree
 
-def updateTree(hwt_df, gpu_addresses):
+def updateTree(hwt_df, hwt_all, gpu_addresses):
     all_files = glob.glob(os.path.join('.', "zs.topology.*.json"))
     job = {}
     job['name'] = 'job'
@@ -187,7 +192,7 @@ def updateTree(hwt_df, gpu_addresses):
         tree = json.load(fp)
         job['children'].append(tree)
         fp.close()
-    tree = traverseHWTTree(job, hwt_df)
+    tree = traverseHWTTree(job, hwt_df, hwt_all)
     for key,value in gpu_addresses.items():
         tree,modified = traverseGPUTree(tree, key[0], key[1], value[0], value[1], value[2], value[3])
     tree = simplifyTree(tree)
@@ -195,10 +200,14 @@ def updateTree(hwt_df, gpu_addresses):
 
 def main():
     args = parseArgs()
+    print("Parsing CSV data...")
     df = parseData()
-    hwt_df = parseHWTData(df)
+    print("Extracting CSV data...")
+    hwt_df,hwt_all = parseHWTData(df)
     gpu_addresses = parseGPUData(df)
-    tree = updateTree(hwt_df, gpu_addresses)
+    print("Updating JSON tree...")
+    tree = updateTree(hwt_df, hwt_all, gpu_addresses)
+    print("Writing HTML...")
     if args.standalone:
         with open(standalone_template,'r') as file:
             populate_me = file.read()
