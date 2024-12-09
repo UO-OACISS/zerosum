@@ -35,18 +35,18 @@ div.tooltip-donut {
 </p>
 <table>
 <tr>
-<td bgcolor="red">&nbsp;0&nbsp;</td>
-<td bgcolor="blue" style="color: white;">&nbsp;1&nbsp;</td>
-<td bgcolor="lightgreen">&nbsp;2&nbsp;</td>
-<td bgcolor="orange">&nbsp;3&nbsp;</td>
-<td bgcolor="purple" style="color: white;">&nbsp;4&nbsp;</td>
+<td bgcolor="#d62728">&nbsp;0&nbsp;</td>
+<td bgcolor="#1f77b4" style="color: white;">&nbsp;1&nbsp;</td>
+<td bgcolor="#2ca02c">&nbsp;2&nbsp;</td>
+<td bgcolor="#ff7f0e">&nbsp;3&nbsp;</td>
+<td bgcolor="#9467bd" style="color: white;">&nbsp;4&nbsp;</td>
 <td bgcolor="yellow">&nbsp;5&nbsp;</td>
-<td bgcolor="brown" style="color: white;">&nbsp;6&nbsp;</td>
-<td bgcolor="olive" style="color: white;">&nbsp;7&nbsp;</td>
-<td bgcolor="cyan">&nbsp;8&nbsp;</td>
-<td bgcolor="pink">&nbsp;9&nbsp;</td>
+<td bgcolor="#8c564b" style="color: white;">&nbsp;6&nbsp;</td>
+<td bgcolor="#bcbd22" style="color: white;">&nbsp;7&nbsp;</td>
+<td bgcolor="#17becf">&nbsp;8&nbsp;</td>
+<td bgcolor="#e377c2">&nbsp;9&nbsp;</td>
 <td bgcolor="darkgreen" style="color: white;">&nbsp;10&nbsp;</td>
-<td bgcolor="darkgrey">&nbsp;11&nbsp;</td>
+<td bgcolor="#7f7f7f">&nbsp;11&nbsp;</td>
 </tr>
 </table>
 <script src="https://cdn.jsdelivr.net/npm/d3@3"></script>
@@ -85,7 +85,22 @@ var y = d3.scale.linear()
 //var y = d3.scaleLinear([0, radius]);
 
 function colorChooser(rank) {
-    const mycolors = ["red","blue","lightgreen","orange","purple","yellow","brown","olive","cyan","pink","darkgreen","darkgrey"];
+    //const mycolors = ["red","blue","lightgreen","orange","purple","yellow","brown","olive","cyan","pink","darkgreen","darkgrey"];
+    const mycolors = [
+/* tab:red : */ "#d62728",
+/* tab:blue : */ "#1f77b4",
+/* tab:green : */ "#2ca02c",
+/* tab:orange : */ "#ff7f0e",
+/* tab:purple : */ "#9467bd",
+"yellow",
+/* tab:brown : */ "#8c564b",
+/* tab:olive : */ "#bcbd22",
+/* tab:cyan : */ "#17becf",
+/* tab:pink : */ "#e377c2",
+"darkgreen",
+/* tab:gray : */ "#7f7f7f",
+];
+
     const maxcolors = 12;
     var index = (rank % maxcolors);
     return mycolors[index];
@@ -176,7 +191,7 @@ var myprofile = '$JSONDATA';
      .on('mouseover', function (d, i) {
           d3.select(this).transition()
                .duration('50')
-               .style("fill",'WhiteSmoke')
+               .style("stroke",'white')
                .attr('opacity', '.85');
           div.transition()
                .duration('50')
@@ -185,7 +200,7 @@ var myprofile = '$JSONDATA';
      .on('mouseout', function (d, i) {
           d3.select(this).transition()
                .duration('50')
-               .style("fill", function(d) { return colorPerVariable(d.utilization,d.rank); })
+               .style("stroke", "lightgrey")
                .attr('opacity', '1');
           div.transition()
                .duration('50')
