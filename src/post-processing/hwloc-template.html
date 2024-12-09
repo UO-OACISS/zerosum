@@ -37,16 +37,16 @@ div.tooltip-donut {
 <tr>
 <td bgcolor="#d62728">&nbsp;0&nbsp;</td>
 <td bgcolor="#1f77b4" style="color: white;">&nbsp;1&nbsp;</td>
-<td bgcolor="#2ca02c">&nbsp;2&nbsp;</td>
+<td bgcolor="#2ca02c" style="color: white;">&nbsp;2&nbsp;</td>
 <td bgcolor="#ff7f0e">&nbsp;3&nbsp;</td>
 <td bgcolor="#9467bd" style="color: white;">&nbsp;4&nbsp;</td>
 <td bgcolor="yellow">&nbsp;5&nbsp;</td>
 <td bgcolor="#8c564b" style="color: white;">&nbsp;6&nbsp;</td>
-<td bgcolor="#bcbd22" style="color: white;">&nbsp;7&nbsp;</td>
+<td bgcolor="#bcbd22">&nbsp;7&nbsp;</td>
 <td bgcolor="#17becf">&nbsp;8&nbsp;</td>
 <td bgcolor="#e377c2">&nbsp;9&nbsp;</td>
 <td bgcolor="darkgreen" style="color: white;">&nbsp;10&nbsp;</td>
-<td bgcolor="#7f7f7f">&nbsp;11&nbsp;</td>
+<td bgcolor="#7f7f7f" style="color: white;">&nbsp;11&nbsp;</td>
 </tr>
 </table>
 <script src="https://cdn.jsdelivr.net/npm/d3@3"></script>
@@ -131,10 +131,11 @@ function whiteOrNot(value,rank) {
     }
     switch (rank) {
         case 1:
+        case 2:
         case 4:
         case 6:
-        case 7:
         case 10:
+        case 11:
             return "white";
         default:
             break;
@@ -191,6 +192,7 @@ var myprofile = '$JSONDATA';
      .on('mouseover', function (d, i) {
           d3.select(this).transition()
                .duration('50')
+               .style("fill",'lightgrey')
                .style("stroke",'white')
                .attr('opacity', '.85');
           div.transition()
@@ -200,6 +202,7 @@ var myprofile = '$JSONDATA';
      .on('mouseout', function (d, i) {
           d3.select(this).transition()
                .duration('50')
+               .style("fill", function(d) { return colorPerVariable(d.utilization,d.rank); })
                .style("stroke", "lightgrey")
                .attr('opacity', '1');
           div.transition()
