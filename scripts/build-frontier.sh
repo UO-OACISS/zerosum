@@ -13,8 +13,6 @@ cmake -B ${builddir} \
 -DROCM_PATH=/opt/rocm-${ROCM_COMPILER_VERSION} \
 -DZeroSum_WITH_HIP=TRUE \
 -DZeroSum_WITH_HWLOC=TRUE \
--DZeroSum_WITH_LM_SENSORS=TRUE \
--DZeroSum_STANDALONE=TRUE \
 
 cmake --build ${builddir} -j
 cmake --install ${builddir}
