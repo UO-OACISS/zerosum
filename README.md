@@ -1,6 +1,8 @@
 # zerosum
 Utility for monitoring process, thread, OS and HW resources, including GPU utilization.
 
+![Example sunburst plot from a one node run on Sunspot (ALCF).](./doc/sunburst.png)
+
 Current CI status on develop branch : [![CircleCI](https://circleci.com/gh/UO-OACISS/zerosum.svg?style=svg)](https://circleci.com/gh/UO-OACISS/zerosum)
 
 Inspired by [Tom Pappatheodore's Hello jsrun code for testing layout of Summit resources](https://code.ornl.gov/t4p/Hello_jsrun), and further inspired by Dagstuhl seminar 23171: ["Driving HPC Operations With Holistic Monitoring and Operational Data Analytics"](https://www.dagstuhl.de/en/seminars/seminar-calendar/seminar-details/23171)
@@ -144,4 +146,3 @@ In this example, the `stime` values are time spent in system calls, the `utime` 
    [job-polaris-sycl.sh](scripts/job-polaris-sycl.sh) scripts.
 
 
-![Example sunburst plot](./sample_data/embedded.svg)
