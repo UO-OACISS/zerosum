@@ -5,7 +5,7 @@ Utility for monitoring process, thread, OS and HW resources, including GPU utili
 <i>Example sunburst plot from a one node run on Sunspot (ALCF).</i>
 ![Summary views of collected data – 64 GCDs, XGC running on Frontier (OLCF).](./doc/gpu-time-series.png)
 <i>Summary views of collected data – 64 GCDs, XGC running on Frontier (OLCF).</i>
-![STAT-like view of divergent callpaths in hung MPI application with 512 MPI ranks (NERSC).](./doc/callpaths.png)
+![STAT-like view of divergent callpaths in hung MPI application with 512 MPI ranks (NERSC).](./doc/callpaths.pdf)
 <i>STAT-like view of divergent callpaths in hung MPI application with 512 MPI ranks (NERSC).</i>
 
 Current CI status on develop branch : [![CircleCI](https://circleci.com/gh/UO-OACISS/zerosum.svg?style=svg)](https://circleci.com/gh/UO-OACISS/zerosum)
