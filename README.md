@@ -2,11 +2,11 @@
 Utility for monitoring process, thread, OS and HW resources, including GPU utilization.
 
 ![Example sunburst plot from a one node run on Sunspot (ALCF).](./doc/sunburst.png)
-<i>Example sunburst plot from a one node run on Sunspot (ALCF).</i>
+<i>Above: Example sunburst plot from a one node run on Sunspot (ALCF).</i>
 ![Summary views of collected data – 64 GCDs, XGC running on Frontier (OLCF).](./doc/gpu-time-series.png)
-<i>Summary views of collected data – 64 GCDs, XGC running on Frontier (OLCF).</i>
+<i>Above: Summary views of collected data – 64 GCDs, XGC running on Frontier (OLCF).</i>
 ![STAT-like view of divergent callpaths in hung MPI application with 512 MPI ranks (NERSC).](./doc/callpaths.png)
-<i>STAT-like view of divergent callpaths in hung MPI application with 512 MPI ranks (NERSC).</i>
+<i>Above: STAT-like view of divergent callpaths in hung MPI application with 512 MPI ranks (NERSC).</i>
 
 Current CI status on develop branch : [![CircleCI](https://circleci.com/gh/UO-OACISS/zerosum.svg?style=svg)](https://circleci.com/gh/UO-OACISS/zerosum)
 
