@@ -18,12 +18,17 @@ Inspired by [Tom Pappatheodore's Hello jsrun code for testing layout of Summit r
 
 ## Overview
 
-ZeroSum will monitor OS threads, OpenMP threads, MPI processes, and the hardware assigned
-to them including CPUs, memory usage and GPU utilization. Supported systems include all
-Linux operating systems, as well as NVIDIA (CUDA/NVML), AMD (HIP/ROCm-SMI) and Intel (Intel SYCL) GPUs.
-Host side monitoring happens through the virtual `/proc` filesystem, so should be portable
-to all Linux systems. When integrated with HWLOC, visualizations of utilization data can
-be generated from included Python post-processing scripts.
+ZeroSum will monitor OS threads, OpenMP threads, MPI processes, and the
+hardware assigned to them including CPUs, memory usage and GPU utilization.
+Supported systems include all Linux operating systems, as well as NVIDIA
+(CUDA/NVML), AMD (HIP/ROCm-SMI) and Intel (Intel SYCL) GPUs.  Host side
+monitoring happens through the virtual `/proc` filesystem, so should be
+portable to all Linux systems. When integrated with HWLOC, visualizations of
+utilization data can be generated from included Python post-processing scripts.
+Automatic deadlock detection is available, and ZeroSum will generate call
+stacks from all ranks, merge them, and visualize the resulting merged call
+stacks to help diagnose where expected behavior diverged (similar to
+STAT/Cray-STAT).
 
 ## Build instructions
 
