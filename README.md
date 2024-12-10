@@ -16,6 +16,8 @@ Inspired by [Tom Pappatheodore's Hello jsrun code for testing layout of Summit r
 
 [HUST 2023 Presentation](http://www.nic.uoregon.edu/~khuck/zerosum/2023-HUST-ZeroSum.pdf) - 11th International Workshop on HPC User Support Tools @SC23, 2023
 
+[Scalable Tools Workshop 2024 Presentation](https://dyninst.github.io/scalable_tools_workshop/petascale2024/monday.html) - Scalable Tools Workshop, Lake Tahoe, CA August 12, 2024
+
 ## Overview
 
 ZeroSum will monitor OS threads, OpenMP threads, MPI processes, and the
