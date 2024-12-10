@@ -2,6 +2,11 @@
 Utility for monitoring process, thread, OS and HW resources, including GPU utilization.
 
 ![Example sunburst plot from a one node run on Sunspot (ALCF).](./doc/sunburst.png)
+<i>Example sunburst plot from a one node run on Sunspot (ALCF).</i>
+![Summary views of collected data – 64 GCDs, XGC running on Frontier (OLCF).](./doc/gpu-time-series.png)
+<i>Summary views of collected data – 64 GCDs, XGC running on Frontier (OLCF).</i>
+![STAT-like view of divergent callpaths in hung MPI application with 512 MPI ranks (NERSC).](./doc/callpaths.png)
+<i>STAT-like view of divergent callpaths in hung MPI application with 512 MPI ranks (NERSC).</i>
 
 Current CI status on develop branch : [![CircleCI](https://circleci.com/gh/UO-OACISS/zerosum.svg?style=svg)](https://circleci.com/gh/UO-OACISS/zerosum)
 
@@ -17,7 +22,8 @@ ZeroSum will monitor OS threads, OpenMP threads, MPI processes, and the hardware
 to them including CPUs, memory usage and GPU utilization. Supported systems include all
 Linux operating systems, as well as NVIDIA (CUDA/NVML), AMD (HIP/ROCm-SMI) and Intel (Intel SYCL) GPUs.
 Host side monitoring happens through the virtual `/proc` filesystem, so should be portable
-to all Linux systems.
+to all Linux systems. When integrated with HWLOC, visualizations of utilization data can
+be generated from included Python post-processing scripts.
 
 ## Build instructions
 
@@ -51,6 +57,7 @@ performance tools like [TAU](https://github.com/UO-OACISS/tau2/) or
 [APEX](https://github.com/UO-OACISS/apex/). For that reason, a working internet connection
 is needed at configuration time. PerfStubs can be disabled with the `-DZeroSum_WITH_PerfStubs=FALSE`
 CMake flag at configuration time (FALSE by default). GPU, HWLOC, MPI, and OpenMP support are also optional but recommended.
+Post-processing scripts require Pandas.
 
 ## Sample Output
 
