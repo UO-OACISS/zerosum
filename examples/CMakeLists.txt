@@ -61,6 +61,33 @@ if (ZeroSum_WITH_OPENMP)
         ENVIRONMENT "OMP_NUM_THREADS=4;OMP_PROC_BIND=spread;OMP_PLACES=cores")
 endif (ZeroSum_WITH_OPENMP)
 
+# SYCL example
+
+if (ZeroSum_WITH_SYCL)
+add_executable(sycl_query sycl_query.cpp)
+add_dependencies (sycl_query zerosum)
+if (IntelSYCL_FOUND)
+target_link_libraries (sycl_query pthread IntelSYCL::SYCL_CXX ze_loader)
+else (IntelSYCL_FOUND)
+include_directories(${SYCL_ROOT}/include)
+include_directories(${SYCL_ROOT}/include/sycl)
+target_link_libraries (sycl_query pthread sycl ze_loader)
+endif (IntelSYCL_FOUND)
+endif (ZeroSum_WITH_SYCL)
+
+# HIP example
+
+if (ZeroSum_WITH_HIP)
+#cmake_policy(VERSION 3.8...3.27)
+#project(MyProj LANGUAGES CXX)
+    find_package(hip REQUIRED)
+#add_library(MyLib ...)
+#target_compile_features(MyLib PRIVATE cxx_std_11)
+    enable_language(HIP)
+    add_executable(hip-serial hip_test.cpp)
+    target_link_libraries(hip-serial PRIVATE hip::device)
+endif (ZeroSum_WITH_HIP)
+
 # MPI Examples
 
 if (ZeroSum_WITH_MPI)
@@ -133,16 +160,15 @@ if (ZeroSum_WITH_MPI)
     add_test (NAME test_random_walk COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
         ${MPIEXEC_BIND_OPTIONS}
         ${CMAKE_BINARY_DIR}/bin/zerosum-mpi ${CMAKE_BINARY_DIR}/bin/random_walk 10000 1000000 1000)
+
+    if (ZeroSum_WITH_HIP)
+        add_executable(hip-mpi hip_test.cpp)
+        target_compile_definitions(hip-mpi PUBLIC USE_MPI)
+        include_directories(${MPI_CXX_COMPILER_INCLUDE_DIRS})
+        target_link_libraries (hip-mpi PUBLIC MPI::MPI_CXX)
+        target_link_libraries (hip-mpi PRIVATE hip::device)
+    endif (ZeroSum_WITH_HIP)
+
 endif (ZeroSum_WITH_MPI)
 
-if (ZeroSum_WITH_SYCL)
-add_executable(sycl_query sycl_query.cpp)
-add_dependencies (sycl_query zerosum)
-if (IntelSYCL_FOUND)
-target_link_libraries (sycl_query pthread IntelSYCL::SYCL_CXX ze_loader)
-else (IntelSYCL_FOUND)
-include_directories(${SYCL_ROOT}/include)
-include_directories(${SYCL_ROOT}/include/sycl)
-target_link_libraries (sycl_query pthread sycl ze_loader)
-endif (IntelSYCL_FOUND)
-endif (ZeroSum_WITH_SYCL)
+

@@ -71,6 +71,10 @@ def parseGPUData(df):
         gpu = df.loc[(df['resource'] == 'GPU') & (df['name'] == 'Utilization %')]
         tiles = False
         scale = 1.0
+    if gpu.empty:
+        gpu = df.loc[(df['resource'] == 'GPU') & (df['name'] == 'Device Busy %')]
+        tiles = False
+        scale = 1.0
 
     # Convert the value to a number
     gpu['value'] = pd.to_numeric(gpu['value']) * scale

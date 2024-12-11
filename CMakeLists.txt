@@ -220,6 +220,7 @@ message(STATUS "----------------------------------------------------------------
 message(STATUS "ZeroSum Variable Report:")
 message(STATUS "----------------------------------------------------------------------")
 dump_cmake_variables("^ZeroSum")
+dump_cmake_variables("^MPI")
 MESSAGE(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
 MESSAGE(STATUS "Libraries: " ${LIBS})
 MESSAGE(STATUS "Compiler cxx debug flags:" ${CMAKE_CXX_FLAGS_DEBUG})

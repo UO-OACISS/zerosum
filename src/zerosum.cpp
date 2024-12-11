@@ -166,14 +166,18 @@ bool ZeroSum::doOnce(void) {
     if (done) return done;
     PERFSTUBS_SCOPED_TIMER_FUNC();
 
-    /* First! Get our rank and the total run size */
-    getMPIinfo();
-    /* Now, see what our rank is on the node */
-    int shmrank{(int)process.rank};
 #ifdef ZEROSUM_USE_MPI
     int ready;
     MPI_CALL(MPI_Initialized(&ready));
     if (!ready) return done;
+#endif
+
+    /* Ready? First! Get our rank and the total run size */
+    getMPIinfo();
+    /* Now, see what our rank is on the node */
+    int shmrank{(int)process.rank};
+
+#ifdef ZEROSUM_USE_MPI
     // disable error handling, if we are using the debugger!
     static bool debugging{parseBool("ZS_DEBUGGING", false)};
     if (debugging) {
