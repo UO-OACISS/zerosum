@@ -62,7 +62,7 @@ def parseGPUData(df):
     for index, row in gpu.iterrows():
         #print(row['rank'], row['value'])
         # our key is a list of two values, the MPI rank and the GPU index
-        addresses[(row['rank'],row['index'])] = row['value'].lower()
+        addresses[(row['hostname'],row['rank'],row['index'])] = row['value'].lower()
     # Get the utilization data for each gpu
     gpu = df.loc[(df['resource'] == 'GPU') & (df['name'].str.contains('L0 All Engines, subdevice'))]
     tiles = True
@@ -84,25 +84,29 @@ def parseGPUData(df):
     # Reset indices
     gpu_mean.reset_index(inplace=True)
     #print(gpu_mean.to_string())
-    for index, row in gpu_mean.sort_values(by=['rank','name']).iterrows():
+    for index, row in gpu_mean.sort_values(by=['hostname','rank','name']).iterrows():
         subdevice = '0'
         if tiles:
             p = re.compile('L0 All Engines, subdevice (\d+), Active Time')
             subdevice = p.findall(row['name'])[0]
-        gpu_properties = df.loc[(df['resource'] == 'GPU') & (df['type'] == 'Property') & (df['rank'] == row['rank']) & (df['index'] == row['index'])]
+        gpu_properties = df.loc[(df['resource'] == 'GPU') & (df['type'] == 'Property') & (df['rank'] == row['rank']) & (df['index'] == row['index']) & df['hostname'] == row['hostname']]
         properties = {}
         for index2, row2 in gpu_properties.sort_values(by=['name']).iterrows():
             properties[row2['name']] = row2['value']
-        addresses[(row['rank'],row['index'])] = list((addresses[(row['rank'],row['index'])], row['value'], subdevice, properties))
+        addresses[(row['hostname'],row['rank'],row['index'])] = list((addresses[(row['hostname'],row['rank'],row['index'])], row['value'], subdevice, properties))
     #print(addresses)
     return addresses
 
-def traverseHWTTree(tree, df, hwt_all, spinner):
+def traverseHWTTree(tree, in_hostname, df, hwt_all, spinner):
     utilization = int(tree['utilization'])
     rank = int(tree['rank'])
     sys.stdout.write(next(spinner))
     sys.stdout.flush()
     sys.stdout.write('\b')
+    if tree['name'] == "Machine":
+        # extract the hostname from the detail_name
+        details = tree['detail_name'].split(',')
+        in_hostname = details[0]
 
     # Is this a processing unit (HWT)? if so, assign utilization
     if tree['name'].startswith("PU L#"):
@@ -111,20 +115,20 @@ def traverseHWTTree(tree, df, hwt_all, spinner):
         osindex = tokens[2]
         osindex = int(osindex[2:])
         if osindex in df['index'].values:
-            utilization = df.loc[df['index'] == osindex, 'value'].iloc[0]
-            rank = int(df.loc[df['index'] == osindex, 'rank'].iloc[0])
+            utilization = df.loc[(df['index'] == osindex) & (df['hostname'] == in_hostname), 'value'].iloc[0]
+            rank = int(df.loc[(df['index'] == osindex) & (df['hostname'] == in_hostname), 'rank'].iloc[0])
             #print(osindex, utilization)
             # Get all metrics
             metrics = hwt_all['name'].unique().tolist()
             for m in metrics:
-                values = hwt_all.loc[(hwt_all['index'] == osindex) & (hwt_all['name'] == m), 'value'].to_numpy().tolist()
+                values = hwt_all.loc[(hwt_all['index'] == osindex) & (df['hostname'] == in_hostname) & (hwt_all['name'] == m), 'value'].to_numpy().tolist()
                 tree[m] = values
     else:
         # otherwise, aggregate the children
         if 'children' in tree.keys():
             newChildren = []
             for c in tree['children']:
-                newChild = traverseHWTTree(c, df, hwt_all, spinner)
+                newChild = traverseHWTTree(c, in_hostname, df, hwt_all, spinner)
                 if tree['name'].startswith("Core L#"):
                     utilization += newChild['utilization']
                     rank = max(rank,newChild['rank'])
@@ -141,10 +145,15 @@ def spinning_cursor():
         for cursor in '|/-\\':
             yield cursor
 
-def traverseGPUTree(tree, in_rank, in_index, address, in_utilization, subdevice, properties):
+def traverseGPUTree(tree, in_hostname, in_rank, in_index, address, in_utilization, subdevice, properties):
     utilization = int(tree['utilization'])
     rank = int(tree['rank'])
     duplicate = False
+    if tree['name'] == "Machine":
+        # is this the right machine?
+        if not tree['detail_name'].startswith(in_hostname):
+            # If not, don't change anything and don't recurse
+            return tree,duplicate
     if tree['name'].startswith("PCIDev"):
         detail_name = tree['detail_name']
         if address in detail_name:
@@ -168,7 +177,7 @@ def traverseGPUTree(tree, in_rank, in_index, address, in_utilization, subdevice,
             for c in tree['children']:
                 # The child is mutable, so make a copy first
                 oldChild = c.copy()
-                newChild,duplicate = traverseGPUTree(c, in_rank, in_index, address, in_utilization, subdevice, properties)
+                newChild,duplicate = traverseGPUTree(c, in_hostname, in_rank, in_index, address, in_utilization, subdevice, properties)
                 if duplicate:
                     # Keek the old child
                     newChildren.append(oldChild)
@@ -207,9 +216,10 @@ def updateTree(hwt_df, hwt_all, gpu_addresses):
         job['children'].append(tree)
         fp.close()
     spinner = spinning_cursor()
-    tree = traverseHWTTree(job, hwt_df, hwt_all, spinner)
+    in_hostname = ''
+    tree = traverseHWTTree(job, in_hostname, hwt_df, hwt_all, spinner)
     for key,value in gpu_addresses.items():
-        tree,modified = traverseGPUTree(tree, key[0], key[1], value[0], value[1], value[2], value[3])
+        tree,modified = traverseGPUTree(tree, key[0], key[1], key[2], value[0], value[1], value[2], value[3])
     tree = simplifyTree(tree)
     return tree
 

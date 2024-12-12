@@ -484,6 +484,42 @@ std::string getUniqueFilename(void) {
     return filename;
 }
 
+int test_for_MPI_local_rank(int commrank) {
+    /* Some configurations might use MPI without telling ZeroSum - they can
+     * call apex::init() with a rank of 0 and size of 1 even though
+     * they are running in an MPI application.  For that reason, we double
+     * check to make sure that we aren't in an MPI execution by checking
+     * for some common environment variables. */
+    // PMI, MPICH, Cray, Intel, MVAPICH2...
+    const char * tmpvar = getenv("PMI_LOCAL_RANK");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        // printf("Changing PMI rank to %lu\n", commrank);
+        return commrank;
+    }
+    // PALS
+    tmpvar = getenv("PALS_LOCAL_RANKID");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        // printf("Changing PALS rank to %lu\n", commrank);
+        return commrank;
+    }
+    // OpenMPI, Spectrum
+    tmpvar = getenv("OMPI_COMM_WORLD_LOCAL_RANK");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        // printf("Changing openMPI rank to %lu\n", commrank);
+        return commrank;
+    }
+    // Slurm - last resort
+    tmpvar = getenv("SLURM_LOCALID");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        return commrank;
+    }
+    return commrank;
+}
+
 int test_for_MPI_comm_rank(int commrank) {
     /* Some configurations might use MPI without telling ZeroSum - they can
      * call apex::init() with a rank of 0 and size of 1 even though
@@ -505,7 +541,7 @@ int test_for_MPI_comm_rank(int commrank) {
         return commrank;
     }
     // PALS
-    tmpvar = getenv("PALS_LOCAL_RANKID");
+    tmpvar = getenv("PALS_RANKID");
     if (tmpvar != NULL) {
         commrank = atol(tmpvar);
         // printf("Changing PALS rank to %lu\n", commrank);
@@ -565,7 +601,7 @@ int test_for_MPI_comm_size(int commsize) {
         // printf("Changing MPICH size to %lu\n", commsize);
         return commsize;
     }
-    tmpvar = getenv("PALS_LOCAL_SIZE");
+    tmpvar = getenv("PALS_SIZE");
     if (tmpvar != NULL) {
         commsize = atol(tmpvar);
         // printf("Changing PALS size to %lu\n", commsize);

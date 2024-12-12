@@ -175,9 +175,9 @@ bool ZeroSum::doOnce(void) {
     /* Ready? First! Get our rank and the total run size */
     getMPIinfo();
     /* Now, see what our rank is on the node */
-    int shmrank{(int)process.rank};
+    int shmrank = test_for_MPI_local_rank((int)process.rank);
 
-#ifdef ZEROSUM_USE_MPI
+#ifdef ZEROSUM_USE_MPI_disabled // won't work with single-threaded MPI! Use above method.
     // disable error handling, if we are using the debugger!
     static bool debugging{parseBool("ZS_DEBUGGING", false)};
     if (debugging) {
