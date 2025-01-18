@@ -89,7 +89,7 @@ def parseGPUData(df):
         if tiles:
             p = re.compile('L0 All Engines, subdevice (\d+), Active Time')
             subdevice = p.findall(row['name'])[0]
-        gpu_properties = df.loc[(df['resource'] == 'GPU') & (df['type'] == 'Property') & (df['rank'] == row['rank']) & (df['index'] == row['index']) & df['hostname'] == row['hostname']]
+        gpu_properties = df.loc[(df['resource'] == 'GPU') & (df['type'] == 'Property') & (df['rank'] == row['rank']) & (df['index'] == row['index']) & df['hostname'].str.fullmatch(row['hostname'])]
         properties = {}
         for index2, row2 in gpu_properties.sort_values(by=['name']).iterrows():
             properties[row2['name']] = row2['value']
