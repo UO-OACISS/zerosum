@@ -4,8 +4,8 @@ module unload darshan-runtime
 
 builddir=`pwd`/build.${ROCM_COMPILER_VERSION}
 #instdir=`pwd`/install.${ROCM_COMPILER_VERSION}
+instdir=/lustre/orion/world-shared/phy122/khuck/zerosum.amd_${ROCM_COMPILER_VERSION}
 instdir=/sw/frontier/ums/ums002/zerosum/amd_${ROCM_COMPILER_VERSION}
-#instdir=/lustre/orion/world-shared/phy122/khuck/zerosum.amd_${ROCM_COMPILER_VERSION}
 rm -rf ${builddir}
 
 cmake -B ${builddir} \
@@ -14,6 +14,8 @@ cmake -B ${builddir} \
 -DROCM_PATH=/opt/rocm-${ROCM_COMPILER_VERSION} \
 -DZeroSum_WITH_HIP=TRUE \
 -DZeroSum_WITH_HWLOC=TRUE \
+-DZeroSum_WITH_LM_SENSORS=FALSE \
+-DZeroSum_STANDALONE=TRUE \
 
 cmake --build ${builddir} -j
 cmake --install ${builddir}
