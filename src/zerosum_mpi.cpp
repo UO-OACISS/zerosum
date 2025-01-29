@@ -82,6 +82,21 @@ namespace zerosum {
 
 extern "C" {
 
+    int MPI_Finalize(void) {
+        zerosum::ZeroSum::getInstance().setMPIFinalize();
+        return PMPI_Finalize();
+    }
+#define ZEROSUM_MPI_FINALIZE_TEMPLATE(_symbol) \
+void  _symbol( MPI_Fint * ierr ) { \
+    *ierr = MPI_Finalize(); \
+}
+    ZEROSUM_MPI_FINALIZE_TEMPLATE(mpi_finalize)
+    ZEROSUM_MPI_FINALIZE_TEMPLATE(mpi_finalize_)
+    ZEROSUM_MPI_FINALIZE_TEMPLATE(mpi_finalize__)
+    ZEROSUM_MPI_FINALIZE_TEMPLATE(MPI_FINALIZE)
+    ZEROSUM_MPI_FINALIZE_TEMPLATE(MPI_FINALIZE_)
+    ZEROSUM_MPI_FINALIZE_TEMPLATE(MPI_FINALIZE__)
+
     int MPI_Send(const void *buf, int count, MPI_Datatype datatype, int dest,
         int tag, MPI_Comm comm){
         /* Get the byte count */

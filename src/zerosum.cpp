@@ -104,7 +104,9 @@ void ZeroSum::threadedFunction(void) {
         // once initialized, we can do our periodic checks.
         if (initialized) {
             doPeriodic();
-            logfile << process.logThreads() << std::flush;
+            if (logfile.is_open()) {
+                logfile << process.logThreads() << std::flush;
+            }
         }
         std::unique_lock<std::mutex> lk(cv_m);
         if(cv.wait_for(lk, stop, [&]{return !working;}))
@@ -131,8 +133,8 @@ inline void ZeroSum::getMPIinfo(void) {
     int resultlength;
     MPI_CALL(MPI_Get_processor_name(name, &resultlength));
 #else
-    size = 1;
-    rank = 0;
+    rank = test_for_MPI_comm_rank(0);
+    size = test_for_MPI_comm_size(1);
     char name[HOST_NAME_MAX];
     gethostname(name, HOST_NAME_MAX);
 #endif
@@ -154,25 +156,7 @@ inline void ZeroSum::openLog(void) {
     // open a log file
     std::string filename{"zs."};
     // prefix the rank with as many zeros as needed to sort correctly.
-    static bool use_pid{parseBool("ZS_USE_PID",false)};
-    size_t len{1};
-    int precision{5};
-    std::string tmp;
-    if (use_pid) {
-        len = std::to_string(parseMaxPid()).size();
-        printf("Got len: %lu\n", len);
-        tmp = std::to_string(process.id);
-        precision = len - std::min(len,tmp.size());
-        filename += computeNode.name;
-        filename += ".";
-    } else {
-        len = std::to_string(process.size-1).size();
-        tmp = std::to_string(process.rank);
-        precision = len - std::min(len,tmp.size());
-    }
-    tmp.insert(0, precision, '0');
-    filename += tmp;
-    filename += ".log";
+    filename += getUniqueFilename() + ".log";
     //std::cout << "Opening log file: " << filename << std::endl;
     logfile.open(filename);
 }
@@ -186,20 +170,36 @@ bool ZeroSum::doOnce(void) {
     int ready;
     MPI_CALL(MPI_Initialized(&ready));
     if (!ready) return done;
+#endif
+
+    /* Ready? First! Get our rank and the total run size */
+    getMPIinfo();
+    /* Now, see what our rank is on the node */
+    int shmrank = test_for_MPI_local_rank((int)process.rank);
+
+#ifdef ZEROSUM_USE_MPI_disabled // won't work with single-threaded MPI! Use above method.
     // disable error handling, if we are using the debugger!
     static bool debugging{parseBool("ZS_DEBUGGING", false)};
     if (debugging) {
         MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
     }
+    // Get this process' rank within the node (from 0 to nproc_per_node)
+    MPI_Comm shmcomm;
+    MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0,
+                        MPI_INFO_NULL, &shmcomm);
+    MPI_Comm_rank(shmcomm, &shmrank);
+    process.shmrank = shmrank;
 #endif
 
-    getMPIinfo();
-    openLog();
-    logfile << process.toString() << std::flush;
+    static bool logging{parseBool("ZS_ENABLE_LOG", false)};
+    if (logging) {
+        openLog();
+        logfile << process.toString() << std::flush;
+    }
     getgpu();
-    computeNode.updateFields(parseNodeInfo());
+    computeNode.updateNodeFields(parseNodeInfo(),step);
 #ifdef USE_HWLOC
-    ScopedHWLOC::validate_hwloc(process.rank);
+    ScopedHWLOC::validate_hwloc(shmrank);
 #endif
     done = true;
     return done;
@@ -247,13 +247,15 @@ void ZeroSum::doPeriodic(void) {
     step++;
     getpthreads();
     computeNode.updateFields(parseProcStat(),step);
-    computeNode.updateFields(parseNodeInfo());
+    computeNode.updateNodeFields(parseNodeInfo(),step);
 #ifdef ZEROSUM_USE_LM_SENSORS
-    computeNode.updateFields(sensors.read_sensors());
+    computeNode.updateNodeFields(sensors.read_sensors(),step);
 #endif // ZEROSUM_USE_LM_SENSORS
     getgpustatus();
     std::string tmpstr{computeNode.reportMemory()};
-    logfile << tmpstr << std::flush;
+    if (logfile.is_open()) {
+        logfile << tmpstr << std::flush;
+    }
     if (process.rank == 0 && getHeartBeat()) {
         std::cout << tmpstr << std::flush;
     }
@@ -280,7 +282,7 @@ void ZeroSum::getProcStatus() {
 
 /* The main singleton constructor for the ZeroSum class */
 ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()),
-    doShutdown(true) {
+    doShutdown(true), mpiFinalize(false) {
     working = true;
     if (parseBool("ZS_SIGNAL_HANDLER", false)) {
         register_signal_handler();
@@ -294,10 +296,12 @@ ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()),
     computeNode.updateFields(parseProcStat(),step);
     /* Make sure we query the node with Hwloc before we launch the thread */
     worker = std::thread{&ZeroSum::threadedFunction, this};
-    // increase the step, because the main thread will be one of the OpenMP threads.
-    step++;
 #ifdef ZEROSUM_USE_OPENMP
     if (parseBool("ZS_USE_OPENMP", false)) {
+#if !defined(ZEROSUM_USE_OMPT)
+        // increase the step, because the main thread will be one of the OpenMP threads.
+        step++;
+#endif
         getopenmp();
     }
 #endif
@@ -342,6 +346,16 @@ void ZeroSum::finalizeLog() {
         logfile << process.toString() << std::flush;
         logfile.close();
     }
+#ifdef USE_HWLOC
+    // open a log file
+    std::string filename{"zs.data."};
+    // prefix the rank with as many zeros as needed to sort correctly.
+    filename += getUniqueFilename() + ".csv";
+    std::ofstream out(filename);
+    out << computeNode.toCSV(process.hwthreads, process.rank, process.shmrank);
+    out << process.toCSV();
+    out.close();
+#endif
 }
 
 std::pair<std::string,std::string> split (const std::string &s) {

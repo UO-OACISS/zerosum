@@ -54,6 +54,10 @@ std::string parseString(const char * env, std::string default_value);
 bool getVerbose(void);
 bool getHeartBeat(void);
 size_t parseMaxPid(void);
+std::string getUniqueFilename(void);
+int test_for_MPI_comm_rank(int commrank);
+int test_for_MPI_comm_size(int commsize);
+int test_for_MPI_local_rank(int commrank);
 
 class in_zs {
     public:

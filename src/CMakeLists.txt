@@ -24,8 +24,6 @@ set(ZS_LIBNAME "libzerosum")
 set(ZS_USE_MPI "no")
 CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/src/zerosum
     ${PROJECT_BINARY_DIR}/bin/zerosum @ONLY)
-CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/src/post-processing/zs-stacks.py
-    ${PROJECT_BINARY_DIR}/bin/zs-stacks.py @ONLY)
 
 if (ZeroSum_WITH_MPI)
     set(ZS_LIBNAME "libzerosum-mpi")
@@ -98,7 +96,6 @@ set(SOURCES
 
 # Single process library
 
-add_executable(zs_mpi_p2p_merge post-processing/mpi_p2p_merge.cpp)
 add_library(zerosum SHARED ${SOURCES})
 target_link_libraries (zerosum PUBLIC ${LM_SENSORS_LIBRARIES} ${PERFSTUBS_LIB} ${GPU_LIB} ${HWLOC_LIB} ${LM_SENSORS_LIB} pthread)
 if (ZeroSum_WITH_OPENMP)

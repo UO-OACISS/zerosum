@@ -204,7 +204,7 @@ bool isRunning(std::map<std::string, std::string>& fields,
             if (newMinflt == 0 || priorMinflt[tmptid] == newMinflt) {
                 priorMinflt[tmptid] = newMinflt;
                 return false;
-            } 
+            }
             // assume it's running for reals
             priorMinflt[tmptid] = newMinflt;
             return true;
@@ -305,21 +305,36 @@ std::vector<std::map<std::string,std::string>> parseProcStat(void) {
             if ( strncmp (line, "cpu ", 4) == 0 ) {
                 continue;
             } else if ( strncmp (line, "cpu", 3) == 0 ) {
-                std::vector<std::string> v;
+                std::vector<unsigned int> v;
                 std::string tmp;
                 std::stringstream ss(line);
                 while (getline(ss, tmp, ' ')) {
                     // store token string in the vector
-                    v.push_back(tmp);
+                    v.push_back(atol(tmp.c_str()));
                 }
+                // These "corrections" are what htop does...
+                // see https://github.com/htop-dev/htop/blob/4102862d12695cdf003e2d51ef6ce5984b7136d7/linux/LinuxMachine.c#L455
+                v[1] -= v[9]; // user -= guest
+                v[2] -= v[10]; // nice -= guest_nice
+                double idle_all_time = v[4] + v[5]; //idletime + ioWait;
+                double system_all_time = v[3] + v[6] + v[7]; //systemtime + irq + softIrq;
+                double virt_all_time = v[9] + v[10]; //guest + guestnice;
+                double total_time = v[1] + v[2] + system_all_time + idle_all_time + v[8] + virt_all_time; //usertime + nicetime + system_all_time + idle_all_time + steal + virt_all_time;
                 std::map<std::string,std::string> f;
-                f.insert(std::pair("user",v[1]));
-                f.insert(std::pair("nice",v[2]));
-                f.insert(std::pair("system",v[3]));
-                f.insert(std::pair("idle",v[4]));
-                f.insert(std::pair("iowait",v[5]));
-                f.insert(std::pair("irq",v[6]));
-                f.insert(std::pair("softirq",v[7]));
+                f.insert(std::pair("user",std::to_string(v[1])));
+                f.insert(std::pair("nice",std::to_string(v[2])));
+                f.insert(std::pair("system",std::to_string(v[3])));
+                f.insert(std::pair("system_all",std::to_string(system_all_time)));
+                f.insert(std::pair("idle",std::to_string(v[4])));
+                f.insert(std::pair("idle_all",std::to_string(idle_all_time)));
+                f.insert(std::pair("iowait",std::to_string(v[5])));
+                f.insert(std::pair("irq",std::to_string(v[6])));
+                f.insert(std::pair("softirq",std::to_string(v[7])));
+                f.insert(std::pair("steal",std::to_string(v[8])));
+                f.insert(std::pair("guest",std::to_string(v[9])));
+                f.insert(std::pair("virt_all_time",std::to_string(virt_all_time)));
+                f.insert(std::pair("guest_nice",std::to_string(v[10])));
+                f.insert(std::pair("total_time",std::to_string(total_time)));
                 fields.push_back(f);
             } else {
                 // we're done at this point
@@ -444,6 +459,194 @@ bool getVerbose(void) {
 bool getHeartBeat(void) {
     static bool verbose{parseBool("ZS_HEART_BEAT",false)};
     return verbose;
+}
+
+std::string getUniqueFilename(void) {
+    std::string filename;
+    std::string tmp;
+    static bool use_pid{parseBool("ZS_USE_PID",false)};
+    size_t len{1};
+    int precision{5};
+    if (use_pid) {
+        len = std::to_string(parseMaxPid()).size();
+        printf("Got len: %lu\n", len);
+        tmp = std::to_string(ZeroSum::getInstance().getPid());
+        precision = len - std::min(len,tmp.size());
+        filename += ZeroSum::getInstance().getHostname();
+        filename += ".";
+    } else {
+        len = std::to_string(ZeroSum::getInstance().getSize()-1).size();
+        tmp = std::to_string(ZeroSum::getInstance().getRank());
+        precision = len - std::min(len,tmp.size());
+    }
+    tmp.insert(0, precision, '0');
+    filename += tmp;
+    return filename;
+}
+
+int test_for_MPI_local_rank(int commrank) {
+    /* Some configurations might use MPI without telling ZeroSum - they can
+     * call apex::init() with a rank of 0 and size of 1 even though
+     * they are running in an MPI application.  For that reason, we double
+     * check to make sure that we aren't in an MPI execution by checking
+     * for some common environment variables. */
+    // PMI, MPICH, Cray, Intel, MVAPICH2...
+    const char * tmpvar = getenv("PMI_LOCAL_RANK");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        // printf("Changing PMI rank to %lu\n", commrank);
+        return commrank;
+    }
+    // PALS
+    tmpvar = getenv("PALS_LOCAL_RANKID");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        // printf("Changing PALS rank to %lu\n", commrank);
+        return commrank;
+    }
+    // OpenMPI, Spectrum
+    tmpvar = getenv("OMPI_COMM_WORLD_LOCAL_RANK");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        // printf("Changing openMPI rank to %lu\n", commrank);
+        return commrank;
+    }
+    // Slurm - last resort
+    tmpvar = getenv("SLURM_LOCALID");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        return commrank;
+    }
+    return commrank;
+}
+
+int test_for_MPI_comm_rank(int commrank) {
+    /* Some configurations might use MPI without telling ZeroSum - they can
+     * call apex::init() with a rank of 0 and size of 1 even though
+     * they are running in an MPI application.  For that reason, we double
+     * check to make sure that we aren't in an MPI execution by checking
+     * for some common environment variables. */
+    // PMI, MPICH, Cray, Intel, MVAPICH2...
+    const char * tmpvar = getenv("PMI_RANK");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        // printf("Changing PMI rank to %lu\n", commrank);
+        return commrank;
+    }
+    // cray ALPS
+    tmpvar = getenv("ALPS_APP_PE");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        // printf("Changing ALPS rank to %lu\n", commrank);
+        return commrank;
+    }
+    // PALS
+    tmpvar = getenv("PALS_RANKID");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        // printf("Changing PALS rank to %lu\n", commrank);
+        return commrank;
+    }
+    // cray PMI
+    tmpvar = getenv("CRAY_PMI_RANK");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        // printf("Changing CRAY_PMI rank to %lu\n", commrank);
+        return commrank;
+    }
+    // OpenMPI, Spectrum
+    tmpvar = getenv("OMPI_COMM_WORLD_RANK");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        // printf("Changing openMPI rank to %lu\n", commrank);
+        return commrank;
+    }
+    // PBS/Torque
+    tmpvar = getenv("PBS_TASKNUM");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        return commrank;
+    }
+    // PBS/Torque on some systems...
+    tmpvar = getenv("PBS_O_TASKNUM");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar) - 1;
+        return commrank;
+    }
+    // Slurm - last resort
+    tmpvar = getenv("SLURM_PROCID");
+    if (tmpvar != NULL) {
+        commrank = atol(tmpvar);
+        return commrank;
+    }
+    return commrank;
+}
+
+int test_for_MPI_comm_size(int commsize) {
+    /* Some configurations might use MPI without telling ZeroSum - they can
+     * call apex::init() with a rank of 0 and size of 1 even though
+     * they are running in an MPI application.  For that reason, we double
+     * check to make sure that we aren't in an MPI execution by checking
+     * for some common environment variables. */
+    // PMI, MPICH, Cray, Intel, MVAPICH2...
+    const char * tmpvar = getenv("PMI_SIZE");
+    if (tmpvar != NULL) {
+        commsize = atol(tmpvar);
+        // printf("Changing MPICH size to %lu\n", commsize);
+        return commsize;
+    }
+    tmpvar = getenv("CRAY_PMI_SIZE");
+    if (tmpvar != NULL) {
+        commsize = atol(tmpvar);
+        // printf("Changing MPICH size to %lu\n", commsize);
+        return commsize;
+    }
+    tmpvar = getenv("PALS_SIZE");
+    if (tmpvar != NULL) {
+        commsize = atol(tmpvar);
+        // printf("Changing PALS size to %lu\n", commsize);
+        return commsize;
+    }
+    // OpenMPI, Spectrum
+    tmpvar = getenv("OMPI_COMM_WORLD_SIZE");
+    if (tmpvar != NULL) {
+        commsize = atol(tmpvar);
+        // printf("Changing openMPI size to %lu\n", commsize);
+        return commsize;
+    }
+    // PBS/Torque - no specific variable specifies number of nodes?
+    tmpvar = getenv("PBS_NP"); // number of processes requested
+    if (tmpvar != NULL) {
+        commsize = atol(tmpvar);
+        return commsize;
+    }
+    // PBS/Torque - no specific variable specifies number of nodes?
+    tmpvar = getenv("PBS_NUM_NODES"); // number of nodes requested
+    const char * tmpvar2 = getenv("PBS_NUM_PPN"); // number of processes per node
+    if (tmpvar != NULL && tmpvar2 != NULL) {
+        commsize = atol(tmpvar) * atol(tmpvar2);
+        return commsize;
+    }
+    // Slurm - last resort
+    tmpvar = getenv("SLURM_NPROCS");
+    if (tmpvar != NULL) {
+        commsize = atol(tmpvar);
+        return commsize;
+    }
+    // Slurm - last resort
+    tmpvar = getenv("SLURM_NTASKS");
+    if (tmpvar != NULL) {
+        commsize = atol(tmpvar);
+        return commsize;
+    }
+    // Slurm - last resort, do some math
+    tmpvar = getenv("SLURM_JOB_NUM_NODES");
+    tmpvar2 = getenv("SLURM_TASKS_PER_NODE");
+    if (tmpvar != NULL && tmpvar2 != NULL) {
+        commsize = atol(tmpvar) * atol(tmpvar2);
+        return commsize;
+    }
+    return commsize;
 }
 
 }

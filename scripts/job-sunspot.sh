@@ -18,7 +18,7 @@ source scripts/sourceme-common.sh
 
 # set the number of threads based on --cpus-per-task
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
-export OMP_PROC_BIND=spread
+export OMP_PROC_BIND=close
 # Bind OpenMP threads to cores
 export OMP_PLACES=threads
 
@@ -47,28 +47,41 @@ export ZES_ENABLE_SYSMAN=1
 
 let nthreads=${OMP_NUM_THREADS}
 mylist=""
+let nthreads=8
 
 let first_hwthread=2
 let first_core=${first_hwthread}
 let last_core=${first_core}+${nthreads}-1
+let first_core2=106
+let last_core2=${first_core2}+${nthreads}-1
 let first_half=${NRANKS}/2
 
 for i in $(seq 1 $first_half) ; do
-    mylist="${mylist}:${first_core}-${last_core}"
+    mylist="${mylist}:${first_core}-${last_core},${first_core2}-${last_core2}"
     let first_core=${first_core}+${nthreads}
+    let first_core2=${first_core2}+${nthreads}
     let last_core=${last_core}+${nthreads}
+    let last_core2=${last_core2}+${nthreads}
 done
 
-let first_hwthread=106
+let first_hwthread=54
 let first_core=${first_hwthread}
 let last_core=${first_core}+${nthreads}-1
+let first_core2=158
+let last_core2=${first_core2}+${nthreads}-1
 
 for i in $(seq 1 $first_half) ; do
-    mylist="${mylist}:${first_core}-${last_core}"
+    mylist="${mylist}:${first_core}-${last_core},${first_core2}-${last_core2}"
     let first_core=${first_core}+${nthreads}
+    let first_core2=${first_core2}+${nthreads}
     let last_core=${last_core}+${nthreads}
+    let last_core2=${last_core2}+${nthreads}
 done
 
+#export OMP_PROC_BIND=spread
+#export OMP_NUM_THREADS=16
+#unset OMP_PLACES
+#mylist=":0-7,104-111:8-15,112-119:16-23,120-127:24-31,128-135:32-39,136-143:40-47,144-151:52-59,156-163:60-67,164-171:68-75,172-179:76-83,180-187:84-91,188-195:92-99,196-203"
 echo ${mylist}
 
 # For debugging
@@ -81,8 +94,8 @@ INTELGT_AUTO_ATTACH_DISABLE=1 mpiexec --np ${NRANKS} -ppn ${RANKS_PER_NODE} \
 -envall \
 /soft/tools/mpi_wrapper_utils/${SCRIPT_NAME} \
 ./install/bin/zerosum-mpi \
---zs:deadlock --zs:debugger gdb-oneapi \
-./build/bin/lu-decomp-mpi
+--zs:logging \
+./build/bin/lu-decomp-mpi 10
 set +x
 
 #--cpu-bind verbose,list:1-8:9-16:17-24:25-32:33-40:41-48:53-60:61-68:69-76:77-84:85-92:93-100 \

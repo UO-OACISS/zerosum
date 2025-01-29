@@ -164,6 +164,7 @@ elseif(ZeroSum_NPROC GREATER 8)
 endif()
 
 add_subdirectory(src)
+add_subdirectory(src/post-processing)
 add_subdirectory(examples)
 
 function(dump_cmake_variables)
@@ -182,35 +183,33 @@ function(dump_cmake_variables)
 endfunction()
 
 if (ZeroSum_WITH_MPI)
-    INSTALL(TARGETS zerosum zerosum-mpi
-        EXPORT ZeroSumTargets
+    INSTALL(TARGETS zerosum-mpi
+        EXPORT ZeroSumMPITargets
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
     INSTALL(FILES
-        ${PROJECT_BINARY_DIR}/bin/zerosum
         ${PROJECT_BINARY_DIR}/bin/zerosum-mpi
-        ${PROJECT_BINARY_DIR}/bin/zs-stacks.py
-        DESTINATION bin
-        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-        GROUP_EXECUTE GROUP_READ
-        WORLD_EXECUTE WORLD_READ)
-else (ZeroSum_WITH_MPI)
-    INSTALL(TARGETS zerosum
-        EXPORT ZeroSumTargets
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        INCLUDES DESTINATION include)
-    INSTALL(FILES
-        ${PROJECT_BINARY_DIR}/bin/zerosum
-        ${PROJECT_BINARY_DIR}/bin/zs-stacks.py
         DESTINATION bin
         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
         GROUP_EXECUTE GROUP_READ
         WORLD_EXECUTE WORLD_READ)
 endif (ZeroSum_WITH_MPI)
+
+INSTALL(TARGETS zerosum
+    EXPORT ZeroSumTargets
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    INCLUDES DESTINATION include)
+
+INSTALL(FILES
+    ${PROJECT_BINARY_DIR}/bin/zerosum
+    DESTINATION bin
+    PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+    GROUP_EXECUTE GROUP_READ
+    WORLD_EXECUTE WORLD_READ)
 
 INSTALL(EXPORT ZeroSumTargets
         FILE ZeroSumTargets.cmake
@@ -221,6 +220,7 @@ message(STATUS "----------------------------------------------------------------
 message(STATUS "ZeroSum Variable Report:")
 message(STATUS "----------------------------------------------------------------------")
 dump_cmake_variables("^ZeroSum")
+dump_cmake_variables("^MPI")
 MESSAGE(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
 MESSAGE(STATUS "Libraries: " ${LIBS})
 MESSAGE(STATUS "Compiler cxx debug flags:" ${CMAKE_CXX_FLAGS_DEBUG})

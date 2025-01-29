@@ -1,0 +1,372 @@
+
+{"name":"Machine","utilization":0,"shmrank":0,"detail_name":"saturn","depth":0,"children":[
+{"name":"Package","utilization":0,"shmrank":0,"detail_name":"","depth":1,"children":[
+{"name":"NUMANode","utilization":0,"shmrank":0,"detail_name":"size: 93.055477GB","depth":2,"children":[
+{"name":"L3Cache","utilization":0,"shmrank":0,"detail_name":"depth: 3, type: Unified, size: 36608.000000kB, line size: 64, ways: 11","depth":3,"children":[
+{"name":"Core L#0 P#0","utilization":0,"shmrank":0,"detail_name":"Logical index: 0, OS index: 0","depth":4,"children":[
+{"name":"PU L#0 P#0","utilization":0,"shmrank":0,"detail_name":"Logical index: 0, OS index: 0","depth":5,"size":1},
+{"name":"PU L#1 P#104","utilization":0,"shmrank":0,"detail_name":"Logical index: 1, OS index: 104","depth":5,"size":1}],"size":2},
+{"name":"Core L#1 P#1","utilization":0,"shmrank":0,"detail_name":"Logical index: 1, OS index: 1","depth":4,"children":[
+{"name":"PU L#2 P#1","utilization":0,"shmrank":0,"detail_name":"Logical index: 2, OS index: 1","depth":5,"size":1},
+{"name":"PU L#3 P#105","utilization":0,"shmrank":0,"detail_name":"Logical index: 3, OS index: 105","depth":5,"size":1}],"size":2},
+{"name":"Core L#2 P#2","utilization":0,"shmrank":0,"detail_name":"Logical index: 2, OS index: 2","depth":4,"children":[
+{"name":"PU L#4 P#2","utilization":0,"shmrank":0,"detail_name":"Logical index: 4, OS index: 2","depth":5,"size":1},
+{"name":"PU L#5 P#106","utilization":0,"shmrank":0,"detail_name":"Logical index: 5, OS index: 106","depth":5,"size":1}],"size":2},
+{"name":"Core L#3 P#3","utilization":0,"shmrank":0,"detail_name":"Logical index: 3, OS index: 3","depth":4,"children":[
+{"name":"PU L#6 P#3","utilization":0,"shmrank":0,"detail_name":"Logical index: 6, OS index: 3","depth":5,"size":1},
+{"name":"PU L#7 P#107","utilization":0,"shmrank":0,"detail_name":"Logical index: 7, OS index: 107","depth":5,"size":1}],"size":2},
+{"name":"Core L#4 P#4","utilization":0,"shmrank":0,"detail_name":"Logical index: 4, OS index: 4","depth":4,"children":[
+{"name":"PU L#8 P#4","utilization":0,"shmrank":0,"detail_name":"Logical index: 8, OS index: 4","depth":5,"size":1},
+{"name":"PU L#9 P#108","utilization":0,"shmrank":0,"detail_name":"Logical index: 9, OS index: 108","depth":5,"size":1}],"size":2},
+{"name":"Core L#5 P#5","utilization":0,"shmrank":0,"detail_name":"Logical index: 5, OS index: 5","depth":4,"children":[
+{"name":"PU L#10 P#5","utilization":0,"shmrank":0,"detail_name":"Logical index: 10, OS index: 5","depth":5,"size":1},
+{"name":"PU L#11 P#109","utilization":0,"shmrank":0,"detail_name":"Logical index: 11, OS index: 109","depth":5,"size":1}],"size":2},
+{"name":"Core L#6 P#6","utilization":0,"shmrank":0,"detail_name":"Logical index: 6, OS index: 6","depth":4,"children":[
+{"name":"PU L#12 P#6","utilization":0,"shmrank":0,"detail_name":"Logical index: 12, OS index: 6","depth":5,"size":1},
+{"name":"PU L#13 P#110","utilization":0,"shmrank":0,"detail_name":"Logical index: 13, OS index: 110","depth":5,"size":1}],"size":2},
+{"name":"Core L#7 P#8","utilization":0,"shmrank":0,"detail_name":"Logical index: 7, OS index: 8","depth":4,"children":[
+{"name":"PU L#14 P#7","utilization":0,"shmrank":0,"detail_name":"Logical index: 14, OS index: 7","depth":5,"size":1},
+{"name":"PU L#15 P#111","utilization":0,"shmrank":0,"detail_name":"Logical index: 15, OS index: 111","depth":5,"size":1}],"size":2},
+{"name":"Core L#8 P#9","utilization":0,"shmrank":0,"detail_name":"Logical index: 8, OS index: 9","depth":4,"children":[
+{"name":"PU L#16 P#8","utilization":0,"shmrank":0,"detail_name":"Logical index: 16, OS index: 8","depth":5,"size":1},
+{"name":"PU L#17 P#112","utilization":0,"shmrank":0,"detail_name":"Logical index: 17, OS index: 112","depth":5,"size":1}],"size":2},
+{"name":"Core L#9 P#10","utilization":0,"shmrank":0,"detail_name":"Logical index: 9, OS index: 10","depth":4,"children":[
+{"name":"PU L#18 P#9","utilization":0,"shmrank":0,"detail_name":"Logical index: 18, OS index: 9","depth":5,"size":1},
+{"name":"PU L#19 P#113","utilization":0,"shmrank":0,"detail_name":"Logical index: 19, OS index: 113","depth":5,"size":1}],"size":2},
+{"name":"Core L#10 P#11","utilization":0,"shmrank":0,"detail_name":"Logical index: 10, OS index: 11","depth":4,"children":[
+{"name":"PU L#20 P#10","utilization":0,"shmrank":0,"detail_name":"Logical index: 20, OS index: 10","depth":5,"size":1},
+{"name":"PU L#21 P#114","utilization":0,"shmrank":0,"detail_name":"Logical index: 21, OS index: 114","depth":5,"size":1}],"size":2},
+{"name":"Core L#11 P#12","utilization":0,"shmrank":0,"detail_name":"Logical index: 11, OS index: 12","depth":4,"children":[
+{"name":"PU L#22 P#11","utilization":0,"shmrank":0,"detail_name":"Logical index: 22, OS index: 11","depth":5,"size":1},
+{"name":"PU L#23 P#115","utilization":0,"shmrank":0,"detail_name":"Logical index: 23, OS index: 115","depth":5,"size":1}],"size":2},
+{"name":"Core L#12 P#13","utilization":0,"shmrank":0,"detail_name":"Logical index: 12, OS index: 13","depth":4,"children":[
+{"name":"PU L#24 P#12","utilization":0,"shmrank":0,"detail_name":"Logical index: 24, OS index: 12","depth":5,"size":1},
+{"name":"PU L#25 P#116","utilization":0,"shmrank":0,"detail_name":"Logical index: 25, OS index: 116","depth":5,"size":1}],"size":2},
+{"name":"Core L#13 P#16","utilization":0,"shmrank":0,"detail_name":"Logical index: 13, OS index: 16","depth":4,"children":[
+{"name":"PU L#26 P#13","utilization":0,"shmrank":0,"detail_name":"Logical index: 26, OS index: 13","depth":5,"size":1},
+{"name":"PU L#27 P#117","utilization":0,"shmrank":0,"detail_name":"Logical index: 27, OS index: 117","depth":5,"size":1}],"size":2},
+{"name":"Core L#14 P#17","utilization":0,"shmrank":0,"detail_name":"Logical index: 14, OS index: 17","depth":4,"children":[
+{"name":"PU L#28 P#14","utilization":0,"shmrank":0,"detail_name":"Logical index: 28, OS index: 14","depth":5,"size":1},
+{"name":"PU L#29 P#118","utilization":0,"shmrank":0,"detail_name":"Logical index: 29, OS index: 118","depth":5,"size":1}],"size":2},
+{"name":"Core L#15 P#18","utilization":0,"shmrank":0,"detail_name":"Logical index: 15, OS index: 18","depth":4,"children":[
+{"name":"PU L#30 P#15","utilization":0,"shmrank":0,"detail_name":"Logical index: 30, OS index: 15","depth":5,"size":1},
+{"name":"PU L#31 P#119","utilization":0,"shmrank":0,"detail_name":"Logical index: 31, OS index: 119","depth":5,"size":1}],"size":2},
+{"name":"Core L#16 P#19","utilization":0,"shmrank":0,"detail_name":"Logical index: 16, OS index: 19","depth":4,"children":[
+{"name":"PU L#32 P#16","utilization":0,"shmrank":0,"detail_name":"Logical index: 32, OS index: 16","depth":5,"size":1},
+{"name":"PU L#33 P#120","utilization":0,"shmrank":0,"detail_name":"Logical index: 33, OS index: 120","depth":5,"size":1}],"size":2},
+{"name":"Core L#17 P#20","utilization":0,"shmrank":0,"detail_name":"Logical index: 17, OS index: 20","depth":4,"children":[
+{"name":"PU L#34 P#17","utilization":0,"shmrank":0,"detail_name":"Logical index: 34, OS index: 17","depth":5,"size":1},
+{"name":"PU L#35 P#121","utilization":0,"shmrank":0,"detail_name":"Logical index: 35, OS index: 121","depth":5,"size":1}],"size":2},
+{"name":"Core L#18 P#21","utilization":0,"shmrank":0,"detail_name":"Logical index: 18, OS index: 21","depth":4,"children":[
+{"name":"PU L#36 P#18","utilization":0,"shmrank":0,"detail_name":"Logical index: 36, OS index: 18","depth":5,"size":1},
+{"name":"PU L#37 P#122","utilization":0,"shmrank":0,"detail_name":"Logical index: 37, OS index: 122","depth":5,"size":1}],"size":2},
+{"name":"Core L#19 P#22","utilization":0,"shmrank":0,"detail_name":"Logical index: 19, OS index: 22","depth":4,"children":[
+{"name":"PU L#38 P#19","utilization":0,"shmrank":0,"detail_name":"Logical index: 38, OS index: 19","depth":5,"size":1},
+{"name":"PU L#39 P#123","utilization":0,"shmrank":0,"detail_name":"Logical index: 39, OS index: 123","depth":5,"size":1}],"size":2},
+{"name":"Core L#20 P#24","utilization":0,"shmrank":0,"detail_name":"Logical index: 20, OS index: 24","depth":4,"children":[
+{"name":"PU L#40 P#20","utilization":0,"shmrank":0,"detail_name":"Logical index: 40, OS index: 20","depth":5,"size":1},
+{"name":"PU L#41 P#124","utilization":0,"shmrank":0,"detail_name":"Logical index: 41, OS index: 124","depth":5,"size":1}],"size":2},
+{"name":"Core L#21 P#25","utilization":0,"shmrank":0,"detail_name":"Logical index: 21, OS index: 25","depth":4,"children":[
+{"name":"PU L#42 P#21","utilization":0,"shmrank":0,"detail_name":"Logical index: 42, OS index: 21","depth":5,"size":1},
+{"name":"PU L#43 P#125","utilization":0,"shmrank":0,"detail_name":"Logical index: 43, OS index: 125","depth":5,"size":1}],"size":2},
+{"name":"Core L#22 P#26","utilization":0,"shmrank":0,"detail_name":"Logical index: 22, OS index: 26","depth":4,"children":[
+{"name":"PU L#44 P#22","utilization":0,"shmrank":0,"detail_name":"Logical index: 44, OS index: 22","depth":5,"size":1},
+{"name":"PU L#45 P#126","utilization":0,"shmrank":0,"detail_name":"Logical index: 45, OS index: 126","depth":5,"size":1}],"size":2},
+{"name":"Core L#23 P#27","utilization":0,"shmrank":0,"detail_name":"Logical index: 23, OS index: 27","depth":4,"children":[
+{"name":"PU L#46 P#23","utilization":0,"shmrank":0,"detail_name":"Logical index: 46, OS index: 23","depth":5,"size":1},
+{"name":"PU L#47 P#127","utilization":0,"shmrank":0,"detail_name":"Logical index: 47, OS index: 127","depth":5,"size":1}],"size":2},
+{"name":"Core L#24 P#28","utilization":0,"shmrank":0,"detail_name":"Logical index: 24, OS index: 28","depth":4,"children":[
+{"name":"PU L#48 P#24","utilization":0,"shmrank":0,"detail_name":"Logical index: 48, OS index: 24","depth":5,"size":1},
+{"name":"PU L#49 P#128","utilization":0,"shmrank":0,"detail_name":"Logical index: 49, OS index: 128","depth":5,"size":1}],"size":2},
+{"name":"Core L#25 P#29","utilization":0,"shmrank":0,"detail_name":"Logical index: 25, OS index: 29","depth":4,"children":[
+{"name":"PU L#50 P#25","utilization":0,"shmrank":0,"detail_name":"Logical index: 50, OS index: 25","depth":5,"size":1},
+{"name":"PU L#51 P#129","utilization":0,"shmrank":0,"detail_name":"Logical index: 51, OS index: 129","depth":5,"size":1}],"size":2}],"size":52},
+{"name":"Bridge","utilization":0,"shmrank":0,"detail_name":"bridge upstream type = Host, bridge downstream type = PCI, secondary bus = 00, subordinate bus = 06","depth":3,"children":[
+{"name":"PCIDev","utilization":0,"shmrank":0,"detail_name":"bus id = 0000:00:11.5, class = 0106, id = 8086:a1d2","depth":4,"size":1},
+{"name":"PCIDev","utilization":0,"shmrank":0,"detail_name":"bus id = 0000:00:17.0, class = 0106, id = 8086:a182","depth":4,"children":[
+{"name":"OSDev Disk sdb","utilization":0,"shmrank":0,"detail_name":"type block","depth":5,"size":1},
+{"name":"OSDev Disk sda","utilization":0,"shmrank":0,"detail_name":"type block","depth":5,"size":1}],"size":2},
+{"name":"Bridge","utilization":0,"shmrank":0,"detail_name":"bridge upstream type = PCI, bus id = 0000:00:1c.0, class = 0604, id = 8086:a190, linkspeed = 3.938462 GB/s, bridge downstream type = PCI, secondary bus = 01, subordinate bus = 01","depth":4,"children":[
+{"name":"PCIDev","utilization":0,"shmrank":0,"detail_name":"bus id = 0000:01:00.0, class = 0200, id = 8086:15ff, linkspeed = 3.938462 GB/s","depth":5,"children":[
+{"name":"OSDev eno1","utilization":0,"shmrank":0,"detail_name":"type Network","depth":6,"size":1}],"size":1},
+{"name":"PCIDev","utilization":0,"shmrank":0,"detail_name":"bus id = 0000:01:00.1, class = 0200, id = 8086:15ff, linkspeed = 3.938462 GB/s","depth":5,"children":[
+{"name":"OSDev enp1s0f1","utilization":0,"shmrank":0,"detail_name":"type Network","depth":6,"size":1}],"size":1}],"size":2},
+{"name":"Bridge","utilization":0,"shmrank":0,"detail_name":"bridge upstream type = PCI, bus id = 0000:00:1c.5, class = 0604, id = 8086:a195, linkspeed = 0.500000 GB/s, bridge downstream type = PCI, secondary bus = 03, subordinate bus = 04","depth":4,"children":[
+{"name":"Bridge","utilization":0,"shmrank":0,"detail_name":"bridge upstream type = PCI, bus id = 0000:03:00.0, class = 0604, id = 1a03:1150, linkspeed = 0.500000 GB/s, bridge downstream type = PCI, secondary bus = 04, subordinate bus = 04","depth":5,"children":[
+{"name":"PCIDev","utilization":0,"shmrank":0,"detail_name":"bus id = 0000:04:00.0, class = 0300, id = 1a03:2000","depth":6,"size":1}],"size":1}],"size":1},
+{"name":"Bridge","utilization":0,"shmrank":0,"detail_name":"bridge upstream type = PCI, bus id = 0000:00:1d.2, class = 0604, id = 8086:a19a, linkspeed = 1.969231 GB/s, bridge downstream type = PCI, secondary bus = 06, subordinate bus = 06","depth":4,"children":[
+{"name":"PCIDev","utilization":0,"shmrank":0,"detail_name":"bus id = 0000:06:00.0, class = 0108, id = 1c5c:174a, linkspeed = 1.969231 GB/s","depth":5,"children":[
+{"name":"OSDev Disk nvme0n1","utilization":0,"shmrank":0,"detail_name":"type block","depth":6,"size":1}],"size":1}],"size":1}],"size":7},
+{"name":"Bridge","utilization":0,"shmrank":0,"detail_name":"bridge upstream type = Host, bridge downstream type = PCI, secondary bus = 23, subordinate bus = 24","depth":3,"children":[
+{"name":"Bridge","utilization":0,"shmrank":0,"detail_name":"bridge upstream type = PCI, bus id = 0000:23:00.0, class = 0604, id = 8086:2030, linkspeed = 15.753846 GB/s, bridge downstream type = PCI, secondary bus = 24, subordinate bus = 24","depth":4,"children":[
+{"name":"PCIDev","utilization":0,"shmrank":0,"detail_name":"bus id = 0000:24:00.0, class = 0302, id = 10de:20b5, linkspeed = 15.753846 GB/s","depth":5,"children":[
+{"name":"OSDev CUDA cuda0","utilization":0,"shmrank":0,"detail_name":"type Co-processor","depth":6,"size":1},
+{"name":"OSDev OpenCL opencl0d0","utilization":0,"shmrank":0,"detail_name":"type Co-processor","depth":6,"size":1},
+{"name":"OSDev NVML nvml0","utilization":0,"shmrank":0,"detail_name":"type GPU","depth":6,"size":1}],"size":3}],"size":3}],"size":3}],"size":62}],"size":62},
+{"name":"Package","utilization":0,"shmrank":0,"detail_name":"","depth":1,"children":[
+{"name":"NUMANode","utilization":0,"shmrank":0,"detail_name":"size: 94.488876GB","depth":2,"children":[
+{"name":"L3Cache","utilization":0,"shmrank":0,"detail_name":"depth: 3, type: Unified, size: 36608.000000kB, line size: 64, ways: 11","depth":3,"children":[
+{"name":"Core L#26 P#0","utilization":0,"shmrank":0,"detail_name":"Logical index: 26, OS index: 0","depth":4,"children":[
+{"name":"PU L#52 P#26","utilization":0,"shmrank":0,"detail_name":"Logical index: 52, OS index: 26","depth":5,"size":1},
+{"name":"PU L#53 P#130","utilization":0,"shmrank":0,"detail_name":"Logical index: 53, OS index: 130","depth":5,"size":1}],"size":2},
+{"name":"Core L#27 P#1","utilization":0,"shmrank":0,"detail_name":"Logical index: 27, OS index: 1","depth":4,"children":[
+{"name":"PU L#54 P#27","utilization":0,"shmrank":0,"detail_name":"Logical index: 54, OS index: 27","depth":5,"size":1},
+{"name":"PU L#55 P#131","utilization":0,"shmrank":0,"detail_name":"Logical index: 55, OS index: 131","depth":5,"size":1}],"size":2},
+{"name":"Core L#28 P#2","utilization":0,"shmrank":0,"detail_name":"Logical index: 28, OS index: 2","depth":4,"children":[
+{"name":"PU L#56 P#28","utilization":0,"shmrank":0,"detail_name":"Logical index: 56, OS index: 28","depth":5,"size":1},
+{"name":"PU L#57 P#132","utilization":0,"shmrank":0,"detail_name":"Logical index: 57, OS index: 132","depth":5,"size":1}],"size":2},
+{"name":"Core L#29 P#3","utilization":0,"shmrank":0,"detail_name":"Logical index: 29, OS index: 3","depth":4,"children":[
+{"name":"PU L#58 P#29","utilization":0,"shmrank":0,"detail_name":"Logical index: 58, OS index: 29","depth":5,"size":1},
+{"name":"PU L#59 P#133","utilization":0,"shmrank":0,"detail_name":"Logical index: 59, OS index: 133","depth":5,"size":1}],"size":2},
+{"name":"Core L#30 P#4","utilization":0,"shmrank":0,"detail_name":"Logical index: 30, OS index: 4","depth":4,"children":[
+{"name":"PU L#60 P#30","utilization":0,"shmrank":0,"detail_name":"Logical index: 60, OS index: 30","depth":5,"size":1},
+{"name":"PU L#61 P#134","utilization":0,"shmrank":0,"detail_name":"Logical index: 61, OS index: 134","depth":5,"size":1}],"size":2},
+{"name":"Core L#31 P#5","utilization":0,"shmrank":0,"detail_name":"Logical index: 31, OS index: 5","depth":4,"children":[
+{"name":"PU L#62 P#31","utilization":0,"shmrank":0,"detail_name":"Logical index: 62, OS index: 31","depth":5,"size":1},
+{"name":"PU L#63 P#135","utilization":0,"shmrank":0,"detail_name":"Logical index: 63, OS index: 135","depth":5,"size":1}],"size":2},
+{"name":"Core L#32 P#6","utilization":0,"shmrank":0,"detail_name":"Logical index: 32, OS index: 6","depth":4,"children":[
+{"name":"PU L#64 P#32","utilization":0,"shmrank":0,"detail_name":"Logical index: 64, OS index: 32","depth":5,"size":1},
+{"name":"PU L#65 P#136","utilization":0,"shmrank":0,"detail_name":"Logical index: 65, OS index: 136","depth":5,"size":1}],"size":2},
+{"name":"Core L#33 P#8","utilization":0,"shmrank":0,"detail_name":"Logical index: 33, OS index: 8","depth":4,"children":[
+{"name":"PU L#66 P#33","utilization":0,"shmrank":0,"detail_name":"Logical index: 66, OS index: 33","depth":5,"size":1},
+{"name":"PU L#67 P#137","utilization":0,"shmrank":0,"detail_name":"Logical index: 67, OS index: 137","depth":5,"size":1}],"size":2},
+{"name":"Core L#34 P#9","utilization":0,"shmrank":0,"detail_name":"Logical index: 34, OS index: 9","depth":4,"children":[
+{"name":"PU L#68 P#34","utilization":0,"shmrank":0,"detail_name":"Logical index: 68, OS index: 34","depth":5,"size":1},
+{"name":"PU L#69 P#138","utilization":0,"shmrank":0,"detail_name":"Logical index: 69, OS index: 138","depth":5,"size":1}],"size":2},
+{"name":"Core L#35 P#10","utilization":0,"shmrank":0,"detail_name":"Logical index: 35, OS index: 10","depth":4,"children":[
+{"name":"PU L#70 P#35","utilization":0,"shmrank":0,"detail_name":"Logical index: 70, OS index: 35","depth":5,"size":1},
+{"name":"PU L#71 P#139","utilization":0,"shmrank":0,"detail_name":"Logical index: 71, OS index: 139","depth":5,"size":1}],"size":2},
+{"name":"Core L#36 P#11","utilization":0,"shmrank":0,"detail_name":"Logical index: 36, OS index: 11","depth":4,"children":[
+{"name":"PU L#72 P#36","utilization":0,"shmrank":0,"detail_name":"Logical index: 72, OS index: 36","depth":5,"size":1},
+{"name":"PU L#73 P#140","utilization":0,"shmrank":0,"detail_name":"Logical index: 73, OS index: 140","depth":5,"size":1}],"size":2},
+{"name":"Core L#37 P#12","utilization":0,"shmrank":0,"detail_name":"Logical index: 37, OS index: 12","depth":4,"children":[
+{"name":"PU L#74 P#37","utilization":0,"shmrank":0,"detail_name":"Logical index: 74, OS index: 37","depth":5,"size":1},
+{"name":"PU L#75 P#141","utilization":0,"shmrank":0,"detail_name":"Logical index: 75, OS index: 141","depth":5,"size":1}],"size":2},
+{"name":"Core L#38 P#13","utilization":0,"shmrank":0,"detail_name":"Logical index: 38, OS index: 13","depth":4,"children":[
+{"name":"PU L#76 P#38","utilization":0,"shmrank":0,"detail_name":"Logical index: 76, OS index: 38","depth":5,"size":1},
+{"name":"PU L#77 P#142","utilization":0,"shmrank":0,"detail_name":"Logical index: 77, OS index: 142","depth":5,"size":1}],"size":2},
+{"name":"Core L#39 P#16","utilization":0,"shmrank":0,"detail_name":"Logical index: 39, OS index: 16","depth":4,"children":[
+{"name":"PU L#78 P#39","utilization":0,"shmrank":0,"detail_name":"Logical index: 78, OS index: 39","depth":5,"size":1},
+{"name":"PU L#79 P#143","utilization":0,"shmrank":0,"detail_name":"Logical index: 79, OS index: 143","depth":5,"size":1}],"size":2},
+{"name":"Core L#40 P#17","utilization":0,"shmrank":0,"detail_name":"Logical index: 40, OS index: 17","depth":4,"children":[
+{"name":"PU L#80 P#40","utilization":0,"shmrank":0,"detail_name":"Logical index: 80, OS index: 40","depth":5,"size":1},
+{"name":"PU L#81 P#144","utilization":0,"shmrank":0,"detail_name":"Logical index: 81, OS index: 144","depth":5,"size":1}],"size":2},
+{"name":"Core L#41 P#18","utilization":0,"shmrank":0,"detail_name":"Logical index: 41, OS index: 18","depth":4,"children":[
+{"name":"PU L#82 P#41","utilization":0,"shmrank":0,"detail_name":"Logical index: 82, OS index: 41","depth":5,"size":1},
+{"name":"PU L#83 P#145","utilization":0,"shmrank":0,"detail_name":"Logical index: 83, OS index: 145","depth":5,"size":1}],"size":2},
+{"name":"Core L#42 P#19","utilization":0,"shmrank":0,"detail_name":"Logical index: 42, OS index: 19","depth":4,"children":[
+{"name":"PU L#84 P#42","utilization":0,"shmrank":0,"detail_name":"Logical index: 84, OS index: 42","depth":5,"size":1},
+{"name":"PU L#85 P#146","utilization":0,"shmrank":0,"detail_name":"Logical index: 85, OS index: 146","depth":5,"size":1}],"size":2},
+{"name":"Core L#43 P#20","utilization":0,"shmrank":0,"detail_name":"Logical index: 43, OS index: 20","depth":4,"children":[
+{"name":"PU L#86 P#43","utilization":0,"shmrank":0,"detail_name":"Logical index: 86, OS index: 43","depth":5,"size":1},
+{"name":"PU L#87 P#147","utilization":0,"shmrank":0,"detail_name":"Logical index: 87, OS index: 147","depth":5,"size":1}],"size":2},
+{"name":"Core L#44 P#21","utilization":0,"shmrank":0,"detail_name":"Logical index: 44, OS index: 21","depth":4,"children":[
+{"name":"PU L#88 P#44","utilization":0,"shmrank":0,"detail_name":"Logical index: 88, OS index: 44","depth":5,"size":1},
+{"name":"PU L#89 P#148","utilization":0,"shmrank":0,"detail_name":"Logical index: 89, OS index: 148","depth":5,"size":1}],"size":2},
+{"name":"Core L#45 P#22","utilization":0,"shmrank":0,"detail_name":"Logical index: 45, OS index: 22","depth":4,"children":[
+{"name":"PU L#90 P#45","utilization":0,"shmrank":0,"detail_name":"Logical index: 90, OS index: 45","depth":5,"size":1},
+{"name":"PU L#91 P#149","utilization":0,"shmrank":0,"detail_name":"Logical index: 91, OS index: 149","depth":5,"size":1}],"size":2},
+{"name":"Core L#46 P#24","utilization":0,"shmrank":0,"detail_name":"Logical index: 46, OS index: 24","depth":4,"children":[
+{"name":"PU L#92 P#46","utilization":0,"shmrank":0,"detail_name":"Logical index: 92, OS index: 46","depth":5,"size":1},
+{"name":"PU L#93 P#150","utilization":0,"shmrank":0,"detail_name":"Logical index: 93, OS index: 150","depth":5,"size":1}],"size":2},
+{"name":"Core L#47 P#25","utilization":0,"shmrank":0,"detail_name":"Logical index: 47, OS index: 25","depth":4,"children":[
+{"name":"PU L#94 P#47","utilization":0,"shmrank":0,"detail_name":"Logical index: 94, OS index: 47","depth":5,"size":1},
+{"name":"PU L#95 P#151","utilization":0,"shmrank":0,"detail_name":"Logical index: 95, OS index: 151","depth":5,"size":1}],"size":2},
+{"name":"Core L#48 P#26","utilization":0,"shmrank":0,"detail_name":"Logical index: 48, OS index: 26","depth":4,"children":[
+{"name":"PU L#96 P#48","utilization":0,"shmrank":0,"detail_name":"Logical index: 96, OS index: 48","depth":5,"size":1},
+{"name":"PU L#97 P#152","utilization":0,"shmrank":0,"detail_name":"Logical index: 97, OS index: 152","depth":5,"size":1}],"size":2},
+{"name":"Core L#49 P#27","utilization":0,"shmrank":0,"detail_name":"Logical index: 49, OS index: 27","depth":4,"children":[
+{"name":"PU L#98 P#49","utilization":0,"shmrank":0,"detail_name":"Logical index: 98, OS index: 49","depth":5,"size":1},
+{"name":"PU L#99 P#153","utilization":0,"shmrank":0,"detail_name":"Logical index: 99, OS index: 153","depth":5,"size":1}],"size":2},
+{"name":"Core L#50 P#28","utilization":0,"shmrank":0,"detail_name":"Logical index: 50, OS index: 28","depth":4,"children":[
+{"name":"PU L#100 P#50","utilization":0,"shmrank":0,"detail_name":"Logical index: 100, OS index: 50","depth":5,"size":1},
+{"name":"PU L#101 P#154","utilization":0,"shmrank":0,"detail_name":"Logical index: 101, OS index: 154","depth":5,"size":1}],"size":2},
+{"name":"Core L#51 P#29","utilization":0,"shmrank":0,"detail_name":"Logical index: 51, OS index: 29","depth":4,"children":[
+{"name":"PU L#102 P#51","utilization":0,"shmrank":0,"detail_name":"Logical index: 102, OS index: 51","depth":5,"size":1},
+{"name":"PU L#103 P#155","utilization":0,"shmrank":0,"detail_name":"Logical index: 103, OS index: 155","depth":5,"size":1}],"size":2}],"size":52},
+{"name":"Bridge","utilization":0,"shmrank":0,"detail_name":"bridge upstream type = Host, bridge downstream type = PCI, secondary bus = 57, subordinate bus = 58","depth":3,"children":[
+{"name":"Bridge","utilization":0,"shmrank":0,"detail_name":"bridge upstream type = PCI, bus id = 0000:57:00.0, class = 0604, id = 8086:2030, linkspeed = 15.753846 GB/s, bridge downstream type = PCI, secondary bus = 58, subordinate bus = 58","depth":4,"children":[
+{"name":"PCIDev","utilization":0,"shmrank":0,"detail_name":"bus id = 0000:58:00.0, class = 0302, id = 10de:20f1, linkspeed = 15.753846 GB/s","depth":5,"children":[
+{"name":"OSDev NVML nvml1","utilization":0,"shmrank":0,"detail_name":"type GPU","depth":6,"size":1}],"size":1}],"size":1}],"size":1}],"size":53}],"size":53},
+{"name":"Package","utilization":0,"shmrank":0,"detail_name":"","depth":1,"children":[
+{"name":"NUMANode","utilization":0,"shmrank":0,"detail_name":"size: 94.488880GB","depth":2,"children":[
+{"name":"L3Cache","utilization":0,"shmrank":0,"detail_name":"depth: 3, type: Unified, size: 36608.000000kB, line size: 64, ways: 11","depth":3,"children":[
+{"name":"Core L#52 P#0","utilization":0,"shmrank":0,"detail_name":"Logical index: 52, OS index: 0","depth":4,"children":[
+{"name":"PU L#104 P#52","utilization":0,"shmrank":0,"detail_name":"Logical index: 104, OS index: 52","depth":5,"size":1},
+{"name":"PU L#105 P#156","utilization":0,"shmrank":0,"detail_name":"Logical index: 105, OS index: 156","depth":5,"size":1}],"size":2},
+{"name":"Core L#53 P#1","utilization":0,"shmrank":0,"detail_name":"Logical index: 53, OS index: 1","depth":4,"children":[
+{"name":"PU L#106 P#53","utilization":0,"shmrank":0,"detail_name":"Logical index: 106, OS index: 53","depth":5,"size":1},
+{"name":"PU L#107 P#157","utilization":0,"shmrank":0,"detail_name":"Logical index: 107, OS index: 157","depth":5,"size":1}],"size":2},
+{"name":"Core L#54 P#2","utilization":0,"shmrank":0,"detail_name":"Logical index: 54, OS index: 2","depth":4,"children":[
+{"name":"PU L#108 P#54","utilization":0,"shmrank":0,"detail_name":"Logical index: 108, OS index: 54","depth":5,"size":1},
+{"name":"PU L#109 P#158","utilization":0,"shmrank":0,"detail_name":"Logical index: 109, OS index: 158","depth":5,"size":1}],"size":2},
+{"name":"Core L#55 P#3","utilization":0,"shmrank":0,"detail_name":"Logical index: 55, OS index: 3","depth":4,"children":[
+{"name":"PU L#110 P#55","utilization":0,"shmrank":0,"detail_name":"Logical index: 110, OS index: 55","depth":5,"size":1},
+{"name":"PU L#111 P#159","utilization":0,"shmrank":0,"detail_name":"Logical index: 111, OS index: 159","depth":5,"size":1}],"size":2},
+{"name":"Core L#56 P#4","utilization":0,"shmrank":0,"detail_name":"Logical index: 56, OS index: 4","depth":4,"children":[
+{"name":"PU L#112 P#56","utilization":0,"shmrank":0,"detail_name":"Logical index: 112, OS index: 56","depth":5,"size":1},
+{"name":"PU L#113 P#160","utilization":0,"shmrank":0,"detail_name":"Logical index: 113, OS index: 160","depth":5,"size":1}],"size":2},
+{"name":"Core L#57 P#5","utilization":0,"shmrank":0,"detail_name":"Logical index: 57, OS index: 5","depth":4,"children":[
+{"name":"PU L#114 P#57","utilization":0,"shmrank":0,"detail_name":"Logical index: 114, OS index: 57","depth":5,"size":1},
+{"name":"PU L#115 P#161","utilization":0,"shmrank":0,"detail_name":"Logical index: 115, OS index: 161","depth":5,"size":1}],"size":2},
+{"name":"Core L#58 P#6","utilization":0,"shmrank":0,"detail_name":"Logical index: 58, OS index: 6","depth":4,"children":[
+{"name":"PU L#116 P#58","utilization":0,"shmrank":0,"detail_name":"Logical index: 116, OS index: 58","depth":5,"size":1},
+{"name":"PU L#117 P#162","utilization":0,"shmrank":0,"detail_name":"Logical index: 117, OS index: 162","depth":5,"size":1}],"size":2},
+{"name":"Core L#59 P#8","utilization":0,"shmrank":0,"detail_name":"Logical index: 59, OS index: 8","depth":4,"children":[
+{"name":"PU L#118 P#59","utilization":0,"shmrank":0,"detail_name":"Logical index: 118, OS index: 59","depth":5,"size":1},
+{"name":"PU L#119 P#163","utilization":0,"shmrank":0,"detail_name":"Logical index: 119, OS index: 163","depth":5,"size":1}],"size":2},
+{"name":"Core L#60 P#9","utilization":0,"shmrank":0,"detail_name":"Logical index: 60, OS index: 9","depth":4,"children":[
+{"name":"PU L#120 P#60","utilization":0,"shmrank":0,"detail_name":"Logical index: 120, OS index: 60","depth":5,"size":1},
+{"name":"PU L#121 P#164","utilization":0,"shmrank":0,"detail_name":"Logical index: 121, OS index: 164","depth":5,"size":1}],"size":2},
+{"name":"Core L#61 P#10","utilization":0,"shmrank":0,"detail_name":"Logical index: 61, OS index: 10","depth":4,"children":[
+{"name":"PU L#122 P#61","utilization":0,"shmrank":0,"detail_name":"Logical index: 122, OS index: 61","depth":5,"size":1},
+{"name":"PU L#123 P#165","utilization":0,"shmrank":0,"detail_name":"Logical index: 123, OS index: 165","depth":5,"size":1}],"size":2},
+{"name":"Core L#62 P#11","utilization":0,"shmrank":0,"detail_name":"Logical index: 62, OS index: 11","depth":4,"children":[
+{"name":"PU L#124 P#62","utilization":0,"shmrank":0,"detail_name":"Logical index: 124, OS index: 62","depth":5,"size":1},
+{"name":"PU L#125 P#166","utilization":0,"shmrank":0,"detail_name":"Logical index: 125, OS index: 166","depth":5,"size":1}],"size":2},
+{"name":"Core L#63 P#12","utilization":0,"shmrank":0,"detail_name":"Logical index: 63, OS index: 12","depth":4,"children":[
+{"name":"PU L#126 P#63","utilization":0,"shmrank":0,"detail_name":"Logical index: 126, OS index: 63","depth":5,"size":1},
+{"name":"PU L#127 P#167","utilization":0,"shmrank":0,"detail_name":"Logical index: 127, OS index: 167","depth":5,"size":1}],"size":2},
+{"name":"Core L#64 P#13","utilization":0,"shmrank":0,"detail_name":"Logical index: 64, OS index: 13","depth":4,"children":[
+{"name":"PU L#128 P#64","utilization":0,"shmrank":0,"detail_name":"Logical index: 128, OS index: 64","depth":5,"size":1},
+{"name":"PU L#129 P#168","utilization":0,"shmrank":0,"detail_name":"Logical index: 129, OS index: 168","depth":5,"size":1}],"size":2},
+{"name":"Core L#65 P#16","utilization":0,"shmrank":0,"detail_name":"Logical index: 65, OS index: 16","depth":4,"children":[
+{"name":"PU L#130 P#65","utilization":0,"shmrank":0,"detail_name":"Logical index: 130, OS index: 65","depth":5,"size":1},
+{"name":"PU L#131 P#169","utilization":0,"shmrank":0,"detail_name":"Logical index: 131, OS index: 169","depth":5,"size":1}],"size":2},
+{"name":"Core L#66 P#17","utilization":0,"shmrank":0,"detail_name":"Logical index: 66, OS index: 17","depth":4,"children":[
+{"name":"PU L#132 P#66","utilization":0,"shmrank":0,"detail_name":"Logical index: 132, OS index: 66","depth":5,"size":1},
+{"name":"PU L#133 P#170","utilization":0,"shmrank":0,"detail_name":"Logical index: 133, OS index: 170","depth":5,"size":1}],"size":2},
+{"name":"Core L#67 P#18","utilization":0,"shmrank":0,"detail_name":"Logical index: 67, OS index: 18","depth":4,"children":[
+{"name":"PU L#134 P#67","utilization":0,"shmrank":0,"detail_name":"Logical index: 134, OS index: 67","depth":5,"size":1},
+{"name":"PU L#135 P#171","utilization":0,"shmrank":0,"detail_name":"Logical index: 135, OS index: 171","depth":5,"size":1}],"size":2},
+{"name":"Core L#68 P#19","utilization":0,"shmrank":0,"detail_name":"Logical index: 68, OS index: 19","depth":4,"children":[
+{"name":"PU L#136 P#68","utilization":0,"shmrank":0,"detail_name":"Logical index: 136, OS index: 68","depth":5,"size":1},
+{"name":"PU L#137 P#172","utilization":0,"shmrank":0,"detail_name":"Logical index: 137, OS index: 172","depth":5,"size":1}],"size":2},
+{"name":"Core L#69 P#20","utilization":0,"shmrank":0,"detail_name":"Logical index: 69, OS index: 20","depth":4,"children":[
+{"name":"PU L#138 P#69","utilization":0,"shmrank":0,"detail_name":"Logical index: 138, OS index: 69","depth":5,"size":1},
+{"name":"PU L#139 P#173","utilization":0,"shmrank":0,"detail_name":"Logical index: 139, OS index: 173","depth":5,"size":1}],"size":2},
+{"name":"Core L#70 P#21","utilization":0,"shmrank":0,"detail_name":"Logical index: 70, OS index: 21","depth":4,"children":[
+{"name":"PU L#140 P#70","utilization":0,"shmrank":0,"detail_name":"Logical index: 140, OS index: 70","depth":5,"size":1},
+{"name":"PU L#141 P#174","utilization":0,"shmrank":0,"detail_name":"Logical index: 141, OS index: 174","depth":5,"size":1}],"size":2},
+{"name":"Core L#71 P#22","utilization":0,"shmrank":0,"detail_name":"Logical index: 71, OS index: 22","depth":4,"children":[
+{"name":"PU L#142 P#71","utilization":0,"shmrank":0,"detail_name":"Logical index: 142, OS index: 71","depth":5,"size":1},
+{"name":"PU L#143 P#175","utilization":0,"shmrank":0,"detail_name":"Logical index: 143, OS index: 175","depth":5,"size":1}],"size":2},
+{"name":"Core L#72 P#24","utilization":0,"shmrank":0,"detail_name":"Logical index: 72, OS index: 24","depth":4,"children":[
+{"name":"PU L#144 P#72","utilization":0,"shmrank":0,"detail_name":"Logical index: 144, OS index: 72","depth":5,"size":1},
+{"name":"PU L#145 P#176","utilization":0,"shmrank":0,"detail_name":"Logical index: 145, OS index: 176","depth":5,"size":1}],"size":2},
+{"name":"Core L#73 P#25","utilization":0,"shmrank":0,"detail_name":"Logical index: 73, OS index: 25","depth":4,"children":[
+{"name":"PU L#146 P#73","utilization":0,"shmrank":0,"detail_name":"Logical index: 146, OS index: 73","depth":5,"size":1},
+{"name":"PU L#147 P#177","utilization":0,"shmrank":0,"detail_name":"Logical index: 147, OS index: 177","depth":5,"size":1}],"size":2},
+{"name":"Core L#74 P#26","utilization":0,"shmrank":0,"detail_name":"Logical index: 74, OS index: 26","depth":4,"children":[
+{"name":"PU L#148 P#74","utilization":0,"shmrank":0,"detail_name":"Logical index: 148, OS index: 74","depth":5,"size":1},
+{"name":"PU L#149 P#178","utilization":0,"shmrank":0,"detail_name":"Logical index: 149, OS index: 178","depth":5,"size":1}],"size":2},
+{"name":"Core L#75 P#27","utilization":0,"shmrank":0,"detail_name":"Logical index: 75, OS index: 27","depth":4,"children":[
+{"name":"PU L#150 P#75","utilization":0,"shmrank":0,"detail_name":"Logical index: 150, OS index: 75","depth":5,"size":1},
+{"name":"PU L#151 P#179","utilization":0,"shmrank":0,"detail_name":"Logical index: 151, OS index: 179","depth":5,"size":1}],"size":2},
+{"name":"Core L#76 P#28","utilization":0,"shmrank":0,"detail_name":"Logical index: 76, OS index: 28","depth":4,"children":[
+{"name":"PU L#152 P#76","utilization":0,"shmrank":0,"detail_name":"Logical index: 152, OS index: 76","depth":5,"size":1},
+{"name":"PU L#153 P#180","utilization":0,"shmrank":0,"detail_name":"Logical index: 153, OS index: 180","depth":5,"size":1}],"size":2},
+{"name":"Core L#77 P#29","utilization":0,"shmrank":0,"detail_name":"Logical index: 77, OS index: 29","depth":4,"children":[
+{"name":"PU L#154 P#77","utilization":0,"shmrank":0,"detail_name":"Logical index: 154, OS index: 77","depth":5,"size":1},
+{"name":"PU L#155 P#181","utilization":0,"shmrank":0,"detail_name":"Logical index: 155, OS index: 181","depth":5,"size":1}],"size":2}],"size":52},
+{"name":"Bridge","utilization":0,"shmrank":0,"detail_name":"bridge upstream type = Host, bridge downstream type = PCI, secondary bus = ac, subordinate bus = ad","depth":3,"children":[
+{"name":"Bridge","utilization":0,"shmrank":0,"detail_name":"bridge upstream type = PCI, bus id = 0000:ac:00.0, class = 0604, id = 8086:203f, linkspeed = 15.753846 GB/s, bridge downstream type = PCI, secondary bus = ad, subordinate bus = ad","depth":4,"children":[
+{"name":"PCIDev","utilization":0,"shmrank":0,"detail_name":"bus id = 0000:ad:00.0, class = 0200, id = 15b3:1017, linkspeed = 15.753846 GB/s","depth":5,"children":[
+{"name":"OSDev ens33f0np0","utilization":0,"shmrank":0,"detail_name":"type Network","depth":6,"size":1},
+{"name":"OSDev mlx5_0","utilization":0,"shmrank":0,"detail_name":"type OpenFabric","depth":6,"size":1}],"size":2},
+{"name":"PCIDev","utilization":0,"shmrank":0,"detail_name":"bus id = 0000:ad:00.1, class = 0200, id = 15b3:1017, linkspeed = 15.753846 GB/s","depth":5,"children":[
+{"name":"OSDev ens33f1np1","utilization":0,"shmrank":0,"detail_name":"type Network","depth":6,"size":1},
+{"name":"OSDev mlx5_1","utilization":0,"shmrank":0,"detail_name":"type OpenFabric","depth":6,"size":1}],"size":2}],"size":4}],"size":4}],"size":56}],"size":56},
+{"name":"Package","utilization":0,"shmrank":0,"detail_name":"","depth":1,"children":[
+{"name":"NUMANode","utilization":0,"shmrank":0,"detail_name":"size: 94.458447GB","depth":2,"children":[
+{"name":"L3Cache","utilization":0,"shmrank":0,"detail_name":"depth: 3, type: Unified, size: 36608.000000kB, line size: 64, ways: 11","depth":3,"children":[
+{"name":"Core L#78 P#0","utilization":0,"shmrank":0,"detail_name":"Logical index: 78, OS index: 0","depth":4,"children":[
+{"name":"PU L#156 P#78","utilization":0,"shmrank":0,"detail_name":"Logical index: 156, OS index: 78","depth":5,"size":1},
+{"name":"PU L#157 P#182","utilization":0,"shmrank":0,"detail_name":"Logical index: 157, OS index: 182","depth":5,"size":1}],"size":2},
+{"name":"Core L#79 P#1","utilization":0,"shmrank":0,"detail_name":"Logical index: 79, OS index: 1","depth":4,"children":[
+{"name":"PU L#158 P#79","utilization":0,"shmrank":0,"detail_name":"Logical index: 158, OS index: 79","depth":5,"size":1},
+{"name":"PU L#159 P#183","utilization":0,"shmrank":0,"detail_name":"Logical index: 159, OS index: 183","depth":5,"size":1}],"size":2},
+{"name":"Core L#80 P#2","utilization":0,"shmrank":0,"detail_name":"Logical index: 80, OS index: 2","depth":4,"children":[
+{"name":"PU L#160 P#80","utilization":0,"shmrank":0,"detail_name":"Logical index: 160, OS index: 80","depth":5,"size":1},
+{"name":"PU L#161 P#184","utilization":0,"shmrank":0,"detail_name":"Logical index: 161, OS index: 184","depth":5,"size":1}],"size":2},
+{"name":"Core L#81 P#3","utilization":0,"shmrank":0,"detail_name":"Logical index: 81, OS index: 3","depth":4,"children":[
+{"name":"PU L#162 P#81","utilization":0,"shmrank":0,"detail_name":"Logical index: 162, OS index: 81","depth":5,"size":1},
+{"name":"PU L#163 P#185","utilization":0,"shmrank":0,"detail_name":"Logical index: 163, OS index: 185","depth":5,"size":1}],"size":2},
+{"name":"Core L#82 P#4","utilization":0,"shmrank":0,"detail_name":"Logical index: 82, OS index: 4","depth":4,"children":[
+{"name":"PU L#164 P#82","utilization":0,"shmrank":0,"detail_name":"Logical index: 164, OS index: 82","depth":5,"size":1},
+{"name":"PU L#165 P#186","utilization":0,"shmrank":0,"detail_name":"Logical index: 165, OS index: 186","depth":5,"size":1}],"size":2},
+{"name":"Core L#83 P#5","utilization":0,"shmrank":0,"detail_name":"Logical index: 83, OS index: 5","depth":4,"children":[
+{"name":"PU L#166 P#83","utilization":0,"shmrank":0,"detail_name":"Logical index: 166, OS index: 83","depth":5,"size":1},
+{"name":"PU L#167 P#187","utilization":0,"shmrank":0,"detail_name":"Logical index: 167, OS index: 187","depth":5,"size":1}],"size":2},
+{"name":"Core L#84 P#6","utilization":0,"shmrank":0,"detail_name":"Logical index: 84, OS index: 6","depth":4,"children":[
+{"name":"PU L#168 P#84","utilization":0,"shmrank":0,"detail_name":"Logical index: 168, OS index: 84","depth":5,"size":1},
+{"name":"PU L#169 P#188","utilization":0,"shmrank":0,"detail_name":"Logical index: 169, OS index: 188","depth":5,"size":1}],"size":2},
+{"name":"Core L#85 P#8","utilization":0,"shmrank":0,"detail_name":"Logical index: 85, OS index: 8","depth":4,"children":[
+{"name":"PU L#170 P#85","utilization":0,"shmrank":0,"detail_name":"Logical index: 170, OS index: 85","depth":5,"size":1},
+{"name":"PU L#171 P#189","utilization":0,"shmrank":0,"detail_name":"Logical index: 171, OS index: 189","depth":5,"size":1}],"size":2},
+{"name":"Core L#86 P#9","utilization":0,"shmrank":0,"detail_name":"Logical index: 86, OS index: 9","depth":4,"children":[
+{"name":"PU L#172 P#86","utilization":0,"shmrank":0,"detail_name":"Logical index: 172, OS index: 86","depth":5,"size":1},
+{"name":"PU L#173 P#190","utilization":0,"shmrank":0,"detail_name":"Logical index: 173, OS index: 190","depth":5,"size":1}],"size":2},
+{"name":"Core L#87 P#10","utilization":0,"shmrank":0,"detail_name":"Logical index: 87, OS index: 10","depth":4,"children":[
+{"name":"PU L#174 P#87","utilization":0,"shmrank":0,"detail_name":"Logical index: 174, OS index: 87","depth":5,"size":1},
+{"name":"PU L#175 P#191","utilization":0,"shmrank":0,"detail_name":"Logical index: 175, OS index: 191","depth":5,"size":1}],"size":2},
+{"name":"Core L#88 P#11","utilization":0,"shmrank":0,"detail_name":"Logical index: 88, OS index: 11","depth":4,"children":[
+{"name":"PU L#176 P#88","utilization":0,"shmrank":0,"detail_name":"Logical index: 176, OS index: 88","depth":5,"size":1},
+{"name":"PU L#177 P#192","utilization":0,"shmrank":0,"detail_name":"Logical index: 177, OS index: 192","depth":5,"size":1}],"size":2},
+{"name":"Core L#89 P#12","utilization":0,"shmrank":0,"detail_name":"Logical index: 89, OS index: 12","depth":4,"children":[
+{"name":"PU L#178 P#89","utilization":0,"shmrank":0,"detail_name":"Logical index: 178, OS index: 89","depth":5,"size":1},
+{"name":"PU L#179 P#193","utilization":0,"shmrank":0,"detail_name":"Logical index: 179, OS index: 193","depth":5,"size":1}],"size":2},
+{"name":"Core L#90 P#13","utilization":0,"shmrank":0,"detail_name":"Logical index: 90, OS index: 13","depth":4,"children":[
+{"name":"PU L#180 P#90","utilization":0,"shmrank":0,"detail_name":"Logical index: 180, OS index: 90","depth":5,"size":1},
+{"name":"PU L#181 P#194","utilization":0,"shmrank":0,"detail_name":"Logical index: 181, OS index: 194","depth":5,"size":1}],"size":2},
+{"name":"Core L#91 P#16","utilization":0,"shmrank":0,"detail_name":"Logical index: 91, OS index: 16","depth":4,"children":[
+{"name":"PU L#182 P#91","utilization":0,"shmrank":0,"detail_name":"Logical index: 182, OS index: 91","depth":5,"size":1},
+{"name":"PU L#183 P#195","utilization":0,"shmrank":0,"detail_name":"Logical index: 183, OS index: 195","depth":5,"size":1}],"size":2},
+{"name":"Core L#92 P#17","utilization":0,"shmrank":0,"detail_name":"Logical index: 92, OS index: 17","depth":4,"children":[
+{"name":"PU L#184 P#92","utilization":0,"shmrank":0,"detail_name":"Logical index: 184, OS index: 92","depth":5,"size":1},
+{"name":"PU L#185 P#196","utilization":0,"shmrank":0,"detail_name":"Logical index: 185, OS index: 196","depth":5,"size":1}],"size":2},
+{"name":"Core L#93 P#18","utilization":0,"shmrank":0,"detail_name":"Logical index: 93, OS index: 18","depth":4,"children":[
+{"name":"PU L#186 P#93","utilization":0,"shmrank":0,"detail_name":"Logical index: 186, OS index: 93","depth":5,"size":1},
+{"name":"PU L#187 P#197","utilization":0,"shmrank":0,"detail_name":"Logical index: 187, OS index: 197","depth":5,"size":1}],"size":2},
+{"name":"Core L#94 P#19","utilization":0,"shmrank":0,"detail_name":"Logical index: 94, OS index: 19","depth":4,"children":[
+{"name":"PU L#188 P#94","utilization":0,"shmrank":0,"detail_name":"Logical index: 188, OS index: 94","depth":5,"size":1},
+{"name":"PU L#189 P#198","utilization":0,"shmrank":0,"detail_name":"Logical index: 189, OS index: 198","depth":5,"size":1}],"size":2},
+{"name":"Core L#95 P#20","utilization":0,"shmrank":0,"detail_name":"Logical index: 95, OS index: 20","depth":4,"children":[
+{"name":"PU L#190 P#95","utilization":0,"shmrank":0,"detail_name":"Logical index: 190, OS index: 95","depth":5,"size":1},
+{"name":"PU L#191 P#199","utilization":0,"shmrank":0,"detail_name":"Logical index: 191, OS index: 199","depth":5,"size":1}],"size":2},
+{"name":"Core L#96 P#21","utilization":0,"shmrank":0,"detail_name":"Logical index: 96, OS index: 21","depth":4,"children":[
+{"name":"PU L#192 P#96","utilization":0,"shmrank":0,"detail_name":"Logical index: 192, OS index: 96","depth":5,"size":1},
+{"name":"PU L#193 P#200","utilization":0,"shmrank":0,"detail_name":"Logical index: 193, OS index: 200","depth":5,"size":1}],"size":2},
+{"name":"Core L#97 P#22","utilization":0,"shmrank":0,"detail_name":"Logical index: 97, OS index: 22","depth":4,"children":[
+{"name":"PU L#194 P#97","utilization":0,"shmrank":0,"detail_name":"Logical index: 194, OS index: 97","depth":5,"size":1},
+{"name":"PU L#195 P#201","utilization":0,"shmrank":0,"detail_name":"Logical index: 195, OS index: 201","depth":5,"size":1}],"size":2},
+{"name":"Core L#98 P#24","utilization":0,"shmrank":0,"detail_name":"Logical index: 98, OS index: 24","depth":4,"children":[
+{"name":"PU L#196 P#98","utilization":0,"shmrank":0,"detail_name":"Logical index: 196, OS index: 98","depth":5,"size":1},
+{"name":"PU L#197 P#202","utilization":0,"shmrank":0,"detail_name":"Logical index: 197, OS index: 202","depth":5,"size":1}],"size":2},
+{"name":"Core L#99 P#25","utilization":0,"shmrank":0,"detail_name":"Logical index: 99, OS index: 25","depth":4,"children":[
+{"name":"PU L#198 P#99","utilization":0,"shmrank":0,"detail_name":"Logical index: 198, OS index: 99","depth":5,"size":1},
+{"name":"PU L#199 P#203","utilization":0,"shmrank":0,"detail_name":"Logical index: 199, OS index: 203","depth":5,"size":1}],"size":2},
+{"name":"Core L#100 P#26","utilization":0,"shmrank":0,"detail_name":"Logical index: 100, OS index: 26","depth":4,"children":[
+{"name":"PU L#200 P#100","utilization":0,"shmrank":0,"detail_name":"Logical index: 200, OS index: 100","depth":5,"size":1},
+{"name":"PU L#201 P#204","utilization":0,"shmrank":0,"detail_name":"Logical index: 201, OS index: 204","depth":5,"size":1}],"size":2},
+{"name":"Core L#101 P#27","utilization":0,"shmrank":0,"detail_name":"Logical index: 101, OS index: 27","depth":4,"children":[
+{"name":"PU L#202 P#101","utilization":0,"shmrank":0,"detail_name":"Logical index: 202, OS index: 101","depth":5,"size":1},
+{"name":"PU L#203 P#205","utilization":0,"shmrank":0,"detail_name":"Logical index: 203, OS index: 205","depth":5,"size":1}],"size":2},
+{"name":"Core L#102 P#28","utilization":0,"shmrank":0,"detail_name":"Logical index: 102, OS index: 28","depth":4,"children":[
+{"name":"PU L#204 P#102","utilization":0,"shmrank":0,"detail_name":"Logical index: 204, OS index: 102","depth":5,"size":1},
+{"name":"PU L#205 P#206","utilization":0,"shmrank":0,"detail_name":"Logical index: 205, OS index: 206","depth":5,"size":1}],"size":2},
+{"name":"Core L#103 P#29","utilization":0,"shmrank":0,"detail_name":"Logical index: 103, OS index: 29","depth":4,"children":[
+{"name":"PU L#206 P#103","utilization":0,"shmrank":0,"detail_name":"Logical index: 206, OS index: 103","depth":5,"size":1},
+{"name":"PU L#207 P#207","utilization":0,"shmrank":0,"detail_name":"Logical index: 207, OS index: 207","depth":5,"size":1}],"size":2}],"size":52},
+{"name":"Bridge","utilization":0,"shmrank":0,"detail_name":"bridge upstream type = Host, bridge downstream type = PCI, secondary bus = d7, subordinate bus = d8","depth":3,"children":[
+{"name":"Bridge","utilization":0,"shmrank":0,"detail_name":"bridge upstream type = PCI, bus id = 0000:d7:00.0, class = 0604, id = 8086:2030, linkspeed = 15.753846 GB/s, bridge downstream type = PCI, secondary bus = d8, subordinate bus = d8","depth":4,"children":[
+{"name":"PCIDev","utilization":0,"shmrank":0,"detail_name":"bus id = 0000:d8:00.0, class = 0207, id = 15b3:1013, linkspeed = 15.753846 GB/s","depth":5,"children":[
+{"name":"OSDev ibs41f0","utilization":0,"shmrank":0,"detail_name":"type Network","depth":6,"size":1},
+{"name":"OSDev mlx5_2","utilization":0,"shmrank":0,"detail_name":"type OpenFabric","depth":6,"size":1}],"size":2},
+{"name":"PCIDev","utilization":0,"shmrank":0,"detail_name":"bus id = 0000:d8:00.1, class = 0207, id = 15b3:1013, linkspeed = 15.753846 GB/s","depth":5,"children":[
+{"name":"OSDev ibs41f1","utilization":0,"shmrank":0,"detail_name":"type Network","depth":6,"size":1},
+{"name":"OSDev mlx5_3","utilization":0,"shmrank":0,"detail_name":"type OpenFabric","depth":6,"size":1}],"size":2}],"size":4}],"size":4},
+{"name":"Bridge","utilization":0,"shmrank":0,"detail_name":"bridge upstream type = Host, bridge downstream type = PCI, secondary bus = ec, subordinate bus = ed","depth":3,"children":[
+{"name":"Bridge","utilization":0,"shmrank":0,"detail_name":"bridge upstream type = PCI, bus id = 0000:ec:00.0, class = 0604, id = 8086:203f, linkspeed = 15.753846 GB/s, bridge downstream type = PCI, secondary bus = ed, subordinate bus = ed","depth":4,"children":[
+{"name":"PCIDev","utilization":0,"shmrank":0,"detail_name":"bus id = 0000:ed:00.0, class = 0302, id = 10de:20f1, linkspeed = 15.753846 GB/s","depth":5,"children":[
+{"name":"OSDev NVML nvml2","utilization":0,"shmrank":0,"detail_name":"type GPU","depth":6,"size":1}],"size":1}],"size":1}],"size":1}],"size":57}],"size":57}],"size":228}

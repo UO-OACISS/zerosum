@@ -47,11 +47,16 @@ public:
     void handleCrash(void);
     void parseEnv(char** envp);
     uint32_t getRank(void) { return process.rank; }
+    uint32_t getSize(void) { return process.size; }
+    uint32_t getPid(void) { return process.id; }
+    std::string getHostname(void) { return computeNode.name; }
     void recordSentBytes(int rank, size_t bytes);
     void recordRecvBytes(int rank, size_t bytes);
+    uint32_t getStep(void) { return step; }
     software::Process& getProcess(void) { return process; }
     hardware::ComputeNode getComputeNode(void) { return computeNode; }
     std::ofstream& getLogfile(void) { return logfile; }
+    void setMPIFinalize(void) { mpiFinalize = true; }
 
 private:
     /* Standard singleton definition follows */
@@ -84,6 +89,7 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> start;
     bool doShutdown;
     bool doDetails;
+    bool mpiFinalize;
 #ifdef ZEROSUM_USE_LM_SENSORS
     sensor_data sensors;
 #endif // ZEROSUM_USE_LM_SENSORS

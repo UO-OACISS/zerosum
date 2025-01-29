@@ -66,6 +66,8 @@ where ZS options are zero or more of:
                             (integer seconds, default: one year, i.e. 31M seconds)
     --zs:debug              Run in debugger 'gdb'
                             (boolean, default: false)
+    --zs:logging            Run with logging enabled
+                            (boolean, default: false)
     --zs:debugger <name>    Run in debugger <name>
                             (string, default: gdb)
     --zs:map-cores          Map cores from OS index to Core (requires HWLOC)
@@ -73,6 +75,8 @@ where ZS options are zero or more of:
     --zs:map-pus            Map cores from OS index to PU (requires HWLOC
                             and assumes that SMP/hyperthreading is enabled and used)
                             (boolean, default: false)
+    --zs:add-new-hwt        Add new HWT to set of allowed cores for process if new
+                            threads are allowed to use them (boolean, default: false)
     "
     echo "${message}"
     exit 1
@@ -81,6 +85,7 @@ where ZS options are zero or more of:
 prog=""
 PARAMS=""
 debug=no
+logging=no
 debugger=gdb
 verbose=no
 
@@ -108,6 +113,10 @@ while (( "$#" )); do
         echo "Error: Argument for $1 is missing" >&2
         usage
       fi
+      ;;
+    --zs:add-new-hwt)
+      export ZS_ADD_NEW_HWT=1
+      shift
       ;;
     --zs:signal-handler)
       export ZS_SIGNAL_HANDLER=1
@@ -205,6 +214,11 @@ while (( "$#" )); do
     --zs:debug)
       debug=yes
       export ZS_DEBUGGING=1
+      shift
+      ;;
+    --zs:logging)
+      logging=yes
+      export ZS_ENABLE_LOG=1
       shift
       ;;
     --zs:help)

@@ -50,15 +50,64 @@ public:
     ~HWT() = default;
     uint32_t id;
     std::map<std::string, std::vector<std::string>> stat_fields;
+    std::vector<uint32_t> steps;
     void updateFields(std::map<std::string, std::string> fields, uint32_t step) {
         for (auto f : fields) {
             if (stat_fields.count(f.first) == 0) {
                 std::vector<std::string> v;
                 stat_fields.insert(std::pair(f.first, v));
             }
+            // this might be a new thread that wasn't around before, if so
+            // make sure we have enough slots to account for previous steps.
+            while (stat_fields[f.first].size() < steps.size()) {
+                stat_fields[f.first].push_back("0");
+            }
             stat_fields[f.first].push_back(f.second);
         }
-        stat_fields["step"].push_back(std::to_string(step));
+        steps.push_back(step);
+    }
+    std::string strPercentage(std::string lhs, std::string rhs, std::string total_lhs, std::string total_rhs) {
+        unsigned a = atol(lhs.c_str());
+        unsigned b = atol(rhs.c_str());
+        unsigned result = a>b ? a-b : 0;
+        unsigned c = atol(total_lhs.c_str());
+        unsigned d = atol(total_rhs.c_str());
+        unsigned total = c>d ? c-d : 0;
+        unsigned percent = total>0 ? (result * 100)/total : 0;
+        std::string tmpstr{std::to_string(percent)};
+        return tmpstr;
+    }
+    std::string fieldsToCSV(std::string hostname, uint32_t rank, uint32_t shmrank) {
+        std::string tmpstr;
+        // iterate over steps
+        for (size_t i = 1 ; i < steps.size() ; i++) {
+            for (auto sf : stat_fields) {
+                // did this field have a value for this step?
+                std::string value;
+                std::string prev_value;
+                std::string total;
+                std::string prev_total;
+                try {
+                    value = sf.second.at(i);
+                    total = stat_fields["total_time"].at(i);
+                    prev_value = sf.second.at(i-1);
+                    prev_total = stat_fields["total_time"].at(i-1);
+                } catch (...) {
+                    continue;
+                }
+                tmpstr += "\"" + hostname + "\",";
+                tmpstr += std::to_string(rank) + ",";
+                tmpstr += std::to_string(shmrank) + ",";
+                tmpstr += std::to_string(steps.at(i)) + ",";
+                tmpstr += "\"HWT\",\"Metric\",";
+                tmpstr += "\"" + std::to_string(id) + "\",";
+                tmpstr += "\"" + sf.first + "\",";
+                std::string percent = strPercentage(value, prev_value, total, prev_total);
+                //std::cout << sf.first << " " << value << " " << prev_value << " " << total << " " << prev_total << " " << " " << percent << std::endl;
+                tmpstr += "\"" + percent + "\"\n";
+            }
+        }
+        return tmpstr;
     }
     std::string strSub(std::string lhs, std::string rhs, double& total) {
         unsigned a = atol(lhs.c_str());
@@ -138,7 +187,8 @@ public:
     std::string timerPrefix;
     std::map<std::string, std::string> properties;
     std::map<std::string, std::vector<std::string>> stat_fields;
-    void updateFields(std::map<std::string, std::string> fields) {
+    std::vector<uint32_t> steps;
+    void updateFields(std::map<std::string, std::string> fields, uint32_t step) {
         for (auto f : fields) {
             if (stat_fields.count(f.first) == 0) {
                 std::vector<std::string> v;
@@ -150,6 +200,7 @@ public:
             //std::string tmpstr{timerPrefix + f.first};
             //PERFSTUBS_SAMPLE_COUNTER(tmpstr.c_str(), stof(f.second));
         }
+        steps.push_back(step);
     }
     std::string strSub(std::string lhs, std::string rhs, double& total) {
         unsigned a = atol(lhs.c_str());
@@ -159,6 +210,42 @@ public:
         unsigned result = a>b ? a-b : 0;
         total += result;
         std::string tmpstr{std::to_string(result)};
+        return tmpstr;
+    }
+    std::string fieldsToCSV(std::string hostname, uint32_t rank, uint32_t shmrank ) {
+        std::string tmpstr;
+        // get static properties
+        for (auto sf : properties) {
+            tmpstr += "\"" + hostname + "\",";
+            tmpstr += std::to_string(rank) + ",";
+            tmpstr += std::to_string(shmrank) + ",";
+            tmpstr += std::to_string(0) + ",";
+            tmpstr += "\"GPU\",\"Property\",";
+            tmpstr += "\"" + std::to_string(id) + "\",";
+            tmpstr += "\"" + sf.first + "\",";
+            tmpstr += "\"" + sf.second + "\"\n";
+        }
+        // iterate over steps
+        for (size_t i = 0 ; i < steps.size() ; i++) {
+            // for each field...
+            for (auto sf : stat_fields) {
+                // did this field have a value for this step?
+                std::string value;
+                try {
+                    value = sf.second.at(i);
+                } catch (...) {
+                    continue;
+                }
+                tmpstr += "\"" + hostname + "\",";
+                tmpstr += std::to_string(rank) + ",";
+                tmpstr += std::to_string(shmrank) + ",";
+                tmpstr += std::to_string(steps.at(i)) + ",";
+                tmpstr += "\"GPU\",\" Metric\",";
+                tmpstr += "\"" + std::to_string(id) + "\",";
+                tmpstr += "\"" + sf.first + "\",";
+                tmpstr += "\"" + value + "\"\n";
+            }
+        }
         return tmpstr;
     }
     std::string getFields() {
@@ -307,8 +394,9 @@ public:
     std::vector<GPU> gpus;
     bool doDetails;
     std::map<std::string, std::vector<std::string>> stat_fields;
+    std::vector<uint32_t> steps;
     /* Update the node-level properties */
-    void updateFields(std::map<std::string, std::string> fields) {
+    void updateNodeFields(std::map<std::string, std::string> fields, uint32_t step) {
         for (auto f : fields) {
             if (stat_fields.count(f.first) == 0) {
                 std::vector<std::string> v;
@@ -316,6 +404,7 @@ public:
             }
             stat_fields[f.first].push_back(f.second);
         }
+        steps.push_back(step);
     }
     void addGpu(std::vector<std::map<std::string,std::string>> props) {
         gpus.reserve(props.size());
@@ -323,9 +412,9 @@ public:
             gpus.push_back(GPU(p));
         }
     }
-    void updateGPU(std::vector<std::map<std::string,std::string>> fields) {
+    void updateGPU(std::vector<std::map<std::string,std::string>> fields, uint32_t step) {
         for (unsigned index = 0 ; index < gpus.size() ; index++) {
-            gpus[index].updateFields(fields[index]);
+            gpus[index].updateFields(fields[index], step);
         }
     }
     /* Update the hwthread-level properties */
@@ -363,6 +452,47 @@ public:
         }
         tmpstr += "\n";
         return tmpstr;
+    }
+
+    std::string fieldsToCSV(uint32_t rank, uint32_t shmrank) {
+        std::string tmpstr;
+        // iterate over steps
+        for (size_t i = 0 ; i < steps.size() ; i++) {
+            // for each field...
+            for (auto sf : stat_fields) {
+                // did this field have a value for this step?
+                std::string value;
+                try {
+                    value = sf.second.at(i);
+                } catch (...) {
+                    continue;
+                }
+                tmpstr += "\"" + name + "\",";
+                tmpstr += std::to_string(rank) + ",";
+                tmpstr += std::to_string(shmrank) + ",";
+                tmpstr += std::to_string(steps.at(i)) + ",";
+                tmpstr += "\"Node\",\"Property\",";
+                tmpstr += "\"0\",";
+                tmpstr += "\"" + sf.first + "\",";
+                tmpstr += "\"" + value + "\"\n";
+            }
+        }
+        return tmpstr;
+    }
+
+    std::string toCSV(std::set<uint32_t> hwthreads, uint32_t rank, uint32_t shmrank) {
+        std::string outstr{"\"hostname\",\"rank\",\"shmrank\",\"step\",\"resource\",\"type\",\"index\",\"name\",\"value\"\n"};
+        outstr += fieldsToCSV(rank, shmrank);
+        uint32_t index{0};
+        for (auto hwt : hwThreads) {
+            if (hwthreads.count(index++) > 0) {
+                outstr += hwt.fieldsToCSV(name, rank, shmrank);
+            }
+        }
+        for (auto gpu : gpus) {
+            outstr += gpu.fieldsToCSV(name, rank, shmrank);
+        }
+        return outstr;
     }
 
     std::string toString(std::set<uint32_t> hwthreads) {

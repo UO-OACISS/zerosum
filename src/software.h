@@ -30,6 +30,7 @@
 #include <sstream>
 #include <algorithm>
 #include <array>
+#include <mutex>
 #include "utils.h"
 #ifdef USE_HWLOC
 #include "hwloc_zs.h"
@@ -47,12 +48,13 @@ enum ThreadType { Main = 0x1,
 class LWP {
 public:
     LWP(uint32_t _id, std::vector<uint32_t> allowed_hwt,
-        std::map<std::string, std::string> fields,
+        std::map<std::string, std::string> fields, uint32_t step,
         ThreadType _type = Other) : id(_id), type(_type) {
         for (auto t : allowed_hwt) {
             hwthreads.insert(t);
         }
         extractFields(fields);
+        steps.push_back(step);
     }
     //LWP(uint32_t _id, ThreadType _type) : id(_id), type(_type) { }
     LWP() = default;
@@ -74,8 +76,9 @@ public:
     std::set<uint32_t> hwthreads;
     // The relevant /proc/self/task/tid/stat fields
     std::map<std::string, std::vector<std::string>> stat_fields;
+    std::vector<uint32_t> steps;
     void update(std::vector<uint32_t> allowed_hwt, std::map<std::string, std::string> fields,
-        ThreadType _type) {
+        ThreadType _type, uint32_t step) {
         hwthreads.clear();
         for (auto t : allowed_hwt) {
             hwthreads.insert(t);
@@ -84,12 +87,18 @@ public:
             type |= _type;
         }
         extractFields(fields);
+        steps.push_back(step);
     }
     void extractFields(std::map<std::string, std::string> fields) {
         for (auto f : fields) {
             if (stat_fields.count(f.first) == 0) {
                 std::vector<std::string> v;
                 stat_fields.insert(std::pair(f.first, v));
+            }
+            // this might be a new thread that wasn't around before, if so
+            // make sure we have enough slots to account for previous steps.
+            while (stat_fields[f.first].size() < steps.size()) {
+                stat_fields[f.first].push_back("0");
             }
             stat_fields[f.first].push_back(f.second);
 
@@ -109,7 +118,6 @@ public:
             tmpstr += ": ";
             bool comma = false;
             if (sf.first.compare("state") != 0 &&
-                sf.first.compare("step") != 0 &&
                 sf.first.compare("processor") != 0) {
                 auto previous = sf.second[0];
                 for (auto v : sf.second) {
@@ -129,6 +137,32 @@ public:
         }
         return tmpstr;
     }
+    std::string fieldsToCSV(std::string name, uint32_t rank, uint32_t shmrank) {
+        std::string tmpstr;
+        // iterate over steps
+        for (size_t i = 0 ; i < steps.size() ; i++) {
+            // for each field...
+            for (auto f : stat_fields) {
+                // did this field have a value for this step?
+                std::string value;
+                try {
+                    value = f.second.at(i);
+                } catch (...) {
+                    continue;
+                }
+                tmpstr += "\"" + name + "\",";
+                tmpstr += std::to_string(rank) + ",";
+                tmpstr += std::to_string(shmrank) + ",";
+                tmpstr += std::to_string(steps.at(i)) + ",";
+                tmpstr += "\"LWP\",\"Metric\",";
+                tmpstr += "\"" + std::to_string(id) + "\",";
+                tmpstr += "\"" + f.first + "\",";
+                tmpstr += "\"" + value + "\"\n";
+            }
+        }
+        return tmpstr;
+    }
+
     std::string typeToString(void) {
         std::string sType;
         if (type & Main) {
@@ -214,7 +248,7 @@ class Process {
 public:
     Process(uint32_t _id, uint32_t _rank, uint32_t _size,
         std::map<std::string, std::string> _fields,
-        std::vector<uint32_t> allowed_hwt) : id(_id), rank(_rank), size(_size) {
+        std::vector<uint32_t> allowed_hwt) : id(_id), rank(_rank), size(_size), shmrank(_rank) {
         /* We need a lock because the async thread and OMPT callback can report threads */
         std::unique_lock<std::mutex> lk(thread_mtx);
         for (auto t : allowed_hwt) {
@@ -230,20 +264,21 @@ public:
     Process() = default;
     ~Process() = default;
     void add(uint32_t tid, std::vector<uint32_t> allowed_hwt,
-        std::map<std::string, std::string> fields, ThreadType type = Other) {
+        std::map<std::string, std::string> fields, uint32_t step, ThreadType type = Other) {
         /* We need a lock because the async thread and OMPT callback can report threads */
         std::unique_lock<std::mutex> lk(thread_mtx);
         if (threads.count(tid) == 0) {
             threads.insert(std::pair(tid, LWP(tid, allowed_hwt, fields, type)));
         } else {
-            threads[tid].update(allowed_hwt, fields, type);
+            threads[tid].update(allowed_hwt, fields, type, step);
         }
         /* In case we have added to our set of HWT, add them */
-        /*
-        for (auto t : allowed_hwt) {
-            hwthreads.insert(t);
+        static bool addNew = parseBool("ZS_ADD_NEW_HWT", false);
+        if (addNew) {
+            for (auto t : allowed_hwt) {
+                hwthreads.insert(t);
+            }
         }
-        */
     }
     // disabled copy constructor
     //Process(const Process&) = default;
@@ -251,6 +286,7 @@ public:
     uint32_t id; // The process ID
     uint32_t rank; // The MPI rank
     uint32_t size; // The MPI size
+    uint32_t shmrank; // The MPI size
     std::set<uint32_t> hwthreads; // The cores this process can run on
     std::string hwthreads_raw;
     std::map<uint32_t, LWP> threads; // The set of lightweight OS threads of this process
@@ -259,6 +295,7 @@ public:
     std::map<std::string,std::string> environment;
     std::string executable;
     std::map<std::string, std::string> fields;
+    std::vector<uint32_t> steps;
     std::map<int, std::pair<size_t, size_t>> sentBytes;
     std::map<int, std::pair<size_t, size_t>> recvBytes;
 
@@ -271,6 +308,51 @@ public:
         return (threads.count(hwt) > 0);
     }
 
+    std::string toLog(void) {
+        char buffer[1025];
+        snprintf(buffer, 1024,
+            "MPI %03d - SEC %d - Node %s - PID %d\n",
+            rank, 0, computeNode->name.c_str(), id);
+        std::string tmpstr(buffer);
+
+        std::stringstream ss;
+        bool comma = false;
+        for (auto t : hwthreads) {
+            if (comma) ss << ",";
+            ss << t;
+            comma = true;
+        }
+        std::string discrete{ss.str()};
+        snprintf(buffer, 1024,
+            "MPI %03d - SEC %d - Node %s - CPUs allowed: [%s]\n",
+            rank, 1, computeNode->name.c_str(), discrete.c_str());
+        tmpstr += buffer;
+        //PERFSTUBS_METADATA("CPUs allowed", discrete.c_str());
+        for (auto env : environment) {
+            tmpstr += env.first + " = " + env.second + "\n";
+        }
+#ifdef ZEROSUM_USE_MPI
+        tmpstr += "\nP2P Communication Summary:\n";
+        for (auto b : sentBytes) {
+            auto dest = b.first;
+            size_t count = b.second.first;
+            size_t bytes = b.second.second;
+            tmpstr += "Sent " + std::to_string(bytes)
+                    + " bytes to rank " + std::to_string(dest)
+                    + " in " + std::to_string(count) + " calls\n";
+        }
+        for (auto b : recvBytes) {
+            auto source = b.first;
+            size_t count = b.second.first;
+            size_t bytes = b.second.second;
+            tmpstr += "Received " + std::to_string(bytes)
+                    + " bytes from rank " + std::to_string(source)
+                    + " in " + std::to_string(count) + " calls\n";
+        }
+        tmpstr += "\n";
+#endif
+        return tmpstr;
+    }
     std::string toString(void) {
         char buffer[1025];
         snprintf(buffer, 1024,
@@ -372,7 +454,7 @@ public:
             static bool doMap{parseBool("ZS_MAP_CORES",false)};
             static bool doMap2{parseBool("ZS_MAP_PUS",false)};
             if (doMap || doMap2) {
-                // before we can print the assigned cores, map them 
+                // before we can print the assigned cores, map them
                 // from the OS indexes to the HW indexes.
                 std::set<uint32_t> hwthreads_mapped;
                 auto& theMap = ::zerosum::ScopedHWLOC::getHWTMap();
@@ -410,6 +492,42 @@ public:
 #endif
         return tmpstr;
     }
+
+    std::string fieldsToCSV(uint32_t rank, uint32_t shmrank) {
+        std::string tmpstr;
+        // iterate over steps
+        for (size_t i = 0 ; i < steps.size() ; i++) {
+            // for each field...
+            for (auto f : fields) {
+                // did this field have a value for this step?
+                std::string value;
+                try {
+                    value = f.second.at(i);
+                } catch (...) {
+                    continue;
+                }
+                tmpstr += "\"" + computeNode->name + "\",";
+                tmpstr += std::to_string(rank) + ",";
+                tmpstr += std::to_string(shmrank) + ",";
+                tmpstr += std::to_string(steps.at(i)) + ",";
+                tmpstr += "\"Node\",\"Property\",";
+                tmpstr += "\"0\",";
+                tmpstr += "\"" + f.first + "\",";
+                tmpstr += "\"" + value + "\"\n";
+            }
+        }
+        return tmpstr;
+    }
+
+    std::string toCSV(void) {
+        std::string outstr;
+        outstr += fieldsToCSV(rank, shmrank);
+        for (auto lwp : threads) {
+            outstr += lwp.second.fieldsToCSV(computeNode->name, rank, shmrank);
+        }
+        return outstr;
+    }
+
 
     void recordSentBytes(int rank, size_t bytes) {
         if (sentBytes.count(rank) == 0) {

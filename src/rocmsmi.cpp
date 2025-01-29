@@ -152,11 +152,9 @@ namespace zerosum {
             fields.insert(std::pair(std::string("Memory Controller Activity"), std::to_string(pgpu_metrics.average_umc_activity)));
             fields.insert(std::pair(std::string("UVD|VCN Activity"), std::to_string(pgpu_metrics.average_mm_activity)));
             fields.insert(std::pair(std::string("Throttle Status"), std::to_string(pgpu_metrics.throttle_status)));
-            fields.insert(std::pair("step",std::to_string(step)));
-
             allfields.push_back(fields);
         }
-        computeNode.updateGPU(allfields);
+        computeNode.updateGPU(allfields, step);
         return 0;
     }
 }

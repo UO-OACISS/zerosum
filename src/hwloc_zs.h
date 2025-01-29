@@ -27,8 +27,14 @@
 #include "hwloc.h"
 #include <map>
 #include <iostream>
+#include <fstream>
+#include <string>
 
 namespace zerosum {
+
+namespace software {
+    class Process;
+}
 
 class ScopedHWLOC {
 private:
@@ -37,13 +43,22 @@ private:
     void traverse(hwloc_obj_t obj, size_t indent=0);
 public:
     void traverse(void) {
-        std::cout << "HWLOC Node topology:" << std::endl;
+        //std::cout << "HWLOC Node topology:" << std::endl;
         traverse(root);
     }
+    void buildJSON(void);
+    std::pair<std::string, uint32_t> buildJSON(hwloc_obj_t obj, int32_t depth);
     static std::map<size_t, size_t>& getHWTMap();
-    static void validate_hwloc(size_t rank);
+    static void validate_hwloc(int shmrank);
     ScopedHWLOC(void) {
         hwloc_topology_init(&topo);
+        unsigned long flags = hwloc_topology_get_flags(topo);
+        //std::cout << "Flags before: " << flags << std::endl;
+        flags = flags | HWLOC_TOPOLOGY_FLAG_INCLUDE_DISALLOWED;
+        //std::cout << "Flags after: " << flags << std::endl;
+        hwloc_topology_set_flags(topo, flags);
+        //hwloc_topology_set_all_types_filter(topo, HWLOC_TYPE_FILTER_KEEP_ALL);
+        hwloc_topology_set_io_types_filter(topo, HWLOC_TYPE_FILTER_KEEP_IMPORTANT);
 	    hwloc_topology_load(topo);
         root = hwloc_get_root_obj(topo);
     }

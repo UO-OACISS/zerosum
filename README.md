@@ -1,6 +1,13 @@
 # zerosum
 Utility for monitoring process, thread, OS and HW resources, including GPU utilization.
 
+![Example sunburst plot from a one node run on Sunspot (ALCF).](./doc/sunburst.png)
+<i>Above: Example sunburst plot from a one node run on Sunspot (ALCF).</i>
+![Summary views of collected data – 64 GCDs, XGC running on Frontier (OLCF).](./doc/gpu-time-series.png)
+<i>Above: Summary views of collected data – 64 GCDs, XGC running on Frontier (OLCF).</i>
+![STAT-like view of divergent callpaths in hung MPI application with 512 MPI ranks (NERSC).](./doc/callpaths.png)
+<i>Above: STAT-like view of divergent callpaths in hung MPI application with 512 MPI ranks (NERSC).</i>
+
 Current CI status on develop branch : [![CircleCI](https://circleci.com/gh/UO-OACISS/zerosum.svg?style=svg)](https://circleci.com/gh/UO-OACISS/zerosum)
 
 Inspired by [Tom Pappatheodore's Hello jsrun code for testing layout of Summit resources](https://code.ornl.gov/t4p/Hello_jsrun), and further inspired by Dagstuhl seminar 23171: ["Driving HPC Operations With Holistic Monitoring and Operational Data Analytics"](https://www.dagstuhl.de/en/seminars/seminar-calendar/seminar-details/23171)
@@ -9,13 +16,21 @@ Inspired by [Tom Pappatheodore's Hello jsrun code for testing layout of Summit r
 
 [HUST 2023 Presentation](http://www.nic.uoregon.edu/~khuck/zerosum/2023-HUST-ZeroSum.pdf) - 11th International Workshop on HPC User Support Tools @SC23, 2023
 
+[Scalable Tools Workshop 2024 Presentation](https://dyninst.github.io/scalable_tools_workshop/petascale2024/monday.html) - Scalable Tools Workshop, Lake Tahoe, CA August 12, 2024
+
 ## Overview
 
-ZeroSum will monitor OS threads, OpenMP threads, MPI processes, and the hardware assigned
-to them including CPUs, memory usage and GPU utilization. Supported systems include all
-Linux operating systems, as well as NVIDIA (CUDA/NVML), AMD (HIP/ROCm-SMI) and Intel (Intel SYCL) GPUs.
-Host side monitoring happens through the virtual `/proc` filesystem, so should be portable
-to all Linux systems.
+ZeroSum will monitor OS threads, OpenMP threads, MPI processes, and the
+hardware assigned to them including CPUs, memory usage and GPU utilization.
+Supported systems include all Linux operating systems, as well as NVIDIA
+(CUDA/NVML), AMD (HIP/ROCm-SMI) and Intel (Intel SYCL) GPUs.  Host side
+monitoring happens through the virtual `/proc` filesystem, so should be
+portable to all Linux systems. When integrated with HWLOC, visualizations of
+utilization data can be generated from included Python post-processing scripts.
+Automatic deadlock detection is available, and ZeroSum will generate call
+stacks from all ranks, merge them, and visualize the resulting merged call
+stacks to help diagnose where expected behavior diverged (similar to
+STAT/Cray-STAT).
 
 ## Build instructions
 
@@ -49,6 +64,7 @@ performance tools like [TAU](https://github.com/UO-OACISS/tau2/) or
 [APEX](https://github.com/UO-OACISS/apex/). For that reason, a working internet connection
 is needed at configuration time. PerfStubs can be disabled with the `-DZeroSum_WITH_PerfStubs=FALSE`
 CMake flag at configuration time (FALSE by default). GPU, HWLOC, MPI, and OpenMP support are also optional but recommended.
+Post-processing scripts require Pandas.
 
 ## Sample Output
 
@@ -142,4 +158,5 @@ In this example, the `stime` values are time spent in system calls, the `utime` 
    For more details, see the [sourceme-polaris-sycl.sh](scripts/sourceme-polaris-sycl.sh),
    [build-polaris-sycl.sh](scripts/build-polaris-sycl.sh) and
    [job-polaris-sycl.sh](scripts/job-polaris-sycl.sh) scripts.
+
 

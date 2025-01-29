@@ -142,11 +142,10 @@ int ZeroSum::getpthreads() {
             fields.insert(std::pair("pthread trylock calls",std::to_string(counters->trylocks)));
             //fields.insert(std::pair("pthread wait calls",std::to_string(counters->waits)));
             //fields.insert(std::pair("pthread timedwait calls",std::to_string(counters->timedwaits)));
-            fields.insert(std::pair("step",std::to_string(step)));
             if (lwp == async_tid) {
-                this->process.add(lwp, allowed_list, fields, software::ThreadType::ZeroSum);
+                this->process.add(lwp, allowed_list, fields, step, software::ThreadType::ZeroSum);
             } else {
-                this->process.add(lwp, allowed_list, fields);
+                this->process.add(lwp, allowed_list, fields, step);
             }
         }
         (void) closedir (dp);
