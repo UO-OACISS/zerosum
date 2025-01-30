@@ -21,6 +21,8 @@ class cray_pm_counters {
         cray_pm_counters(void);
         ~cray_pm_counters(void);
         std::map<std::string,std::string> read_counters(void);
+        uint64_t get_unitless(std::string name);
+        std::pair<uint64_t,std::string> get_with_unit(std::string name);
     private:
         bool supported;
         const std::string location{"/sys/cray/pm_counters/"};
@@ -29,6 +31,8 @@ class cray_pm_counters {
         const std::set<std::string> skip = { "startup", "version", "raw_scan_hz", "generation", "freshness" };
         // each metric has a name, full name with unit, and previous value
         std::map<std::string, cray_tuple> previous;
+        uint64_t previous_generation;
+        uint64_t previous_freshness;
 };
 
 }
