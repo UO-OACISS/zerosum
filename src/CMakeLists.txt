@@ -89,6 +89,7 @@ set(SOURCES
     zerosum_process.cpp
     zerosum_pthreads.cpp
     utils.cpp
+    cray_pm_counters.cpp
     ${GPU_SOURCE}
     ${HWLOC_SOURCE}
     ${LM_SENSORS_SOURCE}

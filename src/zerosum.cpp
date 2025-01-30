@@ -251,6 +251,7 @@ void ZeroSum::doPeriodic(void) {
 #ifdef ZEROSUM_USE_LM_SENSORS
     computeNode.updateNodeFields(sensors.read_sensors(),step);
 #endif // ZEROSUM_USE_LM_SENSORS
+    computeNode.updateNodeFields(cray_counters.read_counters(),step);
     getgpustatus();
     std::string tmpstr{computeNode.reportMemory()};
     if (logfile.is_open()) {

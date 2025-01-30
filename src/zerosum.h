@@ -31,6 +31,7 @@
 #include <condition_variable>
 #include "topology.h"
 #include "lm_sensor_data.h"
+#include "cray_pm_counters.h"
 
 namespace zerosum {
 
@@ -93,6 +94,7 @@ private:
 #ifdef ZEROSUM_USE_LM_SENSORS
     sensor_data sensors;
 #endif // ZEROSUM_USE_LM_SENSORS
+    cray_pm_counters cray_counters;
 
     // Other private member variables and functions...
     void getMPIinfo(void);
