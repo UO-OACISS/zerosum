@@ -24,6 +24,8 @@
 
 math(EXPR ZeroSum_LAST_CORE ${ZeroSum_NPROC}-1)
 
+add_executable(server server.cpp)
+target_link_libraries (server PUBLIC cppzmq libzmq)
 add_executable(deadlock deadlock.cpp)
 target_link_libraries (deadlock pthread)
 add_dependencies (deadlock zerosum)

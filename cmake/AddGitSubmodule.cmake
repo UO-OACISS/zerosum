@@ -24,7 +24,7 @@
 
 cmake_minimum_required(VERSION 3.19)
 
-function(add_git_submodule dir)
+function(add_git_submodule dir build)
 # add a Git submodule directory to CMake, assuming the
 # Git submodule directory is a CMake project.
 #
@@ -41,6 +41,8 @@ if(NOT EXISTS ${dir}/CMakeLists.txt)
     COMMAND_ERROR_IS_FATAL ANY)
 endif()
 
+if(${build})
 add_subdirectory(${dir})
+endif(${build})
 
 endfunction(add_git_submodule)
