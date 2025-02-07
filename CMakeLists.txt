@@ -35,6 +35,7 @@ option (ZeroSum_WITH_LM_SENSORS "Enable lm-sensors support" FALSE)
 option (ZeroSum_WITH_MPI "Enable MPI support" TRUE)
 option (ZeroSum_WITH_OPENMP "Enable OpenMP support" TRUE)
 option (ZeroSum_WITH_OMPT "Enable OpenMP Tools support" TRUE)
+option (ZeroSum_WITH_ZEROMQ "Enable ZeroMQ support" TRUE)
 option (ZeroSum_NPROC "Max number of cores to bind to for tests" 8)
 
 string (REPLACE ":" " " MY_PATH_STR $ENV{PATH})
@@ -97,11 +98,12 @@ endif (ZeroSum_WITH_OPENMP)
 
 include(GNUInstallDirs)
 include(cmake/AddGitSubmodule.cmake)
+include(FindPackageHandleStandardArgs)
 
 enable_testing()
 
 if (ZeroSum_WITH_PerfStubs)
-    add_git_submodule(perfstubs)
+    add_git_submodule(perfstubs TRUE)
 endif (ZeroSum_WITH_PerfStubs)
 
 #####  LM Sensors #####
@@ -129,8 +131,39 @@ if(ZeroSum_WITH_LM_SENSORS)
     add_definitions(-DZEROSUM_USE_LM_SENSORS)
 endif(ZeroSum_WITH_LM_SENSORS)
 
-
 #####  LM Sensors #####
+
+################################################################################
+# Zeromq configuration
+################################################################################
+
+if(ZeroSum_WITH_ZEROMQ)
+    message(INFO " Checking for ZeroMQ installation in $ZeroMQ_ROOT...")
+    find_package(ZeroMQ QUIET)
+    # libzmq autotools install: fallback to pkg-config
+    if (ZeroMQ_FOUND AND NOT (TARGET libzmq OR TARGET libzmq-static))
+        message(FATAL_ERROR "ZeroMQ version not supported!")
+    endif()
+    # TODO "REQUIRED" above should already cause a fatal failure if not found, but this doesn't seem to work
+    if(NOT ZeroMQ_FOUND)
+        message(STATUS "ZeroMQ was not found, neither as a CMake package nor via pkg-config")
+        message(INFO " ZeroMQ not found, cloning submodule to get required library.")
+        set(ZMQ_BUILD_TESTS OFF CACHE BOOL "Build the tests for ZeroMQ" FORCE)
+        add_git_submodule(libzmq TRUE)
+    else()
+        message(INFO " Using ZeroMQ include: ${ZeroMQ_INCLUDE_DIRS}/impl")
+        include_directories(${ZeroMQ_INCLUDE_DIRS})
+        include_directories(${ZeroMQ_INCLUDE_DIRS}/impl)
+    endif()
+
+    message(INFO " Cloning cppzmq submodule to get required headers.")
+    set(CPPZMQ_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    add_git_submodule(cppzmq TRUE)
+    set_target_properties(cppzmq PROPERTIES CPPZMQ_BUILD_TESTS OFF)
+    add_definitions(-DZEROSUM_USE_ZEROMQ)
+endif()
+
+
 
 add_custom_target(zerosum.tests)
 add_custom_command(TARGET zerosum.tests POST_BUILD COMMAND ctest -R test --output-on-failure --timeout 100)

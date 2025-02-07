@@ -1,3 +1,9 @@
 [submodule "perfstubs"]
 	path = perfstubs
 	url = https://github.com/UO-OACISS/perfstubs.git
+[submodule "cppzmq"]
+	path = cppzmq
+	url = https://github.com/zeromq/cppzmq.git
+[submodule "libzmq"]
+	path = libzmq
+	url = https://github.com/zeromq/libzmq.git

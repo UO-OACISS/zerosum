@@ -357,6 +357,11 @@ void ZeroSum::finalizeLog() {
     out << process.toCSV();
     out.close();
 #endif
+#ifdef ZEROSUM_USE_ZEROMQ
+    std::string data{computeNode.toCSV(process.hwthreads, process.rank, process.shmrank)};
+    data += process.toCSV();
+    int rc = writeToLocalAggregator(data);
+#endif
 }
 
 std::pair<std::string,std::string> split (const std::string &s) {

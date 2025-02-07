@@ -101,6 +101,9 @@ private:
     void openLog(void);
     int getgpu(void);
     int getgpustatus(void);
+#ifdef ZEROSUM_USE_ZEROMQ
+    int writeToLocalAggregator(const std::string& data);
+#endif
 #ifdef ZEROSUM_USE_OPENMP
     void getopenmp(void);
 #endif

@@ -96,6 +96,12 @@ if (ZeroSum_WITH_LM_SENSORS)
     include_directories(${LM_SENSORS_INCLUDE_DIRS})
 endif (ZeroSum_WITH_LM_SENSORS)
 
+if (ZeroSum_WITH_ZEROMQ)
+    set(ZEROMQ_SOURCE zerosum_zmq.cpp)
+    set(CPPZMQ_LIB cppzmq)
+    set(LIBZMQ_LIB libzmq)
+endif (ZeroSum_WITH_ZEROMQ)
+
 if (ZeroSum_WITH_OPENMP)
     set(OPENMP_SOURCE zerosum_openmp.cpp)
 endif (ZeroSum_WITH_OPENMP)
@@ -110,12 +116,13 @@ set(SOURCES
     ${GPU_SOURCE}
     ${HWLOC_SOURCE}
     ${LM_SENSORS_SOURCE}
+    ${ZEROMQ_SOURCE}
     ${ERROR_HANDLING})
 
 # Single process library
 
 add_library(zerosum SHARED ${SOURCES})
-target_link_libraries (zerosum PUBLIC ${LM_SENSORS_LIBRARIES} ${PERFSTUBS_LIB} ${GPU_LIB} ${HWLOC_LIB} ${LM_SENSORS_LIB} pthread)
+target_link_libraries (zerosum PUBLIC ${LM_SENSORS_LIBRARIES} ${PERFSTUBS_LIB} ${GPU_LIB} ${HWLOC_LIB} ${LM_SENSORS_LIB} ${CPPZMQ_LIB} ${LIBZMQ_LIB} pthread)
 if (ZeroSum_WITH_OPENMP)
     target_compile_definitions(zerosum PUBLIC -DZEROSUM_USE_OPENMP=1)
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "NVHPC")
@@ -139,7 +146,7 @@ endif (ZeroSum_WITH_LM_SENSORS AND NOT LM_SENSORS_FOUND)
 if (ZeroSum_WITH_MPI)
     add_library(zerosum-mpi SHARED ${SOURCES} zerosum_mpi.cpp)
     target_compile_definitions(zerosum-mpi PUBLIC -DZEROSUM_USE_MPI=1)
-    target_link_libraries (zerosum-mpi PUBLIC ${LM_SENSORS_LIBRARIES} ${PERFSTUBS_LIB} ${GPU_LIB} ${HWLOC_LIB} MPI::MPI_CXX pthread)
+    target_link_libraries (zerosum-mpi PUBLIC ${LM_SENSORS_LIBRARIES} ${PERFSTUBS_LIB} ${GPU_LIB} ${HWLOC_LIB} ${CPPZMQ_LIB} ${LIBZMQ_LIB} MPI::MPI_CXX pthread)
     if (ZeroSum_WITH_OPENMP)
         target_compile_definitions(zerosum-mpi PUBLIC -DZEROSUM_USE_OPENMP=1)
         if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "NVHPC")
