@@ -137,10 +137,11 @@ public:
         }
         return tmpstr;
     }
-    std::string fieldsToCSV(std::string name, uint32_t rank, uint32_t shmrank) {
+    std::string fieldsToCSV(std::string name, uint32_t rank, uint32_t shmrank,
+        size_t& i) {
         std::string tmpstr;
         // iterate over steps
-        for (size_t i = 0 ; i < steps.size() ; i++) {
+        for ( ; i < steps.size() ; i++) {
             // for each field...
             for (auto f : stat_fields) {
                 // did this field have a value for this step?
@@ -493,10 +494,11 @@ public:
         return tmpstr;
     }
 
-    std::string fieldsToCSV(uint32_t rank, uint32_t shmrank) {
+    std::string fieldsToCSV(uint32_t rank, uint32_t shmrank,
+        size_t& i) {
         std::string tmpstr;
         // iterate over steps
-        for (size_t i = 0 ; i < steps.size() ; i++) {
+        for ( ; i < steps.size() ; i++) {
             // for each field...
             for (auto f : fields) {
                 // did this field have a value for this step?
@@ -510,7 +512,7 @@ public:
                 tmpstr += std::to_string(rank) + ",";
                 tmpstr += std::to_string(shmrank) + ",";
                 tmpstr += std::to_string(steps.at(i)) + ",";
-                tmpstr += "\"Node\",\"Property\",";
+                tmpstr += "\"Node\",\"Metric\",";
                 tmpstr += "\"0\",";
                 tmpstr += "\"" + f.first + "\",";
                 tmpstr += "\"" + value + "\"\n";
@@ -519,15 +521,20 @@ public:
         return tmpstr;
     }
 
-    std::string toCSV(void) {
+    std::string toCSV(size_t& lastValueWritten) {
         std::string outstr;
-        outstr += fieldsToCSV(rank, shmrank);
+        auto saveme = lastValueWritten;
+        outstr += fieldsToCSV(rank, shmrank, lastValueWritten);
         for (auto lwp : threads) {
-            outstr += lwp.second.fieldsToCSV(computeNode->name, rank, shmrank);
+            lastValueWritten = saveme;
+            outstr += lwp.second.fieldsToCSV(computeNode->name, rank, shmrank, lastValueWritten);
         }
         return outstr;
     }
-
+    std::string toCSV(void) {
+        size_t lastValueWritten{0};
+        return toCSV(lastValueWritten);
+    }
 
     void recordSentBytes(int rank, size_t bytes) {
         if (sentBytes.count(rank) == 0) {

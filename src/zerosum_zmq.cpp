@@ -37,27 +37,46 @@ const char * ipc_location{"ipc:///tmp/zs.feeds.0"};
 int ZeroSum::writeToLocalAggregator(const std::string& data) {
     // initialize the zmq context with a single IO thread
     zmq::context_t context{1};
+    static std::string bindPoint{parseString("ZS_AGGREGATION_BINDPOINT", "tcp://localhost:5555")};
+    int immediate = 1;
+    int send_timeout = 0;
+    int recv_timeout = -1; // infinite, the default
 
-    // construct a REQ (request) socket and connect to interface
-    zmq::socket_t socket{context, zmq::socket_type::req};
-    socket.connect("tcp://localhost:5555");
-    //socket.connect(ipc_location);
-
-    // send the request message
-    socket.send(zmq::buffer(data), zmq::send_flags::none);
-
-    // wait for reply from server
-    zmq::message_t reply{};
-    zmq::recv_result_t ret(socket.recv(reply, zmq::recv_flags::none));
-    if (ret.has_value() && (EAGAIN == ret.value()))
-    {
-        // msocket had nothing to read and recv() timed out
-        //std::cout << "Not Received " << reply.to_string() << std::endl;
-        return 1;
+    try {
+        // construct a REQ (request) socket and connect to interface
+        zmq::socket_t socket{context, zmq::socket_type::req};
+        socket.setsockopt(ZMQ_IMMEDIATE, &immediate, sizeof(immediate));
+        //socket.setsockopt(ZMQ_SNDTIMEO, &send_timeout, sizeof(send_timeout));
+        //socket.setsockopt(ZMQ_RCVTIMEO, &recv_timeout, sizeof(recv_timeout));
+        // make the connection
+        //std::cout << "Connecting..." << std::endl;
+        socket.connect(bindPoint);
+        {
+            // send the request message
+            //std::cout << "Sending..." << std::endl;
+            zmq::send_result_t ret(socket.send(zmq::buffer(data), zmq::send_flags::none));
+            if (ret.has_value() && (EAGAIN == ret.value()))
+            {
+                // send failed
+                //std::cerr << "Send failed" << std::endl;
+                return 1;
+            }
+        }
+        // wait for reply from server
+        zmq::message_t reply{};
+        //std::cout << "Receiving..." << std::endl;
+        zmq::recv_result_t ret(socket.recv(reply, zmq::recv_flags::none));
+        if (ret.has_value() && (EAGAIN == ret.value()))
+        {
+            // msocket had nothing to read and recv() timed out
+            //std::cerr << "Recv failed" << std::endl;
+            return 1;
+        }
+        //std::cout << "Received " << reply.to_string() << std::endl;
+    } catch (const zmq::error_t& e) {
+        //std::cerr << "Exception" << std::endl;
+        return 1; // Indicate failure
     }
-
-    //std::cout << "Received " << reply.to_string();
-    std::cout << std::endl;
     return 0;
 }
 

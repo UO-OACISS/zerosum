@@ -93,6 +93,12 @@ void ZeroSum::threadedFunction(void) {
     constexpr uint32_t oneYear = 60 * 60 * 24 * 365; // one year in seconds
     std::chrono::seconds timeLimit{parseInt("ZS_TIMELIMIT", oneYear)};
     auto expiration = prev + timeLimit;
+
+#ifdef ZEROSUM_USE_ZEROMQ
+    std::chrono::seconds aggregatorPeriod{parseInt("ZS_AGGREGATOR_PERIOD", 10)};
+    auto then2 = prev + aggregatorPeriod;
+#endif
+
     block_signal();
     while (working) {
         auto then = prev + period;
@@ -117,6 +123,18 @@ void ZeroSum::threadedFunction(void) {
             finalizeLog();
             pthread_kill(this->process.id, SIGQUIT);
         }
+#ifdef ZEROSUM_USE_ZEROMQ
+        // check for aggregation step
+        if (std::chrono::steady_clock::now() > then2) {
+            // do aggregation
+            std::string data{computeNode.toCSV(process.hwthreads,
+                process.rank, process.shmrank, lastStepWritten)};
+            data += process.toCSV(lastStepWritten);
+            int rc = writeToLocalAggregator(data);
+            // set a new expiration time
+            then2 = then2 + aggregatorPeriod;
+        }
+#endif
     }
 }
 
@@ -283,7 +301,11 @@ void ZeroSum::getProcStatus() {
 
 /* The main singleton constructor for the ZeroSum class */
 ZeroSum::ZeroSum(void) : step(0), start(std::chrono::steady_clock::now()),
-    doShutdown(true), mpiFinalize(false) {
+    doShutdown(true), mpiFinalize(false)
+#ifdef ZEROSUM_USE_ZEROMQ
+    , lastStepWritten(0)
+#endif
+    {
     working = true;
     if (parseBool("ZS_SIGNAL_HANDLER", false)) {
         register_signal_handler();
@@ -358,8 +380,9 @@ void ZeroSum::finalizeLog() {
     out.close();
 #endif
 #ifdef ZEROSUM_USE_ZEROMQ
-    std::string data{computeNode.toCSV(process.hwthreads, process.rank, process.shmrank)};
-    data += process.toCSV();
+    std::string data{computeNode.toCSV(process.hwthreads,
+        process.rank, process.shmrank, lastStepWritten)};
+    data += process.toCSV(lastStepWritten);
     int rc = writeToLocalAggregator(data);
 #endif
 }
