@@ -103,6 +103,7 @@ private:
     int getgpustatus(void);
 #ifdef ZEROSUM_USE_ZEROMQ
     int writeToLocalAggregator(const std::string& data);
+    size_t lastStepWritten;
 #endif
 #ifdef ZEROSUM_USE_OPENMP
     void getopenmp(void);
