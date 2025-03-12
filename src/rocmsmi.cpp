@@ -25,16 +25,6 @@
 #include "rocmsmi.h"
 #include "hip/hip_runtime.h"
 
-// Macro for checking errors in GPU API calls
-#define gpuErrorCheck(call)                                                                  \
-    do{                                                                                          \
-        hipError_t gpuErr = call;                                                               \
-        if(hipSuccess != gpuErr){                                                               \
-            printf("GPU Error - %s:%d: '%s'\n", __FILE__, __LINE__, hipGetErrorString(gpuErr)); \
-            exit(0);                                                                             \
-        }                                                                                        \
-    }while(0)
-
 #define MICROWATTS 1.0e-6
 #define VOLTAGE 1.0e-3  // scale mV to V
 #define CELSIUS 1.0e-3  // scale mC to C
@@ -106,6 +96,7 @@ namespace zerosum {
             fields.insert(std::pair(std::string("Energy Average (J)"),
                 std::to_string((double(value)*counter_resolution)*MICROWATTS)));
             //printf("%f counter_resolution, %lu value\n", counter_resolution, value);
+            /*
             int64_t temperature;
             RSMI_CALL(rsmi_dev_temp_metric_get(d, sensor_index, RSMI_TEMP_CURRENT, &temperature));
             fields.insert(std::pair(std::string("Temperature (C)"),
@@ -113,6 +104,7 @@ namespace zerosum {
             RSMI_CALL(rsmi_dev_volt_metric_get(d, RSMI_VOLT_TYPE_VDDGFX, RSMI_VOLT_CURRENT, &temperature));
             fields.insert(std::pair(std::string("Voltage (mV)"),
                 std::to_string((double(temperature)))));
+                */
 
 
             /* Memory */
