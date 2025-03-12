@@ -1,5 +1,5 @@
 #PATH=$PATH:$HOME/src/apex/install_gilgamesh_5.2.0/bin
-export ROCM_COMPILER_VERSION=5.4.3
+export ROCM_COMPILER_VERSION=5.7.1
 module unload darshan-runtime
 
 builddir=`pwd`/build.${ROCM_COMPILER_VERSION}
@@ -9,6 +9,9 @@ instdir=/sw/frontier/ums/ums002/zerosum/amd_${ROCM_COMPILER_VERSION}
 rm -rf ${builddir}
 
 cmake -B ${builddir} \
+-DCMAKE_C_COMPILER=amdclang \
+-DCMAKE_CXX_COMPILER=amdclang++ \
+-DCMAKE_Fortran_COMPILER=amdflang \
 -DCMAKE_BUILD_TYPE=RelWithDebInfo \
 -DCMAKE_INSTALL_PREFIX=${instdir} \
 -DROCM_PATH=/opt/rocm-${ROCM_COMPILER_VERSION} \
