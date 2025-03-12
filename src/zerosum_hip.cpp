@@ -37,7 +37,7 @@ do{                                                                             
     hipError_t gpuErr = call;                                                               \
     if(hipSuccess != gpuErr){                                                               \
         printf("GPU Error - %s:%d: '%s'\n", __FILE__, __LINE__, hipGetErrorString(gpuErr)); \
-        exit(0);                                                                             \
+        /* exit(0); */                                                                             \
     }                                                                                        \
 }while(0)
 

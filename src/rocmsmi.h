@@ -28,7 +28,7 @@
 #include "rocm_smi/rocm_smi.h"
 
 #define RSMI_CALL(call)                                                      \
-do {                                                                         \
+try {                                                                         \
     rsmi_status_t _status = call;                                            \
     if (_status != RSMI_STATUS_SUCCESS) {                                    \
         const char *errstr;                                                  \
@@ -39,7 +39,13 @@ do {                                                                         \
         exit(0);                                                                             \
         }                                                                    \
     }                                                                        \
-} while (0);
+} catch (const std::system_error& ex) { \
+    std::cout << "Caught system_error with code " \
+                     "[" << ex.code() << "] meaning " \
+                     "[" << ex.what() << "]\n"; \
+} catch (const std::exception& ex) { \
+    std::cerr << ex.what() << std::endl; \
+};
 
 namespace zerosum {
 
