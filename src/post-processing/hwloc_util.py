@@ -21,12 +21,14 @@ def parseArgs():
     return args
 
 def parseData():
-    # Read the CSV data
+    # Read the CSV data - use dtype to speed it up
+    dtype={"hostname": str, "rank": int, "shmrank": int, "step": int, "resource": str, "type": str, "index": int, "name": str, "value": str}
     all_files = glob.glob(os.path.join('.', "zs.data.*.csv"))
-    df = pd.concat((pd.read_csv(f) for f in all_files), ignore_index=True)
+    df = pd.concat((pd.read_csv(f,dtype=dtype) for f in all_files), ignore_index=True)
     return df
 
 def parseHWTData(df):
+    print("HWT Data...")
     # select the hardware threads
     hwt = df.loc[df['resource'] == 'HWT']
     # Convert the value to a number
@@ -51,48 +53,63 @@ def parseHWTData(df):
     return hwt_sum,hwt
 
 def parseGPUData(df):
+    print("GPU Data...")
+    # First, get JUST the GPU data.
+    gpu_only = df.loc[df['resource'] == 'GPU']
+    # Split the data into properties and metrics.
+    gpu_metrics,gpu_properties = [y for x, y in gpu_only.groupby('type')]
     # Find this:
     # "x1921c0s0b0n0",1,0,0,"GPU","Property","0","PCI Address","0000:18:00.0"
     # select the GPUs
-    gpu = df.loc[(df['resource'] == 'GPU') & (df['name'] == 'PCI Address')]
+    gpu = gpu_properties.loc[(gpu_properties['resource'] == 'GPU') & (gpu_properties['name'] == 'PCI Address')]
     if gpu.empty:
-        gpu = df.loc[(df['resource'] == 'GPU') & (df['name'] == 'Bus ID')]
+        gpu = gpu_properties.loc[(gpu_properties['resource'] == 'GPU') & (gpu_properties['name'] == 'Bus ID')]
     #print(gpu.to_string())
     addresses = {}
+    #print("getting device addresses...",gpu.size,"rows")
     for index, row in gpu.iterrows():
         #print(row['rank'], row['value'])
-        # our key is a list of two values, the MPI rank and the GPU index
+        # our key is a tuple of three values, hostname, the MPI rank and the GPU index
         addresses[(row['hostname'],row['rank'],row['index'])] = row['value'].lower()
     # Get the utilization data for each gpu
-    gpu = df.loc[(df['resource'] == 'GPU') & (df['name'].str.contains('L0 All Engines, subdevice'))]
+    gpu = gpu_metrics.loc[(gpu_metrics['name'].str.contains('L0 All Engines, subdevice'))]
+    print("")
     tiles = True
     scale = 100.0
     if gpu.empty:
-        gpu = df.loc[(df['resource'] == 'GPU') & (df['name'] == 'Utilization %')]
+        gpu = gpu_metrics.loc[(gpu_metrics['name'] == 'Utilization %')]
         tiles = False
         scale = 1.0
     if gpu.empty:
-        gpu = df.loc[(df['resource'] == 'GPU') & (df['name'] == 'Device Busy %')]
+        gpu = gpu_metrics.loc[(gpu_metrics['name'] == 'Device Busy %')]
         tiles = False
         scale = 1.0
 
     # Convert the value to a number
+    #print("scaling...",gpu.size,"rows")
     gpu['value'] = pd.to_numeric(gpu['value']) * scale
     # Group by everything except value to get the mean value
     mean_cols = ['value','step']
+    #print("grouping...",gpu.size,"rows")
     gpu_mean = gpu.groupby([c for c in gpu.columns if c not in mean_cols]).mean()
     # Reset indices
     gpu_mean.reset_index(inplace=True)
     #print(gpu_mean.to_string())
+    #print("getting device utilization...",gpu_mean.size,"rows")
     for index, row in gpu_mean.sort_values(by=['hostname','rank','name']).iterrows():
         subdevice = '0'
         if tiles:
             p = re.compile('L0 All Engines, subdevice (\d+), Active Time')
             subdevice = p.findall(row['name'])[0]
-        gpu_properties = df.loc[(df['resource'] == 'GPU') & (df['type'] == 'Property') & (df['rank'] == row['rank']) & (df['index'] == row['index']) & df['hostname'].str.fullmatch(row['hostname'])]
+        #print("getting device properties...",gpu_properties.size,"rows")
+        #print("This is the slow bit!")
+        gpu_properties2 = gpu_properties.loc[(gpu_properties['rank'] == row['rank']) & (gpu_properties['index'] == row['index'])]
+        gpu_properties3 = gpu_properties2.loc[(gpu_properties2['hostname'].str.fullmatch(row['hostname']))]
         properties = {}
-        for index2, row2 in gpu_properties.sort_values(by=['name']).iterrows():
+        #print("getting device properties...",gpu_properties3.size,"rows")
+        for index2, row2 in gpu_properties3.sort_values(by=['name']).iterrows():
             properties[row2['name']] = row2['value']
+        #print("getting device addresses...",row.size,"rows")
         addresses[(row['hostname'],row['rank'],row['index'])] = list((addresses[(row['hostname'],row['rank'],row['index'])], row['value'], subdevice, properties))
     #print(addresses)
     return addresses
@@ -118,11 +135,14 @@ def traverseHWTTree(tree, in_hostname, df, hwt_all, spinner):
             utilization = df.loc[(df['index'] == osindex) & (df['hostname'] == in_hostname), 'value'].iloc[0]
             rank = int(df.loc[(df['index'] == osindex) & (df['hostname'] == in_hostname), 'rank'].iloc[0])
             #print(osindex, utilization)
+            """ # Disabled for now - enable when we have time-slider in the hTML template
             # Get all metrics
             metrics = hwt_all['name'].unique().tolist()
+            partial_values = hwt_all.loc[(hwt_all['index'] == osindex) & (df['hostname'] == in_hostname)]
             for m in metrics:
-                values = hwt_all.loc[(hwt_all['index'] == osindex) & (df['hostname'] == in_hostname) & (hwt_all['name'] == m), 'value'].to_numpy().tolist()
+                values = partial_values.loc[(partial_values['name'] == m), 'value'].to_numpy().tolist()
                 tree[m] = values
+            """
     else:
         # otherwise, aggregate the children
         if 'children' in tree.keys():
