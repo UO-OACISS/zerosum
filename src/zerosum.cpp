@@ -124,15 +124,18 @@ void ZeroSum::threadedFunction(void) {
             pthread_kill(this->process.id, SIGQUIT);
         }
 #ifdef ZEROSUM_USE_ZEROMQ
-        // check for aggregation step
-        if (std::chrono::steady_clock::now() > then2) {
-            // do aggregation
-            std::string data{computeNode.toCSV(process.hwthreads,
-                process.rank, process.shmrank, lastStepWritten)};
-            data += process.toCSV(lastStepWritten);
-            int rc = writeToLocalAggregator(data);
-            // set a new expiration time
-            then2 = then2 + aggregatorPeriod;
+        static bool aggregating{parseBool("ZS_WRITE_TO_AGGREGATOR", false)};
+        if (aggregating) {
+            // check for aggregation step
+            if (std::chrono::steady_clock::now() > then2) {
+                // do aggregation
+                std::string data{computeNode.toCSV(process.hwthreads,
+                    process.rank, process.shmrank, lastStepWritten)};
+                data += process.toCSV(lastStepWritten);
+                int rc = writeToLocalAggregator(data);
+                // set a new expiration time
+                then2 = then2 + aggregatorPeriod;
+            }
         }
 #endif
     }
@@ -383,7 +386,10 @@ void ZeroSum::finalizeLog() {
     std::string data{computeNode.toCSV(process.hwthreads,
         process.rank, process.shmrank, lastStepWritten)};
     data += process.toCSV(lastStepWritten);
-    int rc = writeToLocalAggregator(data);
+    static bool aggregating{parseBool("ZS_WRITE_TO_AGGREGATOR", false)};
+    if (aggregating) {
+        int rc = writeToLocalAggregator(data);
+    }
 #endif
 }
 
