@@ -144,6 +144,10 @@ while (( "$#" )); do
       export ZS_MAP_PUS=1
       shift
       ;;
+    --zs:use-simon)
+      export ZS_WRITE_TO_AGGREGATOR=1
+      shift
+      ;;
     --zs:use-pid)
       export ZS_USE_PID=1
       shift
