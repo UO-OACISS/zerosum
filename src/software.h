@@ -101,7 +101,12 @@ public:
                 stat_fields[f.first].push_back("0");
             }
             stat_fields[f.first].push_back(f.second);
-
+            std::string tmpstr{"LWP_" + std::to_string(id) + ":" + f.first};
+	    // this can be a mix of metadata and measurements...
+	    // if it's not a number, handle the exception
+	    try{
+            PERFSTUBS_SAMPLE_COUNTER_SIMPLE(tmpstr.c_str(), stof(f.second));
+	    } catch (...) {}
         }
     }
     std::string strSub(std::string lhs, std::string rhs) {

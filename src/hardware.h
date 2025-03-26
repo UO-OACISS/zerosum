@@ -63,6 +63,8 @@ public:
                 stat_fields[f.first].push_back("0");
             }
             stat_fields[f.first].push_back(f.second);
+            std::string tmpstr{"HWT_" + std::to_string(id) + ":" + f.first};
+            PERFSTUBS_SAMPLE_COUNTER_SIMPLE(tmpstr.c_str(), stof(f.second));
         }
         steps.push_back(step);
     }
@@ -195,10 +197,8 @@ public:
                 stat_fields.insert(std::pair(f.first, v));
             }
             stat_fields[f.first].push_back(f.second);
-            /* CAn't do this here - the PerfStubs API expects a static object
-             * and we are reusing this as a generic call - not possible. */
-            //std::string tmpstr{timerPrefix + f.first};
-            //PERFSTUBS_SAMPLE_COUNTER(tmpstr.c_str(), stof(f.second));
+            std::string tmpstr{timerPrefix + f.first};
+            PERFSTUBS_SAMPLE_COUNTER_SIMPLE(tmpstr.c_str(), stof(f.second));
         }
         steps.push_back(step);
     }
