@@ -21,7 +21,7 @@ jobs:
       - run:
           name: Update submodules
           command: |
-            git submodule update --init --recursive --force 
+            mkdir -p build
       - run:
           name: "Configure"
           command: |
