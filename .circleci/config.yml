@@ -19,9 +19,9 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Create build directories
+          name: Update submodules
           command: |
-            mkdir -p build
+            git submodule update --init --recursive --force 
       - run:
           name: "Configure"
           command: |
