@@ -43,6 +43,7 @@
 #define PERFSTUBS_TIMER_START_FUNC(_timer)
 #define PERFSTUBS_TIMER_STOP_FUNC(_timer)
 #define PERFSTUBS_SAMPLE_COUNTER(_name, _value)
+#define PERFSTUBS_SAMPLE_COUNTER_SIMPLE(_name, _value)
 #define PERFSTUBS_METADATA(_name, _value)
 #define PERFSTUBS_SCOPED_TIMER(__name)
 #define PERFSTUBS_SCOPED_TIMER_FUNC()
