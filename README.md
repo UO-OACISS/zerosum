@@ -1,3 +1,5 @@
+Current CI status on develop branch : [![CircleCI](https://circleci.com/gh/UO-OACISS/zerosum.svg?style=svg)](https://circleci.com/gh/UO-OACISS/zerosum)
+
 # zerosum
 Utility for monitoring process, thread, OS and HW resources, including GPU utilization.
 Copyright (c) 2023-2025 University of Oregon, Kevin Huck. See [LICENSE](LICENSE) for details.
