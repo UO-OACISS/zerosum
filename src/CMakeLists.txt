@@ -25,6 +25,23 @@ set(ZS_USE_MPI "no")
 CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/src/zerosum
     ${PROJECT_BINARY_DIR}/bin/zerosum @ONLY)
 
+set(python_scripts
+    ctx.py
+    heatmap.all_in_one.py
+    heatmap.py
+    hwt.py
+    lwp.py
+    sparklines.py
+    time-series.py
+    trees.py
+    zs-stacks.py
+    )
+
+foreach(python_script ${python_scripts})
+    CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/src/post-processing/${python_script}
+        ${PROJECT_BINARY_DIR}/bin/${python_script} @ONLY)
+endforeach()
+
 if (ZeroSum_WITH_MPI)
     set(ZS_LIBNAME "libzerosum-mpi")
     set(ZS_USE_MPI "yes")
