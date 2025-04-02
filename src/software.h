@@ -500,6 +500,17 @@ public:
 
     std::string fieldsToCSV(uint32_t rank, uint32_t shmrank) {
         std::string tmpstr;
+        // write the environment
+        for (auto env : environment) {
+            tmpstr += "\"" + computeNode->name + "\",";
+            tmpstr += std::to_string(rank) + ",";
+            tmpstr += std::to_string(shmrank) + ",";
+            tmpstr += "0,";
+            tmpstr += "\"Node\",\"Property\",";
+            tmpstr += "\"0\",";
+            tmpstr += "\"" + env.first + "\",";
+            tmpstr += "\"" + env.second + "\"\n";
+        }
         // iterate over steps
         for (size_t i = 0 ; i < steps.size() ; i++) {
             // for each field...
@@ -515,7 +526,7 @@ public:
                 tmpstr += std::to_string(rank) + ",";
                 tmpstr += std::to_string(shmrank) + ",";
                 tmpstr += std::to_string(steps.at(i)) + ",";
-                tmpstr += "\"Node\",\"Property\",";
+                tmpstr += "\"Node\",\"Metric\",";
                 tmpstr += "\"0\",";
                 tmpstr += "\"" + f.first + "\",";
                 tmpstr += "\"" + value + "\"\n";
