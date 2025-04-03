@@ -64,10 +64,17 @@ void ScopedHWLOC::traverse(hwloc_obj_t obj, size_t indent) {
 
 std::string safe_obj_get_info(hwloc_obj_t obj) {
     std::string buffer;
+#if HWLOC_API_VERSION > 0x00020800
+    for(unsigned i=0; i<obj->infos.count; i++) {
+        struct hwloc_info_s *info = &obj->infos.array[i];
+        buffer += ", " + std::string(info->name) + ": " + std::string(info->value);
+    }
+#else
     for(unsigned i=0; i<obj->infos_count; i++) {
         struct hwloc_info_s *info = &obj->infos[i];
         buffer += ", " + std::string(info->name) + ": " + std::string(info->value);
     }
+#endif
     return buffer;
 }
 
@@ -164,6 +171,53 @@ std::string getDetailName(hwloc_obj_t obj) {
             }
             break;
         case HWLOC_OBJ_OS_DEVICE:
+#if HWLOC_API_VERSION >= 0x30000
+            if (obj->attr->osdev.types & HWLOC_OBJ_OSDEV_STORAGE) {
+                /**< \brief Operating system storage device (e.g. block).
+                  * For instance "sda" or "pmem0" on Linux,
+                  * or "dax0.0" if backed by non-volatile memory
+                  * (may be combined with ::HWLOC_OBJ_OSDEV_MEMORY).
+                  * \hideinitializer */
+                    snprintf(tmpstr, 1024, "storage ");
+            }
+            if (obj->attr->osdev.types & HWLOC_OBJ_OSDEV_MEMORY) {
+                /**< \brief Operating system memory device.
+                  * For instance "dax2.0" on Linux,
+                  * either for normal DRAM when not exposed as a NUMA node (e.g. CXL),
+                  * special-purpose memory (SPM), high-bandwidth memory (HBM),
+                  * or non-volatile memory (may be combined with ::HWLOC_OBJ_OSDEV_STORAGE).
+                  * \hideinitializer */
+                    snprintf(tmpstr, 1024, "memory ");
+            }
+            if (obj->attr->osdev.types & HWLOC_OBJ_OSDEV_GPU) {
+                /**< \brief Operating system GPU device.
+                  * For instance ":0.0" for a GL display,
+                  * "card0" for a Linux DRM device. */
+                    snprintf(tmpstr, 1024, "GPU ");
+            }
+            if (obj->attr->osdev.types & HWLOC_OBJ_OSDEV_COPROC) {
+                /**< \brief Operating system co-processor device.
+                  * For instance "opencl0d0" for a OpenCL device,
+                  * "cuda0" for a CUDA device. */
+                    snprintf(tmpstr, 1024, "Co-processor ");
+            }
+            if (obj->attr->osdev.types & HWLOC_OBJ_OSDEV_NETWORK) {
+                /**< \brief Operating system network device.
+                  * For instance the "eth0" interface on Linux. */
+                    snprintf(tmpstr, 1024, "Network ");
+            }
+            if (obj->attr->osdev.types & HWLOC_OBJ_OSDEV_OPENFABRICS) {
+                /**< \brief Operating system openfabrics device.
+                  * For instance the "mlx4_0" InfiniBand HCA,
+                  * or "hfi1_0" Omni-Path interface on Linux. */
+                    snprintf(tmpstr, 1024, "OpenFabric ");
+            }
+            if (obj->attr->osdev.types & HWLOC_OBJ_OSDEV_DMA) {
+                /**< \brief Operating system dma engine device.
+                  * For instance the "dma0chan0" DMA channel on Linux. */
+                    snprintf(tmpstr, 1024, "DMA ");
+            }
+#else
             switch (obj->attr->osdev.type) {
                 case HWLOC_OBJ_OSDEV_BLOCK:
                 /**< \brief Operating system block device, or non-volatile memory device.
@@ -202,6 +256,7 @@ std::string getDetailName(hwloc_obj_t obj) {
                     snprintf(tmpstr, 1024, "type unknown");
                     break;
             }
+#endif
             buffer += tmpstr;
             break;
         case HWLOC_OBJ_PACKAGE:
