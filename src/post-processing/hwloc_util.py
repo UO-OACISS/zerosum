@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 # MIT License
 #
@@ -21,8 +23,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 """
-
-#!/usr/bin/env python3
 
 import json
 import pandas as pd
@@ -277,6 +277,7 @@ def main():
     print("Updating JSON tree (may take some time)...")
     tree = updateTree(hwt_df, hwt_all, gpu_addresses)
     print("Writing HTML...")
+    outfile="zs-topology.html"
     if args.standalone:
         with open(standalone_template,'r') as file:
             populate_me = file.read()
@@ -285,7 +286,7 @@ def main():
         java_as_string = json.dumps(tree)
         from string import Template
         s = Template(populate_me)
-        with open('zs-topology.html', 'w') as fp:
+        with open(outfile, 'w') as fp:
             fp.write(s.substitute(JSONDATA=java_as_string, SCRIPT_TEXT=javascript))
 
     else:
@@ -296,8 +297,9 @@ def main():
         java_as_string = json.dumps(tree)
         from string import Template
         s = Template(populate_me)
-        with open('zs-topology.html', 'w') as fp:
+        with open(outfile, 'w') as fp:
             fp.write(s.substitute(JSONDATA=java_as_string))
+    os.chmod(outfile, 0o666)
 
 if __name__ == '__main__':
     main()

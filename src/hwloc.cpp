@@ -64,7 +64,7 @@ void ScopedHWLOC::traverse(hwloc_obj_t obj, size_t indent) {
 
 std::string safe_obj_get_info(hwloc_obj_t obj) {
     std::string buffer;
-#if HWLOC_API_VERSION > 0x00020800
+#if HWLOC_API_VERSION >= 0x00030000
     for(unsigned i=0; i<obj->infos.count; i++) {
         struct hwloc_info_s *info = &obj->infos.array[i];
         buffer += ", " + std::string(info->name) + ": " + std::string(info->value);

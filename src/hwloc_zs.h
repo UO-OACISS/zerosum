@@ -51,13 +51,22 @@ public:
     static std::map<size_t, size_t>& getHWTMap();
     static void validate_hwloc(int shmrank);
     ScopedHWLOC(void) {
+        unsigned version = hwloc_get_api_version();
+        if ((version >> 16) != (HWLOC_API_VERSION >> 16)) {
+            fprintf(stderr,
+                "ZeroSum compiled for hwloc API 0x%x but running on library API 0x%x.\n"
+                "You may need to point LD_LIBRARY_PATH to the right hwloc library.\n"
+                "Aborting since the new ABI is not backward compatible.\n",
+                HWLOC_API_VERSION, version);
+            exit(EXIT_FAILURE);
+        }
         hwloc_topology_init(&topo);
         unsigned long flags = hwloc_topology_get_flags(topo);
         //std::cout << "Flags before: " << flags << std::endl;
         flags = flags | HWLOC_TOPOLOGY_FLAG_INCLUDE_DISALLOWED;
         //std::cout << "Flags after: " << flags << std::endl;
         hwloc_topology_set_flags(topo, flags);
-        //hwloc_topology_set_all_types_filter(topo, HWLOC_TYPE_FILTER_KEEP_ALL);
+        hwloc_topology_set_all_types_filter(topo, HWLOC_TYPE_FILTER_KEEP_ALL);
         hwloc_topology_set_io_types_filter(topo, HWLOC_TYPE_FILTER_KEEP_IMPORTANT);
 	    hwloc_topology_load(topo);
         root = hwloc_get_root_obj(topo);
