@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 University of Oregon, Kevin Huck
+ * Copyright (c) 2023-2025 University of Oregon, Kevin Huck
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -101,7 +101,12 @@ public:
                 stat_fields[f.first].push_back("0");
             }
             stat_fields[f.first].push_back(f.second);
-
+            std::string tmpstr{"LWP_" + std::to_string(id) + ":" + f.first};
+	    // this can be a mix of metadata and measurements...
+	    // if it's not a number, handle the exception
+	    try{
+            PERFSTUBS_SAMPLE_COUNTER_SIMPLE(tmpstr.c_str(), stof(f.second));
+	    } catch (...) {}
         }
     }
     std::string strSub(std::string lhs, std::string rhs) {
@@ -497,6 +502,17 @@ public:
     std::string fieldsToCSV(uint32_t rank, uint32_t shmrank,
         size_t& i) {
         std::string tmpstr;
+        // write the environment
+        for (auto env : environment) {
+            tmpstr += "\"" + computeNode->name + "\",";
+            tmpstr += std::to_string(rank) + ",";
+            tmpstr += std::to_string(shmrank) + ",";
+            tmpstr += "0,";
+            tmpstr += "\"Node\",\"Property\",";
+            tmpstr += "\"0\",";
+            tmpstr += "\"" + env.first + "\",";
+            tmpstr += "\"" + env.second + "\"\n";
+        }
         // iterate over steps
         for ( ; i < steps.size() ; i++) {
             // for each field...

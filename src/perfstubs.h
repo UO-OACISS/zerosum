@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 University of Oregon, Kevin Huck
+ * Copyright (c) 2023-2025 University of Oregon, Kevin Huck
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,6 +43,7 @@
 #define PERFSTUBS_TIMER_START_FUNC(_timer)
 #define PERFSTUBS_TIMER_STOP_FUNC(_timer)
 #define PERFSTUBS_SAMPLE_COUNTER(_name, _value)
+#define PERFSTUBS_SAMPLE_COUNTER_SIMPLE(_name, _value)
 #define PERFSTUBS_METADATA(_name, _value)
 #define PERFSTUBS_SCOPED_TIMER(__name)
 #define PERFSTUBS_SCOPED_TIMER_FUNC()

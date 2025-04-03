@@ -160,10 +160,6 @@ def parseFile(f, rank):
         elif (ingpu or inhwt) and line.find(avg) != -1:
             # remove the average
             line = line[:line.find(avg)]
-            line = line.replace('Amps:','Amps')
-            line = line.replace('In:','In')
-            line = line.replace('Power:','Power')
-            line = line.replace('Temp:','Temp')
             # get the name of the metric, and remove it
             name = line[:line.find(':')]
             if name != 'step':
@@ -174,6 +170,8 @@ def parseFile(f, rank):
             if max(list(row)) == 0:
                 continue
             df2 = pd.DataFrame({name:pd.Series(list(row))})
+            if 'Energy' in name:
+                df2[name] *= 15.3
             if name == 'step':
                 saved_step = df2
             if first:
@@ -194,8 +192,6 @@ def parseFile(f, rank):
             if not re.search(r'\d', line):
                 continue
             row = ast.literal_eval(line)
-            if not isinstance(row,list):
-                continue
             if max(list(row)) == 0:
                 continue
             df2 = pd.DataFrame({name:pd.Series(list(row))})

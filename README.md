@@ -1,5 +1,8 @@
+Current CI status on develop branch : [![CircleCI](https://circleci.com/gh/UO-OACISS/zerosum.svg?style=svg)](https://circleci.com/gh/UO-OACISS/zerosum)
+
 # zerosum
 Utility for monitoring process, thread, OS and HW resources, including GPU utilization.
+Copyright (c) 2023-2025 University of Oregon, Kevin Huck. See [LICENSE](LICENSE) for details.
 
 ![Example sunburst plot from a one node run on Sunspot (ALCF).](./doc/sunburst.png)
 <i>Above: Example sunburst plot from a one node run on Sunspot (ALCF).</i>
@@ -13,8 +16,9 @@ Current CI status on develop branch : [![CircleCI](https://circleci.com/gh/UO-OA
 Inspired by [Tom Pappatheodore's Hello jsrun code for testing layout of Summit resources](https://code.ornl.gov/t4p/Hello_jsrun), and further inspired by Dagstuhl seminar 23171: ["Driving HPC Operations With Holistic Monitoring and Operational Data Analytics"](https://www.dagstuhl.de/en/seminars/seminar-calendar/seminar-details/23171)
 
 [HUST 2023 Publication](https://dl.acm.org/doi/abs/10.1145/3624062.3624145) - 11th International Workshop on HPC User Support Tools @SC23, 2023
+[PDF](https://home.nic.uoregon.edu/~khuck/zerosum/3624062.3624145.pdf)
 
-[HUST 2023 Presentation](http://www.nic.uoregon.edu/~khuck/zerosum/2023-HUST-ZeroSum.pdf) - 11th International Workshop on HPC User Support Tools @SC23, 2023
+[HUST 2023 Presentation](https://home.nic.uoregon.edu/~khuck/zerosum/2023-HUST-ZeroSum.pdf) - 11th International Workshop on HPC User Support Tools @SC23, 2023
 
 [Scalable Tools Workshop 2024 Presentation](https://dyninst.github.io/scalable_tools_workshop/petascale2024/monday.html) - Scalable Tools Workshop, Lake Tahoe, CA August 12, 2024
 
