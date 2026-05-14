@@ -37,6 +37,7 @@ option (ZeroSum_WITH_OPENMP "Enable OpenMP support" TRUE)
 option (ZeroSum_WITH_OMPT "Enable OpenMP Tools support" TRUE)
 option (ZeroSum_WITH_ZEROMQ "Enable ZeroMQ support" TRUE)
 option (ZeroSum_NPROC "Max number of cores to bind to for tests" 8)
+option (ZeroSum_BUILD_EXAMPLES "Build example programs" ON)
 
 string (REPLACE ":" " " MY_PATH_STR $ENV{PATH})
 #set(CMAKE_FIND_DEBUG_MODE ON)
@@ -198,7 +199,9 @@ endif()
 
 add_subdirectory(src)
 add_subdirectory(src/post-processing)
-add_subdirectory(examples)
+if(ZeroSum_BUILD_EXAMPLES)
+        add_subdirectory(examples)
+endif()
 
 function(dump_cmake_variables)
     get_cmake_property(_variableNames VARIABLES)
